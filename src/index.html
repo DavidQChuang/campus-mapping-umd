@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMD Campus Mapping</title>
+
+    <!--style-->
+    <link rel="stylesheet" href="style.css" />
+
+    <!--lib-->
+    <script
+        src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
+    <script src="lib/GPXParser.js"></script>
+
+    <!--Mapbox-->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.2/mapbox-gl-draw.js'></script>
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.2/mapbox-gl-draw.css' type='text/css' />
+</head>
+<body>
+    <div class="content">
+        <div id='map'></div>
+        <div class="controls">
+            <b>Controls</b>
+            <div>
+                <label>
+                    <span>Load GPX Route</span>
+                    <input type="file" accept=".gpx" id="gpx-selector">
+                    <button onclick="loadRoute(this, getPointsFromGPX)" for="gpx-selector">Load</button>
+                </label>
+            </div>
+            <div>
+                <label>
+                    <span>Load JSON Route</span>
+                    <input type="file" accept=".json" id="json-selector">
+                    <button onclick="loadJson(this, getPointsFromJSON)" for="json-selector">Load</button>
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="header content">
+        <div class="text">
+            <img src="res/umd-logo.svg" class="umd-logo" height="50px" alt="umd logo">
+            <h3 class="umd-title">FIRE:  THE UMD</h2>
+            <h2 class="umd-title">CAMPUS MAPPING</h1>
+            <h2 class="umd-title">EXPERIENCE</h1>
+        </div>
+    </div>
+    <script src="mapbox.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

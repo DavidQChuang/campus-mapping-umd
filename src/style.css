@@ -1,0 +1,49 @@
+@font-face {
+    font-family: 'Bembo';
+    src: url('res/Bembo.ttf') format('truetype'); /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
+}  
+
+.umd-title {
+    font-family: 'Bembo';
+    margin: 0;
+} 
+
+#map {
+    min-width: 400px;
+    width: 80%;
+    height: 600px;
+    flex-grow: 1;
+}
+
+.umd-logo {
+    padding: 5px;
+}
+
+.header {
+    text-align: center;
+    align-items: center;
+}
+
+.content {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    column-gap: 5px;
+    /* flex-wrap: wrap; */
+}
+
+.controls {
+    min-width: 200px;
+    background: lightgray;
+    padding: 5px;
+    border-radius: 5px;
+    flex-direction: column;
+    row-gap: 2px;
+    display: flex;
+}
+
+.controls > div {
+    background: grey;
+    border-radius: 5px;
+    padding:5px;
+}
