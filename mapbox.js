@@ -53,7 +53,6 @@ map.addControl(Geocoder);
 var Draw = new MapboxDraw();
 map.addControl(Draw, 'top-left');
 
-
 //https://docs.mapbox.com/mapbox-gl-js/example/mouse-position/
 map.on('mousemove', (e) => {
     document.getElementById('info').innerHTML =
