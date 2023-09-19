@@ -22,6 +22,21 @@ body {
     flex-grow: 2;
 }
 
+#info {
+    display: table;
+    position: relative;
+    margin: 0px auto;
+    word-wrap: anywhere;
+    white-space: pre-wrap;
+    padding: 10px;
+    border: none;
+    border-radius: 3px;
+    font-size: 12px;
+    text-align: center;
+    color: #222;
+    background: #fff;
+}
+
 .umd-logo {
     padding: 5px;
 }
@@ -47,6 +62,7 @@ body {
     flex-direction: column;
     row-gap: 2px;
     display: flex;
+    width:30%;
 }
 
 .controls>div {

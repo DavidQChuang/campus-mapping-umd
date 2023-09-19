@@ -2,27 +2,35 @@
 // var gpxLoadBtn = $("#gpx-load-btn");
 var reader = new FileReader();
 
-async function loadRoute(self, parser) {
+/// Loads a route from a file in an HTML file input
+/// using the given parser to parse the file data.
+/// This function should be called from an HTML file input:
+/// <input type="file" onclick="loadRouteOnclick(this, getPointsFrom___)">
+async function loadRouteOnclick(self, parser) {
     console.log(self.attributes.for.value);
     var gpxSelector = $("#" + self.attributes.for.value);
     var files = gpxSelector.prop('files');
 
     if(files.length > 0) {
-        var coords = parser(await files[0].text());
-        var feature = {
-            id: 'gpx-route',
-            type: 'Feature',
-            properties: {},
-            geometry: {
-                type: 'LineString',
-                coordinates: coords
-            }
-        };
-
-        Draw.add(feature);
+        drawRoute(parser(await files[0].text()))
     } else {
         console.log("No files");
     }
+}
+
+/// Loads a route from an array of coords: [[long,lat], ...]
+function drawRoute(coords) {
+    var feature = {
+        id: 'gpx-route',
+        type: 'Feature',
+        properties: {},
+        geometry: {
+            type: 'LineString',
+            coordinates: coords
+        }
+    };
+
+    Draw.add(feature);
 }
 
 function getPointsFromGPX(text) {

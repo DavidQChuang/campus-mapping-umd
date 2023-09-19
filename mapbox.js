@@ -45,10 +45,21 @@ var Geocoder = new MapboxGeocoder({
         38.9809736,
         -76.9308907,
         39.0001878
-        ]
+    ],
+
 });
 map.addControl(Geocoder);
 
-
 var Draw = new MapboxDraw();
 map.addControl(Draw, 'top-left');
+
+
+//https://docs.mapbox.com/mapbox-gl-js/example/mouse-position/
+map.on('mousemove', (e) => {
+    document.getElementById('info').innerHTML =
+    // `e.point` is the x, y coordinates of the `mousemove` event
+    // relative to the top-left corner of the map.
+    '[long, lat]:<br/>' +
+    // `e.lngLat` is the longitude, latitude geographical position of the event.
+    '[' + e.lngLat["lng"] + ', ' + e.lngLat["lat"] + "]";
+});

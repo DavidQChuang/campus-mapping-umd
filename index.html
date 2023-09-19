@@ -30,26 +30,49 @@
         <div class="controls">
             <span><b>Controls</b></span>
             <div>
+                <pre id="info"></pre>
+            </div>
+            <div>
                 <div>
                     <span class="tooltip">
                         Load GPX Route
-                        <span class="tooltiptext">Loads a route from a .gpx file from WayLog or another GPS logging app, then draws it on the map.</span>
+                        <span class="tooltiptext">
+                            Loads a route from a .gpx file from WayLog or another GPS logging app,
+                            then draws it on the map.
+                        </span>
                     </span>
                 </div>
                 <label>
                     <input type="file" accept=".gpx" id="gpx-selector">
-                    <button onclick="loadRoute(this, getPointsFromGPX)" for="gpx-selector">Load</button>
+                    <button onclick="loadRouteOnclick(this, getPointsFromGPX)" for="gpx-selector">Load</button>
                 </label>
             </div>
             <div>
                 <div>
                     <span class="tooltip">
                         Load JSON Route
-                        <span class="tooltiptext">Loads a route from a .json file. The file should contain only an array of [long,lat] coordinates: e.g. something like this: [[1,2],[1.1,2.1]]</span>
+                        <span class="tooltiptext">
+                            Loads a route from a .json file,
+                            then draws it on the map.
+                            The file should contain only an array of [long,lat] coordinates:
+                            e.g. something like this: [[1,2],[1.1,2.1]]
+                        </span>
                     </span>
                 </div>
                 <label>
                     <input type="file" accept=".json" id="json-selector">
+                    <button onclick="loadRouteOnclick(this, getPointsFromJSON)" for="json-selector">Load</button>
+                </label>
+            </div>
+            <div>
+                <div>
+                    <span class="tooltip">
+                        Pathfind (A*)
+                        <span class="tooltiptext"></span>
+                    </span>
+                </div>
+                <label>
+                    <input type="number" accept=".json" id="json-selector">
                     <button onclick="loadJson(this, getPointsFromJSON)" for="json-selector">Load</button>
                 </label>
             </div>
