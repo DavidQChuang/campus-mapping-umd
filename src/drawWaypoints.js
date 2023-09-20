@@ -1,10 +1,9 @@
 Waypoints = {
     coordinates: [],
     addWaypoint(waypoint) {
-        console.log(this)
         this.coordinates.push(waypoint);
         if(this.coordinates.length > 2) {
-            this.coordinates.splice(0, 1);
+            this.coordinates.splice(0, 2);
         }
     },
     getWaypoints() {
@@ -68,17 +67,25 @@ function addWaypoint(waypoint) {
                 }
             });
         } else {
+            map.setLayoutProperty('user-waypoints-path', 'visibility', 'visible');
             map.getSource('user-waypoints-path').setData(Waypoints.lineFeature());
         }
+    } else {
+        map.setLayoutProperty('user-waypoints-path', 'visibility', 'none');
     }
 }
 
 function drawWaypointRoute() {
+    if(Waypoints.getWaypoints().length != 2) {
+        return;
+    }
 
+    console.log(map);
 }
 
 map.on('click', (e) => {
     addWaypoint([e.lngLat["lng"], e.lngLat["lat"]]);
     document.getElementById('waypoints-display').innerHTML = 
+    "Waypoints:<br>" +
     JSON.stringify(Waypoints.getWaypoints())
 });
