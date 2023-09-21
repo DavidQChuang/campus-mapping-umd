@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cd "$(dirname "$0")"
+cd ../
+
+npm list -g osmtogeojson || npm install -g osmtogeojson
+npm list -g json-minify || npm install -g json-minify
+
+osmtogeojson res/map.osm > res/map-raw.geojson
+
+json-minify res/map-raw.geojson > res/map-raw.min.geojson
+json-minify res/footpaths.geojson > res/footpaths.min.geojson
