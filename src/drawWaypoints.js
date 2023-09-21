@@ -4,7 +4,7 @@ Waypoints = {
     pathRoute: [],
     addWaypoint(waypoint) {
         this.userEndpoints.push(waypoint);
-        this.pathEndpoints.push()
+        this.pathEndpoints.push();
 
         if(this.userEndpoints.length > 2) {
             this.userEndpoints.splice(0, 2);
