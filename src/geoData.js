@@ -21,7 +21,7 @@ var GeoData = {
             y: this.bbox[0][1],
             width: this.bbox[1][0] - this.bbox[0][0],
             height: this.bbox[1][1] - this.bbox[0][1]
-        }, 10, 20);
+        }, 10, 10);
 
         var start = new Date();
 
@@ -74,17 +74,18 @@ var GeoData = {
         console.log("Drew " + coords.length + " rects.");
         Draw.add(feature);
     },
-    drawQuadtreeRecursive: function(node, coords) {
+    drawQuadtreeRecursive: function(node, coords, includeObjects) {
         if (node == undefined) return;
 
         //no subnodes? draw the current node 
         if(node.nodes.length === 0) {
-            console.log(node.objects.length + " objects");
             coords.push([polygonFromQuad(node.bounds)]);
-            for(var obj of node.objects) {
-                coords.push([polygonFromQuad(obj)]);
-            }
 
+            if(includeObjects){
+                for(var obj of node.objects) {
+                    coords.push([polygonFromQuad(obj)]);
+                }
+            }
         //has subnodes? drawQuadtree them!
         } else {
             for(var i=0;i<node.nodes.length;i=i+1) {
