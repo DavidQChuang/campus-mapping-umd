@@ -16,6 +16,7 @@
         crossorigin="anonymous"></script>
     <script src="lib/GPXParser.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@timohausmann/quadtree-js/quadtree.min.js"></script>
 
     <!--Mapbox-->
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
@@ -24,6 +25,7 @@
     <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
     <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.2/mapbox-gl-draw.js'></script>
     <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.2/mapbox-gl-draw.css' type='text/css' />
+    <script src="lib/mapbox-draw-static-mode.js"></script>
 </head>
 <body>
     <div class="content">
@@ -77,6 +79,17 @@
                     <button onclick="drawWaypointRoute()" for="json-selector">Path</button>
                 </label>
             </div>
+            <div>
+                <div>
+                    <span class="tooltip">
+                        Debug
+                        <span class="tooltiptext"></span>
+                    </span>
+                </div>
+                <label>
+                    <button onclick="GeoData.drawQuadtree(GeoData.footpathsQuadtree);">Draw Footpaths Quadtree</button>
+                </label>
+            </div>
         </div>
     </div>
     <div class="header content">
@@ -87,7 +100,9 @@
             <h2 class="umd-title">EXPERIENCE</h1>
         </div>
     </div>
+    <script src="src/styles.js"></script>
     <script src="mapbox.js"></script>
+    <script src="src/geoData.js"></script>
     <script src="src/drawRoute.js"></script>
     <script src="src/drawWaypoints.js"></script>
 </body>
