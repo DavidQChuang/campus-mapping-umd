@@ -39,7 +39,7 @@ const Layers = {
         'type': 'circle',
         'source': 'path-endpoints',
         'paint': {
-            'circle-color': '#294680',
+            'circle-color': '#ff4680',
             'circle-radius': 8
         }
     },

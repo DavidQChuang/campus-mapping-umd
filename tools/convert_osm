@@ -10,3 +10,4 @@ osmtogeojson res/map.osm > res/map-raw.geojson
 
 json-minify res/map-raw.geojson > res/map-raw.min.geojson
 json-minify res/footpaths.geojson > res/footpaths.min.geojson
+json-minify res/export.geojson > res/export.min.geojson

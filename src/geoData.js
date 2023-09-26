@@ -1,3 +1,13 @@
+function polygonFromQuad(quadObj) {
+    return [
+        [quadObj.x, quadObj.y],
+        [quadObj.x + quadObj.width, quadObj.y],
+        [quadObj.x + quadObj.width, quadObj.y + quadObj.height],
+        [quadObj.x, quadObj.y + quadObj.height],
+        [quadObj.x, quadObj.y]
+    ]
+}
+
 var GeoData = {
     bbox: [[-76.9599, 38.9962], [-76.9295, 38.9795]],
     footpaths: {},
@@ -19,11 +29,10 @@ var GeoData = {
         var features = footpaths['features'];
         console.log("Loading " + features.length + " features");
         for (var feature of features) {
-            var geometry = feature['geometry'];
-
-            for (var element of geometry['coordinates']) {
+            for (var element of feature.geometry.coordinates) {
                 // is array of points
-                if (Array.isArray(element)) {
+                if (Array.isArray(element[0])) {
+                    console.log("Inserting " + element.length + " elements");
                     for (var point of element) {
                         this.footpathsQuadtree.insert({
                             x: point[0],
@@ -47,8 +56,6 @@ var GeoData = {
             }
             i++;
         }
-        console.log(this.footpathsQuadtree)
-
         console.log("Loaded footpaths quadtree in " + (new Date() - start) + "ms");
     },
     drawQuadtree: function(node) {
@@ -72,21 +79,10 @@ var GeoData = {
 
         //no subnodes? draw the current node 
         if(node.nodes.length === 0) {
-            coords.push([[
-                [node.bounds.x, node.bounds.y],
-                [node.bounds.x + node.bounds.width, node.bounds.y],
-                [node.bounds.x + node.bounds.width, node.bounds.y + node.bounds.height],
-                [node.bounds.x, node.bounds.y + node.bounds.height],
-                [node.bounds.x, node.bounds.y]
-            ]]);
+            console.log(node.objects.length + " objects");
+            coords.push([polygonFromQuad(node.bounds)]);
             for(var obj of node.objects) {
-                coords.push([[
-                    [obj.x, obj.y],
-                    [obj.x + obj.width, obj.y],
-                    [obj.x + obj.width, obj.y + obj.height],
-                    [obj.x, obj.y + obj.height],
-                    [obj.x, obj.y]
-                ]]);
+                coords.push([polygonFromQuad(obj)]);
             }
 
         //has subnodes? drawQuadtree them!
@@ -101,7 +97,7 @@ var GeoData = {
             x: point[0],
             y: point[1],
             width: 0.01,
-            height:0.01
+            height: 0.08
         });
 
         if(!candidates || candidates.length == 0) {
@@ -127,18 +123,18 @@ var GeoData = {
     
 // Load GeoData
 (async () => {
-    GeoData.setFootpaths(await fetch('./res/footpaths.geojson').then(response => json = response.json()));
+    GeoData.setFootpaths(await fetch('./res/export.min.geojson').then(response => json = response.json()));
 })();
 
 map.on('mousemove', (e) => {
-    var candidates = GeoData.footpathsQuadtree.retrieve({
-        x: e.lngLat["lng"],
-        y: e.lngLat['lat'],
-        width: 0.01,
-        height:0.01
-    });
+    var quad = {
+        x: e.lngLat["lng"] - 0.0005,
+        y: e.lngLat['lat'] - 0.0004,
+        width: 0.001,
+        height:0.0008
+    };
 
-    
+    var candidates = GeoData.footpathsQuadtree.retrieve(quad);
     var feature = {
         id: 'points',
         type: 'Feature',
@@ -150,4 +146,16 @@ map.on('mousemove', (e) => {
     };
     
     Draw.add(feature);
+    
+    var feature2 = {
+        id: 'points2',
+        type: 'Feature',
+        properties: {},
+        geometry: {
+            type: 'Polygon',
+            coordinates: [polygonFromQuad(quad)]
+        }
+    };
+    
+    Draw.add(feature2);
 });
