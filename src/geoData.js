@@ -11,11 +11,13 @@ function polygonFromQuad(quadObj) {
 var GeoData = {
     bbox: [[-76.9599, 38.9962], [-76.9295, 38.9795]],
     footpaths: {},
+    nodes: {},
     footpathsQuadtree: undefined,
-
+    
     getFootpaths: () => this.footpaths,
-    setFootpaths(footpaths) {
-        this.footpaths = footpaths;
+    setFootpaths(json) {
+        this.footpaths = {};
+        this.nodes = {};
         this.footpathsQuadtree = new Quadtree({
             x: this.bbox[0][0],
             y: this.bbox[0][1],
@@ -26,37 +28,53 @@ var GeoData = {
         var start = new Date();
 
         var i = 0;
-        var features = footpaths['features'];
+        var features = json['elements'];
+        console.log(json);
         console.log("Loading " + features.length + " features");
         for (var feature of features) {
-            for (var element of feature.geometry.coordinates) {
-                // is array of points
-                if (Array.isArray(element[0])) {
-                    console.log("Inserting " + element.length + " elements");
-                    for (var point of element) {
-                        this.footpathsQuadtree.insert({
-                            x: point[0],
-                            y: point[1],
-                            width: 0.0001,
-                            height: 0.00008,
-                            feature: i
-                        });
+            if(feature.type === 'way') {
+                this.footpaths[feature.id] = feature;
+
+                for(var nodeId of feature.nodes) {
+                    if(nodeId in this.nodes) {
+                        // Add the ways to each node
+                        var node = this.nodes[nodeId];
+                        var ways = node.ways;
+
+                        if(ways == undefined) {
+                            node.ways = [];
+                        }
+                        node.ways.push(feature.id);
+                    } else {
+                        this.nodes[nodeId] = {
+                            ways: [feature.id]
+                        };
                     }
                 }
-                // is actual point
-                else {
-                    this.footpathsQuadtree.insert({
-                        x: element[0],
-                        y: element[1],
-                        width: 0.0001,
-                        height: 0.00008,
-                        feature: i
-                    });
+            } else if (feature.type === 'node') {
+                var ways = [];
+                if (feature.id in this.nodes) {
+                    ways = this.nodes[feature.id].ways;
                 }
+
+                this.nodes[feature.id] = feature;
+                this.nodes[feature.id].ways = ways;
+
+                this.footpathsQuadtree.insert({
+                    x: feature.lon,
+                    y: feature.lat,
+                    width: 0.0001,
+                    height: 0.00008,
+                    node: feature.id
+                });
             }
+            
             i++;
         }
+        console.log("Loaded " + Object.keys(this.nodes).length + " nodes and " + Object.keys(this.footpaths).length + " ways.");
         console.log("Loaded footpaths quadtree in " + (new Date() - start) + "ms");
+        console.log(this.nodes);
+        console.log( this.footpaths);
     },
     drawQuadtree: function(node) {
         var coords = [];
@@ -124,7 +142,9 @@ var GeoData = {
     
 // Load GeoData
 (async () => {
-    GeoData.setFootpaths(await fetch('./res/export.min.geojson').then(response => json = response.json()));
+    GeoData.setFootpaths(
+        await fetch('./res/footpaths.min.json').then(response => response.json()));
+    // GeoData.setFootpathsXml('./res/footpaths.osm');
 })();
 
 map.on('mousemove', (e) => {
