@@ -1,0 +1,20 @@
+/*
+This shows the cycleway and cycleroute network.
+highway is pedestrian, crossing, steps, path, footway, service
+ENGLISH
+*/
+
+[out:json];
+
+(
+  // get cycleways
+  way[highway=pedestrian]({{bbox}});
+  way[highway=crossing]({{bbox}});
+  way[highway=steps]({{bbox}});
+  way[highway=path]({{bbox}});
+  way[highway=footway]({{bbox}});
+);
+
+out body;
+>;
+out skel qt;
