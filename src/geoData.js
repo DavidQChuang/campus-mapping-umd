@@ -73,8 +73,8 @@ var GeoData = {
         }
         console.log("Loaded " + Object.keys(this.nodes).length + " nodes and " + Object.keys(this.footpaths).length + " ways.");
         console.log("Loaded footpaths quadtree in " + (new Date() - start) + "ms");
-        console.log(this.nodes);
-        console.log( this.footpaths);
+        // console.log(this.nodes);
+        // console.log( this.footpaths);
     },
     drawQuadtree: function(node) {
         var coords = [];
@@ -135,7 +135,7 @@ var GeoData = {
                     minNode = node;
                 }
             }
-            return [ minNode.x, minNode.y ];
+            return minNode;
         }
     }
 };
