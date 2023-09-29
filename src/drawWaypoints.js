@@ -149,11 +149,16 @@ function drawWaypointRoute() {
     }
 }
 
+function timeLogs(startTime, iters, tickSize) {
+    var time = new Date() - startTime;
+    return `${time}ms & ${iters} ticks, estimate: ${time - iters*tickSize}ms`;
+}
+
 async function pathfindAstar(start, goal, h) {
-    const tickRate = 50;
+    const tickSize = 50;
     const startTime = new Date();
     var infoLabel = document.getElementById('astar-path-info');
-    infoLabel.innerHTML = "Pathing @ " + tickRate + "ms/tick";
+    infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick";
     var cameFrom = {}
     
     // For node n,  gScore[n]: cost of cheapest path from start to n
@@ -192,12 +197,14 @@ async function pathfindAstar(start, goal, h) {
         return pathNodeIds;
     }
 
+    var iters = 0;
     while(openSet.length != 0) {
+        iters++;
         var curr = openSet.pop();
         // console.log("Checking node " + JSON.stringify(curr) + ", remaining: " + openSet.length);
 
         if(openSet.length > 250) {
-            infoLabel.innerHTML = `Failed in ${new Date() - startTime}ms; search was too large.`;
+            infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; search was too large.`;
             console.log("Too long.");
             return false;
         }
@@ -221,7 +228,7 @@ async function pathfindAstar(start, goal, h) {
         // This is the goal. Path back using cameFrom to create the path.
         if(curr.id == goal.id) {
             console.log("Found goal " + curr.id + " == " + goal.id);
-            infoLabel.innerHTML = `Success in ${new Date() - startTime}ms.`;
+            infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}.`;
             return getPath(curr);
         }
 
@@ -272,7 +279,7 @@ async function pathfindAstar(start, goal, h) {
         }
     }
     // Open set is empty but goal was never reached
-    infoLabel.innerHTML = `Failed in ${new Date() - startTime}ms; goal was never reached.`;
+    infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; goal was never reached.`;
     return false;
 }
 
