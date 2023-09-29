@@ -150,6 +150,10 @@ function drawWaypointRoute() {
 }
 
 async function pathfindAstar(start, goal, h) {
+    const tickRate = 50;
+    const startTime = new Date();
+    var infoLabel = document.getElementById('astar-path-info');
+    infoLabel.innerHTML = "Pathing @ " + tickRate + "ms/tick";
     var cameFrom = {}
     
     // For node n,  gScore[n]: cost of cheapest path from start to n
@@ -193,12 +197,15 @@ async function pathfindAstar(start, goal, h) {
         // console.log("Checking node " + JSON.stringify(curr) + ", remaining: " + openSet.length);
 
         if(openSet.length > 250) {
+            infoLabel.innerHTML = `Failed in ${new Date() - startTime}ms; search was too large.`;
             console.log("Too long.");
             return false;
         }
 
         // This is the goal. Path back using cameFrom to create the path.
         if(curr.id == goal.id) {
+            console.log("Found goal " + curr.id + " == " + goal.id);
+            infoLabel.innerHTML = `Success in ${new Date() - startTime}ms.`;
             return getPath(curr);
         }
 
@@ -239,7 +246,7 @@ async function pathfindAstar(start, goal, h) {
             }
         };
         Draw.add(feature);
-        await sleep(500);
+        await sleep(50);
 
         for(var neighborId of neighbors) {
             // d(current,neighbor) is the weight of the edge from current to neighbor
@@ -265,6 +272,7 @@ async function pathfindAstar(start, goal, h) {
         }
     }
     // Open set is empty but goal was never reached
+    infoLabel.innerHTML = `Failed in ${new Date() - startTime}ms; goal was never reached.`;
     return false;
 }
 
