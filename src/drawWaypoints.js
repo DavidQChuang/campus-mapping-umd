@@ -155,7 +155,7 @@ function timeLogs(startTime, iters, tickSize) {
 }
 
 async function pathfindAstar(start, goal, h) {
-    const tickSize = 50;
+    const tickSize = 10;
     const startTime = new Date();
     var infoLabel = document.getElementById('astar-path-info');
     infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick";
@@ -223,7 +223,7 @@ async function pathfindAstar(start, goal, h) {
             }
         };
         Draw.add(feature);
-        await sleep(50);
+        await sleep(tickSize);
 
         // This is the goal. Path back using cameFrom to create the path.
         if(curr.id == goal.id) {
