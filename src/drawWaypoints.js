@@ -202,6 +202,22 @@ async function pathfindAstar(start, goal, h) {
             return false;
         }
 
+        var path = getPath(curr);
+        var feature = {
+            id: 'gpx-route',
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: path.map(id => {
+                    var node = GeoData.nodes[id];
+                    return [ node.lon, node.lat ];
+                })
+            }
+        };
+        Draw.add(feature);
+        await sleep(50);
+
         // This is the goal. Path back using cameFrom to create the path.
         if(curr.id == goal.id) {
             console.log("Found goal " + curr.id + " == " + goal.id);
@@ -231,22 +247,6 @@ async function pathfindAstar(start, goal, h) {
             }
         }
         // console.log("  Found neighbors " + JSON.stringify(neighbors));
-
-        var path = getPath(curr);
-        var feature = {
-            id: 'gpx-route',
-            type: 'Feature',
-            properties: {},
-            geometry: {
-                type: 'LineString',
-                coordinates: path.map(id => {
-                    var node = GeoData.nodes[id];
-                    return [ node.lon, node.lat ];
-                })
-            }
-        };
-        Draw.add(feature);
-        await sleep(50);
 
         for(var neighborId of neighbors) {
             // d(current,neighbor) is the weight of the edge from current to neighbor
