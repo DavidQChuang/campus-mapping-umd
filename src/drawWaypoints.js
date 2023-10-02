@@ -161,6 +161,8 @@ function timeLogs(startTime, iters, tickSize) {
     return `${time}ms & ${iters} ticks, estimate: ${time - iters*tickSize}ms`;
 }
 
+
+
 ////////////////////////////////////////
 //       .o.          o    
 //      .888.      `8.8.8' 
@@ -313,114 +315,191 @@ async function pathfindDstar(start, goal, h) {
     const startTime = new Date();
     var infoLabel = document.getElementById('dstar-path-info');
     infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick";
-    var cameFrom = {}
-    
-    const getFScore = ((fScoreArr) => {
-                        return x => fScoreArr[x.id];
-                    })(fScore);
-    var openSet = new MinHeap(getFScore);
-    openSet.push(start);
 
-    const getPath = function(node) {
-        var pathNodeId = node.id;
-        var pathNodeIds = [];
-        while(pathNodeId != start.id) {
-            // console.log("Coming from " + pathNodeId +" to " + cameFrom[pathNodeId]);
+    // Initialize data structures
+    var openSet = new MinHeap((node) => node.key);
+    var cameFrom = {};  // Store the best-known predecessors
+    var gScore = {};    // Store the cost of the best-known path to a node
+    var rhsScore = {};  // Store the estimated cost of the second-best path
+    var km = 0;         // Key modification value
+    var converged = false;
 
-            pathNodeIds.push(pathNodeId);
-            pathNodeId = cameFrom[pathNodeId];
+    // Initialize goal node
+    rhsScore[goal.id] = 0;
+    const key = calculateKey(goal, gScore, rhsScore, km);
+    goal.key = key;
+    openSet.push(goal);
 
-            if(pathNodeId === undefined) {
-                console.log("Error")
-                throw new RangeError("Node path does not exist");
-            }
-        }
-        pathNodeIds.push(start.id);
-        return pathNodeIds;
+    // Helper function to calculate a node's key
+    function calculateKey(node, gScore, rhsScore, km) {
+        const g = gScore[node.id];
+        const rhs = rhsScore[node.id];
+        return [
+            Math.min(g, rhs) + h(node),  // Primary key
+            Math.min(g, rhs)            // Secondary key
+        ].map((value) => value + km);   // Apply key modification
     }
 
+    // Helper function to update a node's key
+    function updateKey(node) {
+        const key = calculateKey(node, gScore, rhsScore, km);
+        node.key = key;
+    }
+
+    // Main loop
     var iters = 0;
-    while(openSet.length != 0) {
+    while (!openSet.isEmpty()) {
         iters++;
-        var curr = openSet.pop();
-        // console.log("Checking node " + JSON.stringify(curr) + ", remaining: " + openSet.length);
+        const curr = openSet.pop();
 
-        if(openSet.length > 250) {
-            infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; search was too large.`;
-            console.log("Too long.");
-            return false;
-        }
-
-        var path = getPath(curr);
-        var feature = {
-            id: 'astar-route',
-            type: 'Feature',
-            properties: {},
-            geometry: {
-                type: 'LineString',
-                coordinates: path.map(id => {
-                    var node = GeoData.nodes[id];
-                    return [ node.lon, node.lat ];
-                })
-            }
-        };
-        Draw.add(feature);
-        await sleep(tickSize);
-
-        // This is the goal. Path back using cameFrom to create the path.
-        if(curr.id == goal.id) {
-            console.log("Found goal " + curr.id + " == " + goal.id);
+        if (curr.id == start.id) {
+            // Start node reached, reconstruct and return path
+            const path = reconstructPath(start, goal, cameFrom);
             infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}.`;
-            return getPath(curr);
+            return path;
         }
 
-        // Find neighbors by looking for adjacent nodes in ways.
-        var neighbors = []
-        for(var wayId of curr.ways) {
-            var way = GeoData.footpaths[wayId];
+        // Update gScore, rhsScore, and keys for current node
+        // ...
+        const newGScore = calculateNewGScore(curr, cameFrom, gScore);
+        gScore[curr.id] = newGScore;
 
-            if(way === undefined)
-                console.log("Error: way " + wayId + " not found.", curr);
+        // Update rhsScore for the current node
+        const newRhsScore = calculateNewRhsScore(curr, cameFrom, gScore, rhsScore);
+        rhsScore[curr.id] = newRhsScore;
 
-            // console.log("  Found way " + wayId, way)
-            // Push adjacent nodes in way
-            for(var i = 0; i < way.nodes.length; i++) {
-                if(way.nodes[i] == curr.id) {
-                    // console.log("    Found original node. Pushing: " + way.nodes[i-1] + ", " + way.nodes[i+1] );
-                    if(i-1 >= 0)
-                        neighbors.push(way.nodes[i-1]);
-                    if(i+1 < way.nodes.length)
-                        neighbors.push(way.nodes[i+1]);
-                    break;
-                }
-            }
+        // Update the node's key
+        updateKey(curr);
+
+        // Define your graph as a dictionary of nodes and their neighbors
+        const graph = {
+        node1: { neighbors: ['node2', 'node3'], /* other properties */ },
+        node2: { neighbors: ['node1', 'node3'], /* other properties */ },
+        node3: { neighbors: ['node1', 'node2'], /* other properties */ },
+    // Add more nodes and their neighbors as needed
+        };
+
+// Calculate the cost of moving from one node to another (customize this based on your problem)
+       function calculateCost(node1, node2) {
+    // For simplicity, let's assume each edge has a fixed cost of 1.
+    return 1;
+       }
+
+// Calculate the new gScore for a node based on the best-known path.
+      function calculateNewGScore(nodeId, cameFrom, gScore) {
+          if (nodeId === startNodeId) {
+               return 0; // The gScore for the start node is always 0.
+          }
+
+    // Initialize with a high value to find the minimum later.
+          let minGScore = Infinity;
+
+    // Iterate through the neighbors of the current node.
+           for (const neighborId of graph[nodeId].neighbors) {
+        // Calculate the cost of moving from the current node to the neighbor.
+                const cost = calculateCost(nodeId, neighborId);
+
+        // Calculate the potential new gScore via the current node.
+                const potentialGScore = gScore[nodeId] + cost;
+
+        // Check if this potential path is better than the current best-known path.
+             if (potentialGScore < minGScore) {
+                  minGScore = potentialGScore;
+             }
         }
-        // console.log("  Found neighbors " + JSON.stringify(neighbors));
 
-        for(var neighborId of neighbors) {
-            // d(current,neighbor) is the weight of the edge from current to neighbor
-            // tentative_gScore is the distance from start to the neighbor through current
-            var neighbor = GeoData.nodes[neighborId];
-            var tempGScore = gScore[curr.id] + getDistance(curr, neighbor);
+         return minGScore;
+      }
 
-            var neighborGScore = 999999999;
-            if(neighborId in gScore) {
-                neighborGScore = gScore[neighborId];
+// Calculate the new rhsScore for a node based on the second best-known path.
+       function calculateNewRhsScore(nodeId, cameFrom, gScore, rhsScore) {
+            if (nodeId === goalNodeId) {
+                   return 0; // The rhsScore for the goal node is always 0.
             }
 
-            if(tempGScore < neighborGScore) {
-                // This path to neighbor is better than any previous one. Record it!
+    // Initialize with a high value to find the minimum later.
+            let minRhsScore = Infinity;
+
+    // Iterate through the neighbors of the current node.
+            for (const neighborId of graph[nodeId].neighbors) {
+        // Calculate the cost of moving from the current node to the neighbor.
+                  const cost = calculateCost(nodeId, neighborId);
+
+        // Calculate the potential new rhsScore via the neighbor node.
+                  const potentialRhsScore = gScore[neighborId] + cost;
+
+        // Check if this potential path is better than the current second-best path.
+                  if (potentialRhsScore < minRhsScore) {
+                       minRhsScore = potentialRhsScore;
+                 }
+            }
+
+            return minRhsScore;
+        }
+
+        // Update gScore, rhsScore, and keys for neighboring nodes
+        // ...
+        function heuristic(nodeId, goalId) {
+            const node = GeoData.nodes[nodeId];
+            const goal = GeoData.nodes[goalId];
+            // Calculate Euclidean distance between the two nodes
+            const dx = node.lon - goal.lon;
+            const dy = node.lat - goal.lat;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function updateKey(nodeId) {
+            const node = GeoData.nodes[nodeId];
+            const key = calculateKey(nodeId, gScore, rhsScore, km);
+            node.key = key;
+        }
+
+        for (const neighborId of curr.neighbors) {
+            const neighbor = GeoData.nodes[neighborId];
+
+            // Calculate the cost of moving from the current node to the neighbor
+            const costToNeighbor = calculateCost(curr, neighbor);
+
+            // Calculate the tentative gScore for the neighbor
+            const tentativeGScore = gScore[curr.id] + costToNeighbor;
+
+            // Check if this path is better than the current best-known path to the neighbor
+            if (!gScore[neighborId] || tentativeGScore < gScore[neighborId]) {
+                gScore[neighborId] = tentativeGScore;
                 cameFrom[neighborId] = curr.id;
-                gScore[neighborId] = tempGScore;
-                fScore[neighborId] = tempGScore + h(neighbor);
 
+                // Check if the neighbor is in the open set
                 if (!openSet.contains(neighbor, (x, y) => x.id == y.id)) {
-                    openSet.push(neighbor);
+                    // Calculate the rhsScore for the neighbor
+                    rhsScore[neighborId] = gScore[neighborId] + heuristic(neighborId, goal.id);
+                    updateKey(neighborId); // Update the key for the neighbor
+                    openSet.push(neighbor); // Push the neighbor into the open set
+                } else {
+                    // Neighbor is in the open set; update its rhsScore and key
+                    rhsScore[neighborId] = tentativeGScore + heuristic(neighborId, goal.id);
+                    updateKey(neighborId); // Update the key for the neighbor
                 }
+            } else if (!rhsScore[neighborId] || tentativeGScore < rhsScore[neighborId]) {
+                // This is a better second-best path
+                rhsScore[neighborId] = tentativeGScore;
+                updateKey(neighborId); // Update the key for the neighbor
+            }
+        }
+
+        // Sleep and visualize if needed
+        // ...
+
+        // Repeat until convergence
+        converged = true;
+        for (const nodeId in GeoData.nodes) {
+            if (gScore[nodeId] !== rhsScore[nodeId] || GeoData.nodes[nodeId].key !== calculateKey(nodeId, gScore, rhsScore, km)) {
+                converged = false;
+                break;
             }
         }
     }
-    // Open set is empty but goal was never reached
+
+    // Open set is empty, but goal was never reached
     infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; goal was never reached.`;
     return false;
 }
