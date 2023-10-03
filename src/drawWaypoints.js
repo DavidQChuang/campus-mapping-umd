@@ -119,17 +119,22 @@ Waypoints = {
 };
 Algorithms = {
     Astar(start, goal) {
-        return pathfindAstar(start, goal, node => getDistance(goal, node))
+        return pathfindAstar(start, goal, node => Algorithms.getDistance(goal, node))
     },
     Dstar(start, goal) {
-        return pathfindDstar(start, goal, node => getDistance(goal, node))
+        return pathfindDstar(start, goal, node => Algorithms.getDistance(goal, node))
     },
     Dijkstra(start, goal) {
-        return pathfindDijkstra(start, goal, node => getDistance(goal, node))
+        return pathfindDijkstra(start, goal, node => Algorithms.getDistance(goal, node))
     },
 
     getNeighbors(node) {
         var neighbors = []
+        console.log("asdf", node);
+
+        if(typeof node === "number")
+            throw new Error("Received a number. Algorithms.getNeighbors accepts nodes, not node ids.");
+
         for(var wayId of node.ways) {
             var way = GeoData.footpaths[wayId];
 
@@ -188,6 +193,12 @@ Algorithms = {
             }
         };
         Draw.add(feature);
+    },
+    
+    getDistance(n1, n2) {
+        var dx = n1.lon - n2.lon;
+        var dy = (n1.lat - n2.lat) * 0.8;
+        return dx*dx + dy*dy;
     }
 }
 
@@ -195,11 +206,6 @@ function sleep(ms) {
     return new Promise(r => setTimeout(r, ms));
 }
 
-function getDistance(n1, n2) {
-    var dx = n1.lon - n2.lon;
-    var dy = (n1.lat - n2.lat) * 0.8;
-    return dx*dx + dy*dy;
-}
 
 function drawWaypointRoute(algorithm) {
     if(Waypoints.getUserEndpoints().length != 2) {
@@ -288,7 +294,7 @@ async function pathfindAstar(start, goal, h) {
             // d(current,neighbor) is the weight of the edge from current to neighbor
             // tentative_gScore is the distance from start to the neighbor through current
             var neighbor = GeoData.nodes[neighborId];
-            var tempGScore = gScore[curr.id] + getDistance(curr, neighbor);
+            var tempGScore = gScore[curr.id] + Algorithms.getDistance(curr, neighbor);
 
             var neighborGScore = 999999999;
             if(neighborId in gScore) {
@@ -461,10 +467,11 @@ async function pathfindDijkstra(start, goal, h) {
     // Stores previous node to the current node with the shortest path
     var cameFrom = {};
     var visited = new Set();
-    var openSet = new MinHeap(node => getDistance(node, goal));
+    var openSet = new MinHeap(((goal) => node => Algorithms.getDistance(node, goal))(goal));
 
     dist[start.id] = 0;
     openSet.push(start);
+    visited.add(start.id);
 
     var iters = 0;
     while (openSet.length > 0) {
@@ -477,8 +484,14 @@ async function pathfindDijkstra(start, goal, h) {
         }
 
         var curr = openSet.pop();
+        console.log("Popping " + JSON.stringify(curr));
         // Get distance of current node from start
         var currDist = dist[curr.id] ?? Infinity;
+            
+        // Draw route to current node for visualization
+        var path = Algorithms.getPath(cameFrom, start, curr);
+        Algorithms.drawRoute('dijkstra-route', path);
+        await sleep(tickSize);
 
         // This is the current node, success.
         if(curr.id == goal.id) {
@@ -487,12 +500,15 @@ async function pathfindDijkstra(start, goal, h) {
             return Algorithms.getPath(cameFrom, start, curr);
         }
 
-        for(var neighbor of Algorithms.getNeighbors(curr)) {
+        for(var neighborId of Algorithms.getNeighbors(curr)) {
+            var neighbor = GeoData.nodes[neighborId];
+
             // Only visit each node once.
-            if(neighbor.id in visited) continue;
+            if(visited.has(neighbor.id)) continue;
             else {
                 visited.add(neighbor.id);
-                openSet.push(neighbor.id);
+                openSet.push(neighbor);
+                console.log("Pushing " + neighbor.id + ":" + JSON.stringify(neighbor), visited);
             }
 
             // Get distance of current node + distance from curr to neighbor
@@ -501,7 +517,7 @@ async function pathfindDijkstra(start, goal, h) {
 
             if (alt < neighborDist) {
                 dist[neighbor.id] = alt;
-                cameFrom[neighbor.id] = neighbor;
+                cameFrom[neighbor.id] = curr.id;
             }
         }
     }

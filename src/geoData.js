@@ -168,15 +168,15 @@ map.on('mousemove', (e) => {
     
     Draw.add(feature);
     
-    var feature2 = {
-        id: 'points2',
-        type: 'Feature',
-        properties: {},
-        geometry: {
-            type: 'Polygon',
-            coordinates: [polygonFromQuad(quad)]
-        }
-    };
+    // var feature2 = {
+    //     id: 'points2',
+    //     type: 'Feature',
+    //     properties: {},
+    //     geometry: {
+    //         type: 'Polygon',
+    //         coordinates: [polygonFromQuad(quad)]
+    //     }
+    // };
     
-    Draw.add(feature2);
+    // Draw.add(feature2);
 });
