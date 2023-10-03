@@ -90,7 +90,29 @@
                 </div>
                 <label>
                     <button onclick="drawWaypointRoute(Algorithms.Dstar)">Path</button>
-                    <span id="astar-path-info"></span>
+                    <span id="dstar-path-info"></span>
+                </label>
+                <div>
+                    <span class="tooltip">
+                        Pathfind (Dijkstra's)
+                        <span class="tooltiptext"></span>
+                    </span>
+                </div>
+                <label>
+                    <button onclick="drawWaypointRoute(Algorithms.Dijkstra)">Path</button>
+                    <span id="dijkstra-path-info"></span>
+                </label>
+            </div>
+            <div>
+                <div>
+                    <span class="tooltip">
+                        Geolocate
+                        <span class="tooltiptext"></span>
+                    </span>
+                </div>
+                <label>
+                    <button onclick="getLocation()">Locate</button>
+                    <span id="geolocation"></span>
                 </label>
             </div>
             <div>
@@ -119,5 +141,6 @@
     <script src="src/geoData.js"></script>
     <script src="src/drawRoute.js"></script>
     <script src="src/drawWaypoints.js"></script>
+    <script src="src/drawConstruction.js"></script>
 </body>
 </html>
