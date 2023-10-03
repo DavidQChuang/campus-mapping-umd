@@ -132,7 +132,7 @@ function sleep(ms) {
 
 function getDistance(n1, n2) {
     var dx = n1.lon - n2.lon;
-    var dy = n1.lat - n2.lat;
+    var dy = (n1.lat - n2.lat) * 0.8;
     return dx*dx + dy*dy;
 }
 
