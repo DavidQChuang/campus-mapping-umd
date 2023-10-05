@@ -128,9 +128,13 @@ Algorithms = {
         return pathfindDijkstra(start, goal, node => Algorithms.getDistance(goal, node))
     },
 
+    getTickDelay() {
+        return document.getElementById("path-delay-checkbox").checked ? 10 : 0;
+    },
+
     getNeighbors(node) {
         var neighbors = []
-        console.log("asdf", node);
+        // console.log("asdf", node);
 
         if(typeof node === "number")
             throw new Error("Received a number. Algorithms.getNeighbors accepts nodes, not node ids.");
@@ -199,7 +203,7 @@ Algorithms = {
         var dx = n1.lon - n2.lon;
         var dy = (n1.lat - n2.lat) * 0.8;
         return dx*dx + dy*dy;
-    }
+    },
 }
 
 function sleep(ms) {
@@ -213,7 +217,7 @@ function drawWaypointRoute(algorithm) {
     }
 
     var endpoints = Waypoints.getPathEndpoints();
-    console.log("Pathing from " + JSON.stringify(endpoints[0]) + " to " + JSON.stringify(endpoints[1]));
+    // console.log("Pathing from " + JSON.stringify(endpoints[0]) + " to " + JSON.stringify(endpoints[1]));
 
     var start = GeoData.nodes[endpoints[0].node];
     var goal = GeoData.nodes[endpoints[1].node];
@@ -229,7 +233,12 @@ function drawWaypointRoute(algorithm) {
 
 function timeLogs(startTime, iters, tickSize) {
     var time = new Date() - startTime;
-    return `${time}ms & ${iters} ticks, estimate: ${time - iters*tickSize}ms`;
+
+    if(tickSize == 0) {
+        return `${time}ms & ${iters} ticks`;
+    } else {
+        return `${time}ms & ${iters} ticks, estimate: ${time - iters*tickSize}ms`;
+    }
 }
 
 ////////////////////////////////////////
@@ -242,7 +251,7 @@ function timeLogs(startTime, iters, tickSize) {
 // o88o     o8888o        
 ////////////////////////////////////////
 async function pathfindAstar(start, goal, h) {
-    const tickSize = 10;
+    const tickSize = Algorithms.getTickDelay();
     const startTime = new Date();
     var infoLabel = document.getElementById('astar-path-info');
     infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick";
@@ -276,9 +285,11 @@ async function pathfindAstar(start, goal, h) {
         var curr = openSet.pop();
 
         // Draw route to current node for visualization
-        var path = Algorithms.getPath(cameFrom, start, curr);
-        Algorithms.drawRoute('astar-route', path);
-        await sleep(tickSize);
+        if(tickSize != 0 || curr.id == goal.id){
+            var path = Algorithms.getPath(cameFrom, start, curr);
+            Algorithms.drawRoute('astar-route', path);
+            await sleep(tickSize);
+        }
 
         // This is the goal. Path back using cameFrom to create the path.
         if(curr.id == goal.id) {
@@ -328,7 +339,7 @@ async function pathfindAstar(start, goal, h) {
 // o888bood8P'   
 ////////////////////////////////////////
 async function pathfindDstar(start, goal, h) {
-    const tickSize = 2;
+    const tickSize = Algorithms.useTickDelay() ? 10 : 0;
     const startTime = new Date();
     var infoLabel = document.getElementById('dstar-path-info');
     infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick";
@@ -457,7 +468,7 @@ async function pathfindDstar(start, goal, h) {
 ////////////////////////////////////////   
 
 async function pathfindDijkstra(start, goal, h) {
-    const tickSize = 10;
+    const tickSize = Algorithms.getTickDelay();
     const startTime = new Date();
     var infoLabel = document.getElementById('dijkstra-path-info');
     infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick";
@@ -484,14 +495,16 @@ async function pathfindDijkstra(start, goal, h) {
         }
 
         var curr = openSet.pop();
-        console.log("Popping " + JSON.stringify(curr));
+        // console.log("Popping " + JSON.stringify(curr));
         // Get distance of current node from start
         var currDist = dist[curr.id] ?? Infinity;
             
         // Draw route to current node for visualization
-        var path = Algorithms.getPath(cameFrom, start, curr);
-        Algorithms.drawRoute('dijkstra-route', path);
-        await sleep(tickSize);
+        if(tickSize != 0 || curr.id == goal.id){
+            var path = Algorithms.getPath(cameFrom, start, curr);
+            Algorithms.drawRoute('dijkstra-route', path);
+            await sleep(tickSize);
+        }
 
         // This is the current node, success.
         if(curr.id == goal.id) {
@@ -508,7 +521,7 @@ async function pathfindDijkstra(start, goal, h) {
             else {
                 visited.add(neighbor.id);
                 openSet.push(neighbor);
-                console.log("Pushing " + neighbor.id + ":" + JSON.stringify(neighbor), visited);
+                // console.log("Pushing " + neighbor.id + ":" + JSON.stringify(neighbor), visited);
             }
 
             // Get distance of current node + distance from curr to neighbor
