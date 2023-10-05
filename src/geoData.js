@@ -143,7 +143,7 @@ var GeoData = {
 // Load GeoData
 (async () => {
     GeoData.setFootpaths(
-        await fetch('./res/footpaths.min.json').then(response => response.json()));
+        await fetch('./res/footpaths2.min.json').then(response => response.json()));
     // GeoData.setFootpathsXml('./res/footpaths.osm');
 })();
 
