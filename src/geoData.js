@@ -15,7 +15,7 @@ var GeoData = {
     footpathsQuadtree: undefined,
     
     getFootpaths: () => this.footpaths,
-    setFootpaths(json) {
+    initFootpaths() {
         this.footpaths = {};
         this.nodes = {};
         this.footpathsQuadtree = new Quadtree({
@@ -24,7 +24,8 @@ var GeoData = {
             width: this.bbox[1][0] - this.bbox[0][0],
             height: this.bbox[1][1] - this.bbox[0][1]
         }, 10, 10);
-
+    },
+    addFootpaths(json) {
         var start = new Date();
 
         var i = 0;
@@ -139,11 +140,17 @@ var GeoData = {
         }
     }
 };
+
+async function fetchJson(path) {
+    return fetch(path).then(response => response.json());
+}
     
 // Load GeoData
 (async () => {
-    GeoData.setFootpaths(
-        await fetch('./res/footpaths.min.json').then(response => response.json()));
+    GeoData.initFootpaths();
+    GeoData.addFootpaths(await fetchJson('./res/footpaths/footpaths.min.json'));
+    // GeoData.addFootpaths(
+    //     await fetch('./res/footpaths/footpaths.min.json').then(response => response.json()));
     // GeoData.setFootpathsXml('./res/footpaths.osm');
 })();
 

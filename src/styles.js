@@ -56,6 +56,16 @@ const Layers = {
             'text-color': '#fff'
         }
     },
+    'construction-dynamic': {
+        "id": "construction-dynamic",
+        "type": "fill",
+        "layout": {},
+        "source": "construction-dynamic",
+        "paint": {
+            "fill-color": "hsla(39, 100%, 60%, 0.44)",
+            "fill-pattern": "construction"
+        }
+    }
 };
 
 const DrawStyles = [

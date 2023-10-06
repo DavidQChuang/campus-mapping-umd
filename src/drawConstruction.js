@@ -35,3 +35,11 @@ function showError(error) {
       break;
   }
 }
+
+map.on('load', async () => {
+  map.addSource('construction-dynamic', {
+    "type": "geojson",
+    "data": await fetchJson('./res/constructions/construction.geojson')
+  });
+  map.addLayer(Layers['construction-dynamic']);
+});

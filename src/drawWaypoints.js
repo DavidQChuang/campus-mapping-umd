@@ -542,9 +542,9 @@ async function pathfindDijkstra(start, goal, h) {
                     
 map.on('click', (e) => {
     Waypoints.addWaypoint([e.lngLat["lng"], e.lngLat["lat"]]);
-    document.getElementById('waypoints-display').innerHTML = 
-    "Waypoints:<br>" +
-    JSON.stringify(Waypoints.getUserEndpoints())+
-    "<br><br>Path Endpoints:<br>" +
-    JSON.stringify(Waypoints.getPathEndpoints())
+    // document.getElementById('waypoints-display').innerHTML = 
+    // "Waypoints:<br>" +
+    // JSON.stringify(Waypoints.getUserEndpoints())+
+    // "<br><br>Path Endpoints:<br>" +
+    // JSON.stringify(Waypoints.getPathEndpoints())
 });
