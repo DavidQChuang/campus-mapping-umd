@@ -8,13 +8,41 @@ function polygonFromQuad(quadObj) {
     ]
 }
 
+/**
+ * Contains functions for loading and querying map data.
+ * @namespace GeoData
+ */
 var GeoData = {
     bbox: [[-76.9599, 38.9962], [-76.9295, 38.9795]],
     footpaths: {},
     nodes: {},
     footpathsQuadtree: undefined,
     
+    /**
+     * Gets a dictionary of Ways in OSM JSON format.
+     * Example item, indexed by 'id':
+     * {
+     *   "type": "way",
+     *   "id": (integer way ID),
+     *   "nodes": [
+     *       ... (integer node IDs)
+     *   ],
+     *   "tags": {
+     *       "foot": "yes",
+     *       "highway": "footway",
+     *       "lit": "yes"
+     *   }
+     * }
+     * @memberof GeoData
+     * @method getFootpaths
+     */
     getFootpaths: () => this.footpaths,
+    
+    /**
+     * Clears {@link GeoData.footpaths}, {@link GeoData.nodes}, and {@link GeoData.footpathsQuadtree}.
+     * @memberof GeoData
+     * @method initFootpaths
+     */
     initFootpaths() {
         this.footpaths = {};
         this.nodes = {};
