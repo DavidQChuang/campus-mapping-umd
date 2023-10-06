@@ -30,6 +30,15 @@ body {
     flex-grow: 2;
 }
 
+.control-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.control-item:not(:last-child) {
+    padding-bottom: 5px;
+}
+
 .display-info {
     display: table;
     position: relative;

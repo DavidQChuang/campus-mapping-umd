@@ -37,7 +37,7 @@
             <span><b>Controls</b></span>
             <div>
                 <p id="info" class="display-info">[long, lat]:<br/>[]</p>
-                <p id="waypoints-display" class="display-info" style="margin-top:5px">Waypoints:<br/>[]</p>
+                <!-- <p id="waypoints-display" class="display-info" style="margin-top:5px">Waypoints:<br/>[]</p> -->
             </div>
             <div>
                 <div>
@@ -72,41 +72,50 @@
                 </label>
             </div>
             <div>
-                <div>
-                    <span class="tooltip">
-                        Pathfind (A*)
-                        <span class="tooltiptext"></span>
-                    </span>
+                <div class="control-item">
+                    <div>
+                        <span class="tooltip">
+                            Pathfind (A*)
+                            <span class="tooltiptext"></span>
+                        </span>
+                    </div>
+                    <label>
+                        <button onclick="drawWaypointRoute(Algorithms.Astar)">Path</button>
+                        <span id="astar-path-info"></span>
+                    </label>
                 </div>
-                <label>
-                    <button onclick="drawWaypointRoute(Algorithms.Astar)">Path</button>
-                    <span id="astar-path-info"></span>
-                </label>
-                <div>
-                    <span class="tooltip">
-                        Pathfind (D*)
-                        <span class="tooltiptext"></span>
-                    </span>
+                <div class="control-item">
+                    <div>
+                        <span class="tooltip">
+                            Pathfind (D*)
+                            <span class="tooltiptext"></span>
+                        </span>
+                    </div>
+                    <label>
+                        <button onclick="drawWaypointRoute(Algorithms.Dstar)">Path</button>
+                        <span id="dstar-path-info"></span>
+                    </label>
                 </div>
-                <label>
-                    <button onclick="drawWaypointRoute(Algorithms.Dstar)">Path</button>
-                    <span id="dstar-path-info"></span>
-                </label>
-                <div>
-                    <span class="tooltip">
-                        Pathfind (Dijkstra's)
-                        <span class="tooltiptext"></span>
-                    </span>
+                <div class="control-item">
+                    <div>
+                        <span class="tooltip">
+                            Pathfind (Dijkstra's)
+                            <span class="tooltiptext"></span>
+                        </span>
+                    </div>
+                    <label>
+                        <button onclick="drawWaypointRoute(Algorithms.Dijkstra)">Path</button>
+                        <span id="dijkstra-path-info"></span>
+                    </label>
                 </div>
-                <label>
-                    <button onclick="drawWaypointRoute(Algorithms.Dijkstra)">Path</button>
-                    <span id="dijkstra-path-info"></span>
-                </label>
-                <br><br>
-                <label>
-                    <input type="checkbox" id="path-delay-checkbox">
-                    <span>Add Pathfinding Delay</span>
-                </label>
+                <div class="control-item">
+                    <label>
+                        <span class="tooltip">Add Pathfinding Delay
+                            <span class="tooltiptext"></span>
+                        </span>
+                        <input type="checkbox" id="path-delay-checkbox">
+                    </label>
+                </div>
             </div>
             <div>
                 <div>
@@ -121,15 +130,26 @@
                 </label>
             </div>
             <div>
-                <div>
-                    <span class="tooltip">
-                        Debug
-                        <span class="tooltiptext"></span>
-                    </span>
+                <div class="control-item">
+                    <div>
+                        <span class="tooltip">
+                            Debug
+                            <span class="tooltiptext"></span>
+                        </span>
+                    </div>
+                    <label>
+                        <button onclick="GeoData.drawQuadtree(GeoData.footpathsQuadtree);">Draw Footpaths Quadtree</button>
+                    </label>
                 </div>
-                <label>
-                    <button onclick="GeoData.drawQuadtree(GeoData.footpathsQuadtree);">Draw Footpaths Quadtree</button>
-                </label>
+                <div class="control-item">
+                    <label>
+                        <span class="tooltip">
+                            Show path nodes
+                            <span class="tooltiptext">Draws the path nodes around the cursor.</span>
+                        </span>
+                        <input type="checkbox" id="show-path-nodes-checkbox">
+                    </label>
+                </div>
             </div>
         </div>
     </div>

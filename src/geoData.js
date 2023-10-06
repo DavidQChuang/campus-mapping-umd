@@ -154,26 +154,35 @@ async function fetchJson(path) {
     // GeoData.setFootpathsXml('./res/footpaths.osm');
 })();
 
+var showNodeCheckbox = document.getElementById("show-path-nodes-checkbox");
+showNodeCheckbox.addEventListener('change', (event) => {
+    if (!event.currentTarget.checked) {
+        Draw.delete('points');
+    }
+})
 map.on('mousemove', (e) => {
-    var quad = {
-        x: e.lngLat["lng"] - 0.0005,
-        y: e.lngLat['lat'] - 0.0004,
-        width: 0.001,
-        height:0.0008
-    };
+    if(showNodeCheckbox.checked) {
 
-    var candidates = GeoData.footpathsQuadtree.retrieve(quad);
-    var feature = {
-        id: 'points',
-        type: 'Feature',
-        properties: {},
-        geometry: {
-            type: 'MultiPoint',
-            coordinates: candidates.map(i => [i.x, i.y])
-        }
-    };
+        var quad = {
+            x: e.lngLat["lng"] - 0.0005,
+            y: e.lngLat['lat'] - 0.0004,
+            width: 0.001,
+            height:0.0008
+        };
     
-    Draw.add(feature);
+        var candidates = GeoData.footpathsQuadtree.retrieve(quad);
+        var feature = {
+            id: 'points',
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'MultiPoint',
+                coordinates: candidates.map(i => [i.x, i.y])
+            }
+        };
+        
+        Draw.add(feature);
+    }
     
     // var feature2 = {
     //     id: 'points2',
