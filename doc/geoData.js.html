@@ -37,39 +37,103 @@
 }
 
 /**
+ * An OSM Node in JSON format,
+ * plus a list of Ways that contains it (not contained in the original OSM data).
+ * Example:
+ * ```json
+ * {
+ *   "type": "node",    // always "node"
+ *   "id": 280525868,   // node ID
+ *   "lat": 38.9849002, // node coordinates
+ *   "lon": -76.9333648,
+ *   "ways": [ ... ]    // integer way IDs
+ * }
+ * ```
+ * @typedef {{
+ *  type: string,
+ *  id: number,
+ *  lat: number,
+ *  lon: number,
+ *  ways: number[]
+ * }} OSMNode
+ */
+
+/**
+ * An OSM Way in JSON format. Example:
+ * ```json
+ * {
+ *   "type": "way",    // always "way"
+ *   "id": 123456,     // integer way ID
+ *   "nodes": [ ... ], // integer node IDs
+ *   "tags": {         // way OSM tags
+ *       "foot": "yes",
+ *       "highway": "footway",
+ *       "lit": "yes"
+ *   }
+ * }
+ * ```
+ * @typedef {{
+ *   type: string,
+ *   id: number,
+ *   nodes: number[],
+ *   tags: Object.&lt;string, string>
+ * }} OSMWay
+ */
+
+
+/**
  * Contains functions for loading and querying map data.
  * @namespace GeoData
  */
 var GeoData = {
-    bbox: [[-76.9599, 38.9962], [-76.9295, 38.9795]],
-    footpaths: {},
-    nodes: {},
-    footpathsQuadtree: undefined,
-    
     /**
-     * Gets a dictionary of Ways in OSM JSON format.
-     * Example item, indexed by 'id':
-     * {
-     *   "type": "way",
-     *   "id": (integer way ID),
-     *   "nodes": [
-     *       ... (integer node IDs)
-     *   ],
-     *   "tags": {
-     *       "foot": "yes",
-     *       "highway": "footway",
-     *       "lit": "yes"
-     *   }
-     * }
+     * Bounding box, used to set bounds of quadtree.
      * @memberof GeoData
-     * @method getFootpaths
+     */
+    bbox: [[-76.9599, 38.9962], [-76.9295, 38.9795]],
+    /**
+     * Contains {@link OSMWay}s in JSON format, indexed by ID. 
+     * @memberof GeoData
+     * @type {Object.&lt;number, OSMWay>}
+     */
+    footpaths: {},
+    /**
+     * Contains the IDs of {@link OSMWay}s contained in {@link GeoData.footpaths}
+     * in a quadtree, indexed by spatial location.
+     * 
+     * Example query:
+     * ```js
+     * // Retrieves nodes in quads intersecting a quad of width (0.001, 0.0008) at (long, lat).
+     * var quad = {
+     *    x: long,
+     *    y: lat,
+     *    width: 0.001,
+     *    height:0.0008
+     * };
+     * var candidates = GeoData.footpathsQuadtree.retrieve(quad);​
+     * ```
+     * @memberof GeoData
+     */
+    footpathsQuadtree: undefined,
+    /**
+     * Contains {@link OSMNode}s in JSON format, indexed by ID.
+     * 
+     * @memberof GeoData
+     * @type {Object.&lt;number, OSMNode>}
+     */
+    nodes: {},
+
+    /**
+     * Gets a dictionary of {@link OSMWay}s in OSM JSON format.
+     * @memberof GeoData
+     * @returns {Object.&lt;number, OSMWay>}
      */
     getFootpaths: () => this.footpaths,
-    
+
     /**
      * Clears {@link GeoData.footpaths}, {@link GeoData.nodes}, and {@link GeoData.footpathsQuadtree}.
      * @memberof GeoData
-     * @method initFootpaths
+     * @returns {void}
      */
     initFootpaths() {
         this.footpaths = {};
@@ -89,16 +153,16 @@ var GeoData = {
         console.log(json);
         console.log("Loading " + features.length + " features");
         for (var feature of features) {
-            if(feature.type === 'way') {
+            if (feature.type === 'way') {
                 this.footpaths[feature.id] = feature;
 
-                for(var nodeId of feature.nodes) {
-                    if(nodeId in this.nodes) {
+                for (var nodeId of feature.nodes) {
+                    if (nodeId in this.nodes) {
                         // Add the ways to each node
                         var node = this.nodes[nodeId];
                         var ways = node.ways;
 
-                        if(ways == undefined) {
+                        if (ways == undefined) {
                             node.ways = [];
                         }
                         node.ways.push(feature.id);
@@ -125,7 +189,7 @@ var GeoData = {
                     node: feature.id
                 });
             }
-            
+
             i++;
         }
         console.log("Loaded " + Object.keys(this.nodes).length + " nodes and " + Object.keys(this.footpaths).length + " ways.");
@@ -133,10 +197,10 @@ var GeoData = {
         // console.log(this.nodes);
         // console.log( this.footpaths);
     },
-    drawQuadtree: function(node) {
+    drawQuadtree: function (node) {
         var coords = [];
         this.drawQuadtreeRecursive(node, coords);
-    
+
         var feature = {
             id: 'gpx-route',
             type: 'Feature',
@@ -149,21 +213,21 @@ var GeoData = {
         console.log("Drew " + coords.length + " rects.");
         Draw.add(feature);
     },
-    drawQuadtreeRecursive: function(node, coords, includeObjects) {
+    drawQuadtreeRecursive: function (node, coords, includeObjects) {
         if (node == undefined) return;
 
         //no subnodes? draw the current node 
-        if(node.nodes.length === 0) {
+        if (node.nodes.length === 0) {
             coords.push([polygonFromQuad(node.bounds)]);
 
-            if(includeObjects){
-                for(var obj of node.objects) {
+            if (includeObjects) {
+                for (var obj of node.objects) {
                     coords.push([polygonFromQuad(obj)]);
                 }
             }
-        //has subnodes? drawQuadtree them!
+            //has subnodes? drawQuadtree them!
         } else {
-            for(var i=0;i&lt;node.nodes.length;i=i+1) {
+            for (var i = 0; i &lt; node.nodes.length; i = i + 1) {
                 this.drawQuadtreeRecursive(node.nodes[i], coords);
             }
         }
@@ -176,18 +240,18 @@ var GeoData = {
             height: 0.08
         });
 
-        if(!candidates || candidates.length == 0) {
+        if (!candidates || candidates.length == 0) {
             return undefined;
         } else {
             var minDist = 999;
             var minNode = undefined;
 
-            for(var node of candidates) {
+            for (var node of candidates) {
                 var xd = node.x - point[0];
                 var yd = node.y - point[1];
 
-                var dist = xd*xd + yd*yd;
-                if(dist &lt; minDist) {
+                var dist = xd * xd + yd * yd;
+                if (dist &lt; minDist) {
                     minDist = dist;
                     minNode = node;
                 }
@@ -200,7 +264,7 @@ var GeoData = {
 async function fetchJson(path) {
     return fetch(path).then(response => response.json());
 }
-    
+
 // Load GeoData
 (async () => {
     GeoData.initFootpaths();
@@ -217,15 +281,15 @@ showNodeCheckbox.addEventListener('change', (event) => {
     }
 })
 map.on('mousemove', (e) => {
-    if(showNodeCheckbox.checked) {
+    if (showNodeCheckbox.checked) {
 
         var quad = {
             x: e.lngLat["lng"] - 0.0005,
             y: e.lngLat['lat'] - 0.0004,
             width: 0.001,
-            height:0.0008
+            height: 0.0008
         };
-    
+
         var candidates = GeoData.footpathsQuadtree.retrieve(quad);
         var feature = {
             id: 'points',
@@ -236,10 +300,10 @@ map.on('mousemove', (e) => {
                 coordinates: candidates.map(i => [i.x, i.y])
             }
         };
-        
+
         Draw.add(feature);
     }
-    
+
     // var feature2 = {
     //     id: 'points2',
     //     type: 'Feature',
@@ -249,7 +313,7 @@ map.on('mousemove', (e) => {
     //         coordinates: [polygonFromQuad(quad)]
     //     }
     // };
-    
+
     // Draw.add(feature2);
 });</code></pre>
         </article>
@@ -261,13 +325,13 @@ map.on('mousemove', (e) => {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="GeoData.html">GeoData</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Algorithms.html">Algorithms</a></li><li><a href="GeoData.html">GeoData</a></li><li><a href="Waypoints.html">Waypoints</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Fri Oct 06 2023 12:56:16 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Fri Oct 06 2023 15:33:34 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

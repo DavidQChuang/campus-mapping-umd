@@ -37,7 +37,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Contains functions for loading and querying map data.</div>
+            <div class="description"><p>Contains functions for loading and querying map data.</p></div>
         
 
         
@@ -72,7 +72,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="geoData.js.html">geoData.js</a>, <a href="geoData.js.html#line11">line 11</a>
+        <a href="geoData.js.html">geoData.js</a>, <a href="geoData.js.html#line56">line 56</a>
     </li></ul></dd>
     
 
@@ -101,6 +101,289 @@
     
 
     
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id=".bbox"><span class="type-signature">(static) </span>bbox<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    <p>Bounding box, used to set bounds of quadtree.</p>
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="geoData.js.html">geoData.js</a>, <a href="geoData.js.html#line65">line 65</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".footpaths"><span class="type-signature">(static) </span>footpaths<span class="type-signature"> :Object.&lt;number, <a href="global.html#OSMWay">OSMWay</a>></span></h4>
+
+
+
+
+<div class="description">
+    <p>Contains <a href="global.html#OSMWay">OSMWay</a>s in JSON format, indexed by ID.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object.&lt;number, <a href="global.html#OSMWay">OSMWay</a>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="geoData.js.html">geoData.js</a>, <a href="geoData.js.html#line71">line 71</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".footpathsQuadtree"><span class="type-signature">(static) </span>footpathsQuadtree<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    <p>Contains the IDs of <a href="global.html#OSMWay">OSMWay</a>s contained in <a href="GeoData.html#.footpaths">GeoData.footpaths</a>
+in a quadtree, indexed by spatial location.</p>
+<p>Example query:</p>
+<pre class="prettyprint source lang-js"><code>// Retrieves nodes in quads intersecting a quad of width (0.001, 0.0008) at (long, lat).
+var quad = {
+   x: long,
+   y: lat,
+   width: 0.001,
+   height:0.0008
+};
+var candidates = GeoData.footpathsQuadtree.retrieve(quad);​
+</code></pre>
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="geoData.js.html">geoData.js</a>, <a href="geoData.js.html#line89">line 89</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".nodes"><span class="type-signature">(static) </span>nodes<span class="type-signature"> :Object.&lt;number, <a href="global.html#OSMNode">OSMNode</a>></span></h4>
+
+
+
+
+<div class="description">
+    <p>Contains <a href="global.html#OSMNode">OSMNode</a>s in JSON format, indexed by ID.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object.&lt;number, <a href="global.html#OSMNode">OSMNode</a>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="geoData.js.html">geoData.js</a>, <a href="geoData.js.html#line96">line 96</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -111,7 +394,7 @@
     
 
     
-    <h4 class="name" id=".getFootpaths"><span class="type-signature">(static) </span>getFootpaths<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".getFootpaths"><span class="type-signature">(static) </span>getFootpaths<span class="signature">()</span><span class="type-signature"> &rarr; {Object.&lt;number, <a href="global.html#OSMWay">OSMWay</a>>}</span></h4>
     
 
     
@@ -119,7 +402,7 @@
 
 
 <div class="description">
-    Gets a dictionary of Ways in OSM JSON format.Example item, indexed by 'id':{  "type": "way",  "id": (integer way ID),  "nodes": [      ... (integer node IDs)  ],  "tags": {      "foot": "yes",      "highway": "footway",      "lit": "yes"  }}
+    <p>Gets a dictionary of <a href="global.html#OSMWay">OSMWay</a>s in OSM JSON format.</p>
 </div>
 
 
@@ -163,7 +446,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="geoData.js.html">geoData.js</a>, <a href="geoData.js.html#line21">line 21</a>
+        <a href="geoData.js.html">geoData.js</a>, <a href="geoData.js.html#line103">line 103</a>
     </li></ul></dd>
     
 
@@ -188,6 +471,24 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object.&lt;number, <a href="global.html#OSMWay">OSMWay</a>></span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -199,7 +500,7 @@
     
 
     
-    <h4 class="name" id=".initFootpaths"><span class="type-signature">(static) </span>initFootpaths<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".initFootpaths"><span class="type-signature">(static) </span>initFootpaths<span class="signature">()</span><span class="type-signature"> &rarr; {void}</span></h4>
     
 
     
@@ -207,7 +508,7 @@
 
 
 <div class="description">
-    Clears GeoData.footpaths, GeoData.nodes, and GeoData.footpathsQuadtree.
+    <p>Clears <a href="GeoData.html#.footpaths">GeoData.footpaths</a>, <a href="GeoData.html#.nodes">GeoData.nodes</a>, and <a href="GeoData.html#.footpathsQuadtree">GeoData.footpathsQuadtree</a>.</p>
 </div>
 
 
@@ -251,7 +552,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="geoData.js.html">geoData.js</a>, <a href="geoData.js.html#line41">line 41</a>
+        <a href="geoData.js.html">geoData.js</a>, <a href="geoData.js.html#line110">line 110</a>
     </li></ul></dd>
     
 
@@ -276,6 +577,24 @@
 
 
 
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -297,13 +616,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="GeoData.html">GeoData</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Algorithms.html">Algorithms</a></li><li><a href="GeoData.html">GeoData</a></li><li><a href="Waypoints.html">Waypoints</a></li></ul><h3><a href="global.html">Global</a></h3>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Fri Oct 06 2023 12:56:16 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Fri Oct 06 2023 15:33:34 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
