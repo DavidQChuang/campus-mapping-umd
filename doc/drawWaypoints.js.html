@@ -41,49 +41,52 @@ const Waypoints = {
 
         var nearestFootpath = GeoData.nearestFootpath(waypoint);
         console.log("nearest footpath: " + [nearestFootpath.x, nearestFootpath.y]);
-        if(nearestFootpath != undefined) {
+        if (nearestFootpath != undefined) {
             this.pathEndpoints.push(nearestFootpath);
         }
 
-        if(this.userEndpoints.length > 2) {
+        if (this.userEndpoints.length > 2) {
             this.userEndpoints.splice(0, 2);
             this.pathEndpoints.splice(0, 2);
         }
-    
+
         // Update/create waypoints
-        if(map.getSource('user-waypoints') == undefined) {
-            if(Waypoints.getUserEndpoints().length > 0) {
+        if (map.getSource('user-waypoints') == undefined) {
+            if (Waypoints.getUserEndpoints().length > 0) {
                 // Waypoint style
-                map.addSource('user-waypoints', { 
-                    "type": "geojson", "data": Waypoints.userPointFeature() });
+                map.addSource('user-waypoints', {
+                    "type": "geojson", "data": Waypoints.userPointFeature()
+                });
                 map.addLayer(Layers['user-waypoints-text']);
                 map.addLayer(Layers['user-waypoints'], "user-waypoints-text");
             }
         } else {
             map.getSource('user-waypoints').setData(Waypoints.userPointFeature());
         }
-    
-        if(map.getSource('user-waypoints-path') == undefined) {
-            if(Waypoints.getUserEndpoints().length == 2) {
+
+        if (map.getSource('user-waypoints-path') == undefined) {
+            if (Waypoints.getUserEndpoints().length == 2) {
                 map.addSource('user-waypoints-path', {
-                    type: 'geojson', data: Waypoints.userLineFeature() });
+                    type: 'geojson', data: Waypoints.userLineFeature()
+                });
                 map.addLayer(Layers['user-waypoints-path'], "user-waypoints");
             }
         } else {
-            if(Waypoints.getUserEndpoints().length == 2) {
+            if (Waypoints.getUserEndpoints().length == 2) {
                 map.setLayoutProperty('user-waypoints-path', 'visibility', 'visible');
                 map.getSource('user-waypoints-path').setData(Waypoints.userLineFeature());
             } else {
-                map.setLayoutProperty('user-waypoints-path', 'visibility', 'none'); 
+                map.setLayoutProperty('user-waypoints-path', 'visibility', 'none');
             }
         }
-    
-        if(map.getSource('path-endpoints') == undefined) {
-            if(Waypoints.getPathEndpoints().length > 0) {
+
+        if (map.getSource('path-endpoints') == undefined) {
+            if (Waypoints.getPathEndpoints().length > 0) {
                 // Waypoint style
                 console.log(Waypoints.pathPointFeature());
-                map.addSource('path-endpoints', { 
-                    "type": "geojson", "data": Waypoints.pathPointFeature() });
+                map.addSource('path-endpoints', {
+                    "type": "geojson", "data": Waypoints.pathPointFeature()
+                });
                 map.addLayer(Layers['path-endpoints-text']);
                 map.addLayer(Layers['path-endpoints'], "path-endpoints-text");
             }
@@ -103,17 +106,19 @@ const Waypoints = {
     userPointFeature() {
         return {
             "type": "FeatureCollection",
-            "features": 
-                this.userEndpoints.map((x, idx) => {return {
-                    "type": "Feature",
-                    "properties": {
-                        "text": String.fromCharCode("A".charCodeAt() + idx)
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": x
+            "features":
+                this.userEndpoints.map((x, idx) => {
+                    return {
+                        "type": "Feature",
+                        "properties": {
+                            "text": String.fromCharCode("A".charCodeAt() + idx)
+                        },
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": x
+                        }
                     }
-                }})
+                })
         }
     },
     userLineFeature() {
@@ -128,17 +133,19 @@ const Waypoints = {
     pathPointFeature() {
         return {
             "type": "FeatureCollection",
-            "features": 
-                this.pathEndpoints.map((node, idx) => {return {
-                    "type": "Feature",
-                    "properties": {
-                        "text": String.fromCharCode("A".charCodeAt() + idx)
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [node.x, node.y]
+            "features":
+                this.pathEndpoints.map((node, idx) => {
+                    return {
+                        "type": "Feature",
+                        "properties": {
+                            "text": String.fromCharCode("A".charCodeAt() + idx)
+                        },
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [node.x, node.y]
+                        }
                     }
-                }})
+                })
         }
     },
     pathLineFeature() {
@@ -158,7 +165,7 @@ const Waypoints = {
  * as well as helper methods for use in algorithms.
  * @namespace Algorithms
  */
-Algorithms = {
+const Algorithms = {
     Astar(start, goal) {
         return pathfindAstar(start, goal, node => Algorithms.getDistance(goal, node))
     },
@@ -178,29 +185,29 @@ Algorithms = {
      * by moving between neighbors and Ways connected by the same Node.
      * @param {OSMNode} node The current Node.
      * @returns {number[]} Array of Node IDs.
-     */ 
+     */
     getNeighbors(node) {
         var neighbors = []
         // console.log("asdf", node);
 
-        if(typeof node === "number")
+        if (typeof node === "number")
             throw new Error("Received a number. Algorithms.getNeighbors accepts nodes, not node ids.");
 
-        for(var wayId of node.ways) {
+        for (var wayId of node.ways) {
             var way = GeoData.footpaths[wayId];
 
-            if(way === undefined)
+            if (way === undefined)
                 console.log("Error: way " + wayId + " not found.", node);
 
             // console.log("  Found way " + wayId, way)
             // Push adjacent nodes in way
-            for(var i = 0; i &lt; way.nodes.length; i++) {
-                if(way.nodes[i] == node.id) {
+            for (var i = 0; i &lt; way.nodes.length; i++) {
+                if (way.nodes[i] == node.id) {
                     // console.log("    Found original node. Pushing: " + way.nodes[i-1] + ", " + way.nodes[i+1] );
-                    if(i-1 >= 0)
-                        neighbors.push(way.nodes[i-1]);
-                    if(i+1 &lt; way.nodes.length)
-                        neighbors.push(way.nodes[i+1]);
+                    if (i - 1 >= 0)
+                        neighbors.push(way.nodes[i - 1]);
+                    if (i + 1 &lt; way.nodes.length)
+                        neighbors.push(way.nodes[i + 1]);
                     break;
                 }
             }
@@ -217,17 +224,17 @@ Algorithms = {
      * @param {OSMNode} start The target node. The path will terminate upon reaching this node.
      * @param {OSMNode} node The first node to check. The path will traverse cameFrom backwards from this node.
      * @returns {number[]} Array of Node IDs.
-     */ 
+     */
     getPath(cameFrom, start, node) {
         var currId = node.id;
         var nodeIds = [];
 
-        while(currId != start.id) {
+        while (currId != start.id) {
             // Push the current id then go to the previous node.
             nodeIds.push(currId);
             currId = cameFrom[currId];
 
-            if(currId === undefined) {
+            if (currId === undefined) {
                 console.log("Error")
                 throw new RangeError("Node path does not exist");
             }
@@ -238,12 +245,12 @@ Algorithms = {
     },
 
     /**
-     * Draws a path given an array of node IDs.
+     * Draws a path on the map given an array of node IDs.
      * @param {string} id The ID of the map feature to be drawn.
      *   Drawing a feature with an ID corresponding to an existing feature will overwrite the previous one.
      * @param {number[]} path An array of node IDs forming a path.
      * @returns {void}
-     */ 
+     */
     drawRoute(id, path) {
         var feature = {
             id: id,
@@ -253,23 +260,21 @@ Algorithms = {
                 type: 'LineString',
                 coordinates: path.map(id => {
                     var node = GeoData.nodes[id];
-                    return [ node.lon, node.lat ];
+                    return [node.lon, node.lat];
                 })
             }
         };
         Draw.add(feature);
     },
-    
+
     /**
      * Gets the squared distance (using long, lat as euclidian coordinates) between two nodes.
      * @param {OSMNode} n1 The first node.
      * @param {OSMNode} n2 The second node.
      * @returns {number}
-     */ 
+     */
     getDistance(n1, n2) {
-        var dx = n1.lon - n2.lon;
-        var dy = (n1.lat - n2.lat) * 0.8;
-        return dx*dx + dy*dy;
+        return turf.distance([n1.lon, n1.lat], [n2.lon, n2.lat], { units: 'kilometers' });
     },
 }
 
@@ -279,7 +284,7 @@ function sleep(ms) {
 
 
 function drawWaypointRoute(algorithm) {
-    if(Waypoints.getUserEndpoints().length != 2) {
+    if (Waypoints.getUserEndpoints().length != 2) {
         return;
     }
 
@@ -291,7 +296,7 @@ function drawWaypointRoute(algorithm) {
 
     var route = algorithm(start, goal);
 
-    if(route != false) {
+    if (route != false) {
         console.log("Routed: ", route);
     } else {
         console.log("Failed routing.")
@@ -301,10 +306,10 @@ function drawWaypointRoute(algorithm) {
 function timeLogs(startTime, iters, tickSize) {
     var time = new Date() - startTime;
 
-    if(tickSize == 0) {
+    if (tickSize == 0) {
         return `${time}ms &amp; ${iters} ticks`;
     } else {
-        return `${time}ms &amp; ${iters} ticks, estimate: ${time - iters*tickSize}ms`;
+        return `${time}ms &amp; ${iters} ticks, estimate: ${time - iters * tickSize}ms`;
     }
 }
 
@@ -323,7 +328,7 @@ async function pathfindAstar(start, goal, h) {
     var infoLabel = document.getElementById('astar-path-info');
     infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick";
     var cameFrom = {}
-    
+
     // For node n,  gScore[n]: cost of cheapest path from start to n
     // Default value is infinity
     var gScore = {}
@@ -336,15 +341,15 @@ async function pathfindAstar(start, goal, h) {
     fScore[start.id] = h(start)
 
     const getFScore = ((fScoreArr) => {
-                        return x => fScoreArr[x.id];
-                    })(fScore);
+        return x => fScoreArr[x.id];
+    })(fScore);
     var openSet = new MinHeap(getFScore);
     openSet.push(start);
 
     var iters = 0;
-    while(openSet.length != 0) {
+    while (openSet.length != 0) {
         iters++;
-        if(openSet.length > 250) {
+        if (openSet.length > 250) {
             infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; search was too large.`;
             console.log("Too long.");
             return false;
@@ -352,14 +357,14 @@ async function pathfindAstar(start, goal, h) {
         var curr = openSet.pop();
 
         // Draw route to current node for visualization
-        if(tickSize != 0 || curr.id == goal.id){
+        if (tickSize != 0 || curr.id == goal.id) {
             var path = Algorithms.getPath(cameFrom, start, curr);
             Algorithms.drawRoute('astar-route', path);
             await sleep(tickSize);
         }
 
         // This is the goal. Path back using cameFrom to create the path.
-        if(curr.id == goal.id) {
+        if (curr.id == goal.id) {
             console.log("Found goal " + curr.id + " == " + goal.id);
             infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}.`;
             return Algorithms.getPath(cameFrom, start, curr);
@@ -368,18 +373,18 @@ async function pathfindAstar(start, goal, h) {
         // Find neighbors by looking for adjacent nodes in ways.
         var neighbors = Algorithms.getNeighbors(curr);
         // Search neighbors for paths
-        for(var neighborId of neighbors) {
+        for (var neighborId of neighbors) {
             // d(current,neighbor) is the weight of the edge from current to neighbor
             // tentative_gScore is the distance from start to the neighbor through current
             var neighbor = GeoData.nodes[neighborId];
             var tempGScore = gScore[curr.id] + Algorithms.getDistance(curr, neighbor);
 
             var neighborGScore = 999999999;
-            if(neighborId in gScore) {
+            if (neighborId in gScore) {
                 neighborGScore = gScore[neighborId];
             }
 
-            if(tempGScore &lt; neighborGScore) {
+            if (tempGScore &lt; neighborGScore) {
                 // This path to neighbor is better than any previous one. Record it!
                 cameFrom[neighborId] = curr.id;
                 gScore[neighborId] = tempGScore;
@@ -406,117 +411,88 @@ async function pathfindAstar(start, goal, h) {
 // o888bood8P'   
 ////////////////////////////////////////
 async function pathfindDstar(start, goal, h) {
-    const tickSize = Algorithms.useTickDelay() ? 10 : 0;
+    const tickSize = Algorithms.getTickDelay();
     const startTime = new Date();
-    var infoLabel = document.getElementById('dstar-path-info');
+    var infoLabel = document.getElementById('dijkstra-path-info');
     infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick";
-    var cameFrom = {}
-    
-    const getFScore = ((fScoreArr) => {
-                        return x => fScoreArr[x.id];
-                    })(fScore);
-    var openSet = new MinHeap(getFScore);
+
+    // Stores distances from the start node
+    var dist = {};
+    // Stores previous node to the current node with the shortest path
+    var cameFrom = {};
+    var visited = new Set();
+    var openSet = new MinHeap(((goal) => node => Algorithms.getDistance(node, goal))(goal));
+
+    dist[start.id] = 0;
     openSet.push(start);
+    visited.add(start.id);
 
-    const getPath = function(node) {
-        var pathNodeId = node.id;
-        var pathNodeIds = [];
-        while(pathNodeId != start.id) {
-            // console.log("Coming from " + pathNodeId +" to " + cameFrom[pathNodeId]);
-
-            pathNodeIds.push(pathNodeId);
-            pathNodeId = cameFrom[pathNodeId];
-
-            if(pathNodeId === undefined) {
-                console.log("Error")
-                throw new RangeError("Node path does not exist");
+    function isRaise(node, neighbors) {
+        var cost;
+        if (node.getCurrentCost() > node.getMinimumCost()) {
+            for (var neighbor of neighbors) {
+                cost = node.calculateCostVia(neighbor);
+                if (cost &lt; node.getCurrentCost()) {
+                    node.setNextPointAndUpdateCost(neighbor);
+                }
             }
         }
-        pathNodeIds.push(start.id);
-        return pathNodeIds;
-    }
+        return node.getCurrentCost() > node.getMinimumCost();
+    };
 
     var iters = 0;
-    while(openSet.length != 0) {
+    while (openSet.length > 0) {
         iters++;
-        var curr = openSet.pop();
-        // console.log("Checking node " + JSON.stringify(curr) + ", remaining: " + openSet.length);
-
-        if(openSet.length > 250) {
+        // Fail if taking too long.
+        if (openSet.length > 250) {
             infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; search was too large.`;
             console.log("Too long.");
             return false;
         }
 
-        var path = getPath(curr);
-        var feature = {
-            id: 'astar-route',
-            type: 'Feature',
-            properties: {},
-            geometry: {
-                type: 'LineString',
-                coordinates: path.map(id => {
-                    var node = GeoData.nodes[id];
-                    return [ node.lon, node.lat ];
-                })
-            }
-        };
-        Draw.add(feature);
-        await sleep(tickSize);
+        var curr = openSet.pop();
+        var currIsRaise = isRaise(curr);
 
-        // This is the goal. Path back using cameFrom to create the path.
-        if(curr.id == goal.id) {
-            console.log("Found goal " + curr.id + " == " + goal.id);
-            infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}.`;
-            return getPath(curr);
-        }
-
-        // Find neighbors by looking for adjacent nodes in ways.
-        var neighbors = []
-        for(var wayId of curr.ways) {
-            var way = GeoData.footpaths[wayId];
-
-            if(way === undefined)
-                console.log("Error: way " + wayId + " not found.", curr);
-
-            // console.log("  Found way " + wayId, way)
-            // Push adjacent nodes in way
-            for(var i = 0; i &lt; way.nodes.length; i++) {
-                if(way.nodes[i] == curr.id) {
-                    // console.log("    Found original node. Pushing: " + way.nodes[i-1] + ", " + way.nodes[i+1] );
-                    if(i-1 >= 0)
-                        neighbors.push(way.nodes[i-1]);
-                    if(i+1 &lt; way.nodes.length)
-                        neighbors.push(way.nodes[i+1]);
-                    break;
+        for (var neighborId of Algorithms.getNeighbors(curr)) {
+            if (currIsRaise) {
+                if (neighbor.nextPoint == currentPoint) {
+                    neighbor.setNextPointAndUpdateCost(currentPoint);
+                    openList.add(neighbor);
+                } else {
+                    var cost = neighbor.calculateCostVia(currentPoint);
+                    if (cost &lt; neighbor.getCost()) {
+                        currentPoint.setMinimumCostToCurrentCost();
+                        openList.add(currentPoint);
+                    }
                 }
-            }
-        }
-        // console.log("  Found neighbors " + JSON.stringify(neighbors));
-
-        for(var neighborId of neighbors) {
-            // d(current,neighbor) is the weight of the edge from current to neighbor
-            // tentative_gScore is the distance from start to the neighbor through current
-            var neighbor = GeoData.nodes[neighborId];
-            var tempGScore = gScore[curr.id] + getDistance(curr, neighbor);
-
-            var neighborGScore = 999999999;
-            if(neighborId in gScore) {
-                neighborGScore = gScore[neighborId];
-            }
-
-            if(tempGScore &lt; neighborGScore) {
-                // This path to neighbor is better than any previous one. Record it!
-                cameFrom[neighborId] = curr.id;
-                gScore[neighborId] = tempGScore;
-                fScore[neighborId] = tempGScore + h(neighbor);
-
-                if (!openSet.contains(neighbor, (x, y) => x.id == y.id)) {
-                    openSet.push(neighbor);
+            } else {
+                var cost = neighbor.calculateCostVia(currentPoint);
+                if (cost &lt; neighbor.getCost()) {
+                    neighbor.setNextPointAndUpdateCost(currentPoint);
+                    openList.add(neighbor);
                 }
             }
         }
     }
+
+    var tempGScore = gScore[curr.id] + Algorithms.getDistance(curr, neighbor);
+
+    var neighborGScore = 999999999;
+    if (neighborId in gScore) {
+        neighborGScore = gScore[neighborId];
+    }
+
+    if (tempGScore &lt; neighborGScore) {
+        // This path to neighbor is better than any previous one. Record it!
+        cameFrom[neighborId] = curr.id;
+        gScore[neighborId] = tempGScore;
+        fScore[neighborId] = tempGScore + h(neighbor);
+
+        if (!openSet.contains(neighbor, (x, y) => x.id == y.id)) {
+            openSet.push(neighbor);
+        }
+    }
+
     // Open set is empty but goal was never reached
     infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; goal was never reached.`;
     return false;
@@ -539,7 +515,7 @@ async function pathfindDijkstra(start, goal, h) {
     const startTime = new Date();
     var infoLabel = document.getElementById('dijkstra-path-info');
     infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick";
-    
+
     // Stores distances from the start node
     var dist = {};
     // Stores previous node to the current node with the shortest path
@@ -555,7 +531,7 @@ async function pathfindDijkstra(start, goal, h) {
     while (openSet.length > 0) {
         iters++;
         // Fail if taking too long.
-        if(openSet.length > 250) {
+        if (openSet.length > 250) {
             infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; search was too large.`;
             console.log("Too long.");
             return false;
@@ -565,26 +541,26 @@ async function pathfindDijkstra(start, goal, h) {
         // console.log("Popping " + JSON.stringify(curr));
         // Get distance of current node from start
         var currDist = dist[curr.id] ?? Infinity;
-            
+
         // Draw route to current node for visualization
-        if(tickSize != 0 || curr.id == goal.id){
+        if (tickSize != 0 || curr.id == goal.id) {
             var path = Algorithms.getPath(cameFrom, start, curr);
             Algorithms.drawRoute('dijkstra-route', path);
             await sleep(tickSize);
         }
 
         // This is the current node, success.
-        if(curr.id == goal.id) {
+        if (curr.id == goal.id) {
             console.log("Found goal " + curr.id + " == " + goal.id);
             infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}.`;
             return Algorithms.getPath(cameFrom, start, curr);
         }
 
-        for(var neighborId of Algorithms.getNeighbors(curr)) {
+        for (var neighborId of Algorithms.getNeighbors(curr)) {
             var neighbor = GeoData.nodes[neighborId];
 
             // Only visit each node once.
-            if(visited.has(neighbor.id)) continue;
+            if (visited.has(neighbor.id)) continue;
             else {
                 visited.add(neighbor.id);
                 openSet.push(neighbor);
@@ -606,7 +582,7 @@ async function pathfindDijkstra(start, goal, h) {
     infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; goal was never reached.`;
     return false;
 }
-                    
+
 map.on('click', (e) => {
     Waypoints.addWaypoint([e.lngLat["lng"], e.lngLat["lat"]]);
     // document.getElementById('waypoints-display').innerHTML = 
@@ -624,13 +600,13 @@ map.on('click', (e) => {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Algorithms.html">Algorithms</a></li><li><a href="GeoData.html">GeoData</a></li><li><a href="Waypoints.html">Waypoints</a></li></ul><h3><a href="global.html">Global</a></h3>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="Algorithms.html">Algorithms</a></li><li><a href="GeoData.html">GeoData</a></li><li><a href="Waypoints.html">Waypoints</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Draw">Draw</a></li><li><a href="global.html#Geocoder">Geocoder</a></li><li><a href="global.html#map">map</a></li><li><a href="global.html#mapOrigin">mapOrigin</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Fri Oct 06 2023 15:33:34 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Fri Oct 06 2023 18:46:38 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
