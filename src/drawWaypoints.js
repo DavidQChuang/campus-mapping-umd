@@ -191,7 +191,7 @@ const Algorithms = {
 
     /**
      * Gets a path from one node to another given a dictionary storing ids of previous nodes.
-     * @param {object} cameFrom A dictionary of node IDs indexed by node IDs recording 
+     * @param {Object.<number, number>} cameFrom A dictionary of node IDs indexed by node IDs recording 
      * which node to move to from the current node.
      * @param {OSMNode} start The target node. The path will terminate upon reaching this node.
      * @param {OSMNode} node The first node to check. The path will traverse cameFrom backwards from this node.
@@ -244,9 +244,10 @@ const Algorithms = {
      */
     cachedRoutes: {},
     /**
-     * Toggles the visiblity of the given route
+     * Toggles the visiblity of the given Draw feature.
      * @param {string} id The map feature id.
-     * @returns 
+     * @returns {bool|undefined} True if the feature is now visible, false if not.
+     * Undefined if the feature doesn't exist in either the cache or list of active features.
      */
     toggleFeature(id) {
         if(id in this.cachedRoutes) {
@@ -267,7 +268,7 @@ const Algorithms = {
      * Toggles the given route as well as the text of the given button.
      * @param {Element} self The button to change the text of.
      * @param {string} id The map feature id.
-     * @returns 
+     * @returns {void}
      */
     toggleFeatureButton(self, id) {
         var val = this.toggleFeature(id);
@@ -283,7 +284,7 @@ const Algorithms = {
      * Gets the squared distance (in kilometers) between two nodes.
      * @param {OSMNode} n1 The first node.
      * @param {OSMNode} n2 The second node.
-     * @returns {number}
+     * @returns {number} The distance in kilometers.
      */
     getDistance(n1, n2) {
         return turf.distance([n1.lon, n1.lat], [n2.lon, n2.lat], { units: 'kilometers' });
