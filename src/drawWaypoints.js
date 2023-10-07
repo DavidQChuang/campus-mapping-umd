@@ -240,6 +240,46 @@ const Algorithms = {
     },
 
     /**
+     * 
+     */
+    cachedRoutes: {},
+    /**
+     * Toggles the visiblity of the given route
+     * @param {string} id The map feature id.
+     * @returns 
+     */
+    toggleFeature(id) {
+        if(id in this.cachedRoutes) {
+            Draw.add(this.cachedRoutes[id]);
+            delete this.cachedRoutes[id];
+            return true;
+        } else if(Draw.get(id) != undefined) {
+            var feature = Draw.get(id);
+            this.cachedRoutes[id] = feature;
+
+            Draw.delete(id);
+            return false;
+        }
+
+        return undefined;
+    },
+    /**
+     * Toggles the given route as well as the text of the given button.
+     * @param {Element} self The button to change the text of.
+     * @param {string} id The map feature id.
+     * @returns 
+     */
+    toggleFeatureButton(self, id) {
+        var val = this.toggleFeature(id);
+
+        if(val) {
+            self.innerText = "Hide";
+        } else {
+            self.innerText = "Show";
+        }
+    },
+
+    /**
      * Gets the squared distance (in kilometers) between two nodes.
      * @param {OSMNode} n1 The first node.
      * @param {OSMNode} n2 The second node.
@@ -297,8 +337,12 @@ function timeLogs(startTime, iters, tickSize) {
 async function pathfindAstar(start, goal, h) {
     const tickSize = Algorithms.getTickDelay();
     const startTime = new Date();
+
     var infoLabel = document.getElementById('astar-path-info');
     infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick";
+    var toggleButton = document.getElementById('astar-path-toggle');
+    toggleButton.hidden = false;
+
     var cameFrom = {}
 
     // For node n,  gScore[n]: cost of cheapest path from start to n
@@ -385,8 +429,10 @@ async function pathfindAstar(start, goal, h) {
 async function pathfindDstar(start, goal, h) {
     const tickSize = Algorithms.getTickDelay();
     const startTime = new Date();
-    var infoLabel = document.getElementById('dijkstra-path-info');
+    var infoLabel = document.getElementById('dstar-path-info');
     infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick";
+    var toggleButton = document.getElementById('dstar-path-toggle');
+    toggleButton.hidden = false;
 
     // Stores distances from the start node
     var dist = {};
@@ -487,6 +533,8 @@ async function pathfindDijkstra(start, goal, h) {
     const startTime = new Date();
     var infoLabel = document.getElementById('dijkstra-path-info');
     infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick";
+    var toggleButton = document.getElementById('dijkstra-path-toggle');
+    toggleButton.hidden = false;
 
     // Stores distances from the start node
     var dist = {};
