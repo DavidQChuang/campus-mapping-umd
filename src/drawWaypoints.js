@@ -240,7 +240,7 @@ const Algorithms = {
     },
 
     /**
-     * Gets the squared distance (using long, lat as euclidian coordinates) between two nodes.
+     * Gets the squared distance (in kilometers) between two nodes.
      * @param {OSMNode} n1 The first node.
      * @param {OSMNode} n2 The second node.
      * @returns {number}
