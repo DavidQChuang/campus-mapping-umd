@@ -217,6 +217,38 @@ const Algorithms = {
     },
 
     /**
+     * Gets a path from one node to another and the length of the entire path
+     * given a dictionary storing ids of previous nodes.
+     * @param {Object.<number, number>} cameFrom A dictionary of node IDs indexed by node IDs recording 
+     * which node to move to from the current node.
+     * @param {OSMNode} start The target node. The path will terminate upon reaching this node.
+     * @param {OSMNode} node The first node to check. The path will traverse cameFrom backwards from this node.
+     * @returns {{path: number[], pathLength: number}} Object containing an array of Node IDs and the length of the path.
+     */
+    getPathLength(cameFrom, start, node) {
+        var currId = node.id;
+        var nodeIds = [];
+        var pathLength = 0;
+
+        while (currId != start.id) {
+            // Push the current id then go to the previous node.
+            nodeIds.push(currId);
+            var nextId = cameFrom[currId];
+
+            if (nextId === undefined) {
+                console.log("Error")
+                throw new RangeError("Node path does not exist");
+            }
+
+            pathLength += Algorithms.getDistance(GeoData.nodes[nextId], GeoData.nodes[currId]);
+            currId = nextId;
+        }
+        nodeIds.push(start.id);
+
+        return { path: nodeIds, pathLength: pathLength};
+    },
+
+    /**
      * Draws a path on the map given an array of node IDs.
      * @param {string} id The ID of the map feature to be drawn.
      *   Drawing a feature with an ID corresponding to an existing feature will overwrite the previous one.
@@ -224,6 +256,11 @@ const Algorithms = {
      * @returns {void}
      */
     drawRoute(id, path) {
+        if(id in this.cachedRoutes) {
+            delete this.cachedRoutes[id];
+            document.getElementById(id+"-toggle").innerText = "Hide";
+        }
+
         var feature = {
             id: id,
             type: 'Feature',
@@ -376,15 +413,18 @@ async function pathfindAstar(start, goal, h) {
         // Draw route to current node for visualization
         if (tickSize != 0 || curr.id == goal.id) {
             var path = Algorithms.getPath(cameFrom, start, curr);
-            Algorithms.drawRoute('astar-route', path);
+            Algorithms.drawRoute('astar-path', path);
             await sleep(tickSize);
         }
 
         // This is the goal. Path back using cameFrom to create the path.
         if (curr.id == goal.id) {
+            const { path, pathLength } = Algorithms.getPathLength(cameFrom, start, curr);
+
             console.log("Found goal " + curr.id + " == " + goal.id);
-            infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}.`;
-            return Algorithms.getPath(cameFrom, start, curr);
+            infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}. Distance: ${pathLength.toFixed(2)}km`;
+
+            return path;
         }
 
         // Find neighbors by looking for adjacent nodes in ways.
@@ -542,7 +582,7 @@ async function pathfindDijkstra(start, goal, h) {
     // Stores previous node to the current node with the shortest path
     var cameFrom = {};
     var visited = new Set();
-    var openSet = new MinHeap(((goal) => node => Algorithms.getDistance(node, goal))(goal));
+    var openSet = new MinHeap(((dist) => node => dist[node.id])(dist));
 
     dist[start.id] = 0;
     openSet.push(start);
@@ -551,6 +591,7 @@ async function pathfindDijkstra(start, goal, h) {
     var iters = 0;
     while (openSet.length > 0) {
         iters++;
+        infoLabel.innerHTML = "Pathing @ " + tickSize + "ms/tick, search size: " + openSet.length;
         // Fail if taking too long.
         if (openSet.length > 250) {
             infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; search was too large.`;
@@ -559,49 +600,63 @@ async function pathfindDijkstra(start, goal, h) {
         }
 
         var curr = openSet.pop();
-        // console.log("Popping " + JSON.stringify(curr));
-        // Get distance of current node from start
-        var currDist = dist[curr.id] ?? Infinity;
+        var currDist = dist[curr.id];
+
+        // Remove current node from unvisited ndoes
+        visited.add(curr.id);
 
         // Draw route to current node for visualization
-        if (tickSize != 0 || curr.id == goal.id) {
+        if (tickSize != 0) {
             var path = Algorithms.getPath(cameFrom, start, curr);
-            Algorithms.drawRoute('dijkstra-route', path);
+            Algorithms.drawRoute('dijkstra-path', path);
             await sleep(tickSize);
-        }
-
-        // This is the current node, success.
-        if (curr.id == goal.id) {
-            console.log("Found goal " + curr.id + " == " + goal.id);
-            infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}.`;
-            return Algorithms.getPath(cameFrom, start, curr);
         }
 
         for (var neighborId of Algorithms.getNeighbors(curr)) {
             var neighbor = GeoData.nodes[neighborId];
 
-            // Only visit each node once.
+            // Only read unvisited nodes
             if (visited.has(neighbor.id)) continue;
             else {
-                visited.add(neighbor.id);
-                openSet.push(neighbor);
-                // console.log("Pushing " + neighbor.id + ":" + JSON.stringify(neighbor), visited);
-            }
+                // Get distance of current node + distance from curr to neighbor
+                var alt = currDist + Algorithms.getDistance(curr, neighbor);
+                var neighborDist = dist[neighbor.id] ?? Infinity;
+                
+                // If this path is shorter, update dist and cameFrom.
+                if (alt < neighborDist) {
+                    openSet.replace(neighbor, (x, y) => x.id == y.id);
+                    dist[neighbor.id] = alt;
+                    cameFrom[neighbor.id] = curr.id;
+                    neighborDist = alt;
+                }
 
-            // Get distance of current node + distance from curr to neighbor
-            var alt = currDist + Algorithms.getDistance(curr, neighbor);
-            var neighborDist = dist[neighbor.id] ?? Infinity;
-
-            if (alt < neighborDist) {
-                dist[neighbor.id] = alt;
-                cameFrom[neighbor.id] = curr.id;
+                // Only check this neighbor recursively if the path is
+                // shorter than the known shortest distance to the goal.
+                var goalDist = dist[goal.id] ?? Infinity;
+                if(neighborDist <= goalDist) {
+                    // Add to open set if not previously added to open set
+                    if(!(openSet.contains(neighbor, (x, y) => x.id == y.id))){
+                        openSet.push(neighbor);
+                    }
+                }
             }
         }
     }
 
-    // Open set is empty but goal was never reached
-    infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; goal was never reached.`;
-    return false;
+    // Finish when the absolute shortest path is known or we ran out of paths.
+    if (cameFrom[goal.id] != undefined) {
+        // Draw path
+        const { path, pathLength } = Algorithms.getPathLength(cameFrom, start, goal);
+        Algorithms.drawRoute('dijkstra-path', path);
+
+        console.log("Found goal " + goal.id + " == " + goal.id);
+        infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}. Distance: ${pathLength.toFixed(2)}km, Dijkstra distance: ${dist[goal.id].toFixed(2)}km`;
+        return path;
+    } else {
+        // Open set is empty but goal was never reached
+        infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; goal was never reached.`;
+        return false;
+    }
 }
 
 map.on('click', (e) => {
