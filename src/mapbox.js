@@ -85,3 +85,10 @@ map.on('mousemove', (e) => {
     // `e.lngLat` is the longitude, latitude geographical position of the event.
     '[' + e.lngLat["lng"] + ', ' + e.lngLat["lat"] + "]";
 });
+
+fetch("https://api.github.com/repos/DavidQChuang/campus-mapping-umd/commits/HEAD")
+  .then((response) => response.json())
+  .then((json) => {
+    var commit = json.commit;
+    document.getElementById("github-commit-msg").innerHTML = commit.author.name + ": " + commit.message;
+  });
