@@ -94,6 +94,7 @@ var GeoData = {
      * @type {Object.<number, OSMNode>}
      */
     nodes: {},
+    untraversableNodes: new Set(),
 
     /**
      * Gets a dictionary of {@link OSMWay}s in OSM JSON format.
@@ -117,6 +118,13 @@ var GeoData = {
             height: this.bbox[1][1] - this.bbox[0][1]
         }, 10, 10);
     },
+    /**
+     * Takes OSM JSON as input, and adds footpaths and nodes to
+     * {@link GeoData.footpaths}, {@link GeoData.nodes}, and {@link GeoData.footpathsQuadtree}.
+     * 
+     * Call before addConstruction.
+     * @param {Object} json The OSM JSON data in Object format to load.
+     */
     addFootpaths(json) {
         var start = new Date();
 
@@ -124,13 +132,17 @@ var GeoData = {
         var features = json['elements'];
         console.log(json);
         console.log("Loading " + features.length + " features");
+
+        // Add all features (i.e. ways, nodes)
         for (var feature of features) {
+            // Add way
             if (feature.type === 'way') {
+                // Just add the way directly to the dictionary
                 this.footpaths[feature.id] = feature;
 
                 for (var nodeId of feature.nodes) {
                     if (nodeId in this.nodes) {
-                        // Add the ways to each node
+                        // Add the ways to the node entry.
                         var node = this.nodes[nodeId];
                         var ways = node.ways;
 
@@ -139,20 +151,27 @@ var GeoData = {
                         }
                         node.ways.push(feature.id);
                     } else {
+                        // Create a new node entry with only the ways,
+                        // the rest of it will be filled in later.
                         this.nodes[nodeId] = {
                             ways: [feature.id]
                         };
                     }
                 }
-            } else if (feature.type === 'node') {
+            } 
+            // Add node
+            else if (feature.type === 'node') {
                 var ways = [];
+                // If node already has a list of ways, retrieve it.
                 if (feature.id in this.nodes) {
                     ways = this.nodes[feature.id].ways;
                 }
 
+                // Add the node to the dictionary
                 this.nodes[feature.id] = feature;
                 this.nodes[feature.id].ways = ways;
 
+                // And the quadtree.
                 this.footpathsQuadtree.insert({
                     x: feature.lon,
                     y: feature.lat,
@@ -164,10 +183,35 @@ var GeoData = {
 
             i++;
         }
+
         console.log("Loaded " + Object.keys(this.nodes).length + " nodes and " + Object.keys(this.footpaths).length + " ways.");
         console.log("Loaded footpaths quadtree in " + (new Date() - start) + "ms");
         // console.log(this.nodes);
         // console.log( this.footpaths);
+    },
+    /**
+     * Takes GeoJSON as input and 
+     * marks nodes in {@link GeoData.nodes} as untraversable if they overlap.
+     * @param {*} json 
+     */
+    addConstruction(json) {
+        // this.constructionGeoJSON = json;
+        for (var feature of json.features) {
+            var bbox = turf.bbox(feature);
+            var candidates = this.footpathsQuadtree.retrieve({
+                x: bbox[0],
+                y: bbox[1],
+                width: bbox[2] - bbox[0],
+                height: bbox[3] - bbox[1]
+            });
+
+            for (var candidate of candidates) {
+                var candPoint = turf.point([candidate.x, candidate.y]);
+                if (turf.booleanPointInPolygon(candPoint, feature)) {
+                    GeoData.untraversableNodes.add(candidate.node);
+                }
+            }
+        }
     },
     drawQuadtree: function (node) {
         var coords = [];
@@ -241,6 +285,7 @@ async function fetchJson(path) {
 (async () => {
     GeoData.initFootpaths();
     GeoData.addFootpaths(await fetchJson('./res/footpaths/footpaths.min.json'));
+    GeoData.addConstruction(await fetchJson('./res/constructions/construction.min.geojson'));
     // GeoData.addFootpaths(
     //     await fetch('./res/footpaths/footpaths.min.json').then(response => response.json()));
     // GeoData.setFootpathsXml('./res/footpaths.osm');
@@ -263,17 +308,21 @@ map.on('mousemove', (e) => {
         };
 
         var candidates = GeoData.footpathsQuadtree.retrieve(quad);
-        var feature = {
-            id: 'points',
-            type: 'Feature',
-            properties: {},
-            geometry: {
-                type: 'MultiPoint',
-                coordinates: candidates.map(i => [i.x, i.y])
-            }
-        };
+        var traversableNodes = turf.multiPoint(candidates
+            .filter(i => !GeoData.untraversableNodes.has(i.node))
+            .map(i => [i.x, i.y]),
+            {},
+            { id: 'points' });
+        var untraversableNodes = turf.multiPoint(candidates
+            .filter(i => GeoData.untraversableNodes.has(i.node))
+            .map(i => [i.x, i.y]), {
+                red: true
+            },
+            { id: 'points-red' });
 
-        Draw.add(feature);
+        Draw.add(traversableNodes);
+        Draw.add(untraversableNodes);
+        console.log(untraversableNodes);
     }
 
     // var feature2 = {

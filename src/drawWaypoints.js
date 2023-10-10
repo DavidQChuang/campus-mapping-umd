@@ -55,7 +55,7 @@ const Waypoints = {
         if (map.getSource('path-endpoints') == undefined) {
             if (Waypoints.getPathEndpoints().length > 0) {
                 // Waypoint style
-                console.log(Waypoints.pathPointFeature());
+                // console.log(Waypoints.pathPointFeature());
                 map.addSource('path-endpoints', {
                     "type": "geojson", "data": Waypoints.pathPointFeature()
                 });
@@ -176,15 +176,20 @@ const Algorithms = {
             for (var i = 0; i < way.nodes.length; i++) {
                 if (way.nodes[i] == node.id) {
                     // console.log("    Found original node. Pushing: " + way.nodes[i-1] + ", " + way.nodes[i+1] );
-                    if (i - 1 >= 0)
-                        neighbors.push(way.nodes[i - 1]);
-                    if (i + 1 < way.nodes.length)
-                        neighbors.push(way.nodes[i + 1]);
+                    if (i - 1 >= 0){
+                        var wayNode = way.nodes[i - 1];
+                        if(!GeoData.untraversableNodes.has(wayNode))
+                            neighbors.push(wayNode);
+                    }
+                    if (i + 1 < way.nodes.length){
+                        var wayNode = way.nodes[i + 1];
+                        if(!GeoData.untraversableNodes.has(wayNode))
+                            neighbors.push(wayNode);
+                    }
                     break;
                 }
             }
         }
-
         return neighbors;
     },
 
