@@ -68,7 +68,8 @@ const Geocoder = new MapboxGeocoder({
  */
 const Draw = new MapboxDraw({
     // modes: modes,
-    // styles: DrawStyles
+    userProperties: true,
+    styles: DrawStyles
 });
 const nav = new mapboxgl.NavigationControl({ visualizePitch: true });
 
@@ -86,9 +87,9 @@ map.on('mousemove', (e) => {
     '[' + e.lngLat["lng"] + ', ' + e.lngLat["lat"] + "]";
 });
 
-fetch("https://api.github.com/repos/DavidQChuang/campus-mapping-umd/commits/HEAD")
+fetch("https://api.github.com/repos/DavidQChuang/campus-mapping-umd/commits/HEAD?per_page=1")
   .then((response) => response.json())
   .then((json) => {
     var commit = json.commit;
-    document.getElementById("github-commit-msg").innerHTML = commit.author.name + ": " + commit.message;
+    document.getElementById("github-commit-msg").innerHTML = "[" + json.sha.substring(0, 7) + "] " + commit.author.name + ": " + commit.message;
   });
