@@ -68,9 +68,9 @@ var GeoData = {
      * @memberof GeoData
      * @type {Object.<number, OSMWay>}
      */
-    footpaths: {},
+    ways: {},
     /**
-     * Contains the IDs of {@link OSMWay}s contained in {@link GeoData.footpaths}
+     * Contains the IDs of {@link OSMWay}s contained in {@link GeoData.ways}
      * in a quadtree, indexed by spatial location.
      * 
      * Example query:
@@ -86,7 +86,7 @@ var GeoData = {
      * ```
      * @memberof GeoData
      */
-    footpathsQuadtree: undefined,
+    nodesQuadtree: undefined,
     /**
      * Contains {@link OSMNode}s in JSON format, indexed by ID.
      * 
@@ -104,14 +104,14 @@ var GeoData = {
     getFootpaths: () => this.footpaths,
 
     /**
-     * Clears {@link GeoData.footpaths}, {@link GeoData.nodes}, and {@link GeoData.footpathsQuadtree}.
+     * Clears {@link GeoData.ways}, {@link GeoData.nodes}, and {@link GeoData.nodesQuadtree}.
      * @memberof GeoData
      * @returns {void}
      */
     initFootpaths() {
-        this.footpaths = {};
+        this.ways = {};
         this.nodes = {};
-        this.footpathsQuadtree = new Quadtree({
+        this.nodesQuadtree = new Quadtree({
             x: this.bbox[0][0],
             y: this.bbox[0][1],
             width: this.bbox[1][0] - this.bbox[0][0],
@@ -120,27 +120,16 @@ var GeoData = {
     },
     /**
      * Takes OSM JSON as input, and adds footpaths and nodes to
-     * {@link GeoData.footpaths}, {@link GeoData.nodes}, and {@link GeoData.footpathsQuadtree}.
+     * {@link GeoData.ways}, {@link GeoData.nodes}, and {@link GeoData.nodesQuadtree}.
      * 
      * Call before addConstruction.
      * @param {Object} json The OSM JSON data in Object format to load.
      */
     addFootpaths(json) {
-        var start = new Date();
-
-        var i = 0;
-        var features = json['elements'];
-        console.log(json);
-        console.log("Loading " + features.length + " features");
-
-        // Add all features (i.e. ways, nodes)
-        for (var feature of features) {
-            // Add way
-            if (feature.type === 'way') {
-                // Just add the way directly to the dictionary
-                this.footpaths[feature.id] = feature;
-
-                for (var nodeId of feature.nodes) {
+        console.log("footpaths: Loading " + json.elements.length + " features");
+        this.addWays(json, 
+            (way) => {
+                for (var nodeId of way.nodes) {
                     if (nodeId in this.nodes) {
                         // Add the ways to the node entry.
                         var node = this.nodes[nodeId];
@@ -149,45 +138,83 @@ var GeoData = {
                         if (ways == undefined) {
                             node.ways = [];
                         }
-                        node.ways.push(feature.id);
+                        node.ways.push(way.id);
                     } else {
                         // Create a new node entry with only the ways,
                         // the rest of it will be filled in later.
                         this.nodes[nodeId] = {
-                            ways: [feature.id]
+                            ways: [way.id]
                         };
                     }
                 }
-            } 
-            // Add node
-            else if (feature.type === 'node') {
+                return way;
+            },
+            (node) => {
                 var ways = [];
                 // If node already has a list of ways, retrieve it.
-                if (feature.id in this.nodes) {
-                    ways = this.nodes[feature.id].ways;
+                if (node.id in this.nodes) {
+                    ways = this.nodes[node.id].ways;
                 }
+                
+                node.ways = ways;
+                return node;
+            });
+    },
+    /**
+     * Takes OSM JSON as input, and adds buildings and nodes to
+     * {@link GeoData.ways}, {@link GeoData.nodes}, and {@link GeoData.nodesQuadtree}.
+     * 
+     * Call before addConstruction.
+     * @param {Object} json The OSM JSON data in Object format to load.
+     */
+    addBuildings(json) {
+        console.log("buildings: Loading " + json.elements.length + " features");
+        this.addWays(json, 
+            (way) => {
+                for (var nodeId of way.nodes) {
+                    if (nodeId in this.nodes) {
+                        // Add the ways to the node entry.
+                        var node = this.nodes[nodeId];
+                        var ways = node.ways;
 
-                // Add the node to the dictionary
-                this.nodes[feature.id] = feature;
-                this.nodes[feature.id].ways = ways;
-
-                // And the quadtree.
-                this.footpathsQuadtree.insert({
-                    x: feature.lon,
-                    y: feature.lat,
-                    width: 0.0001,
-                    height: 0.00008,
-                    node: feature.id
-                });
-            }
-
-            i++;
-        }
-
-        console.log("Loaded " + Object.keys(this.nodes).length + " nodes and " + Object.keys(this.footpaths).length + " ways.");
-        console.log("Loaded footpaths quadtree in " + (new Date() - start) + "ms");
-        // console.log(this.nodes);
-        // console.log( this.footpaths);
+                        if (ways == undefined) {
+                            node.ways = [];
+                        }
+                        node.ways.push(way.id);
+                    } else {
+                        // Create a new node entry with only the ways,
+                        // the rest of it will be filled in later.
+                        this.nodes[nodeId] = {
+                            ways: [way.id]
+                        };
+                    }
+                }
+                return way;
+            },
+            (node) => {
+                var ways = [];
+                // If node already has a list of ways, retrieve it.
+                if (node.id in this.nodes) {
+                    ways = this.nodes[node.id].ways;
+                }
+                
+                // If this is an entrance, add the node to the list of entrances in the way.
+                if (node.tags != undefined && "entrance" in node.tags) {
+                    for (var wayId of ways) {
+                        var way = this.ways[wayId];
+                        if ("building" in way.tags) {
+                            if(way.entrances == undefined) {
+                                way.entrances = [];
+                            }
+                            way.entrances.push(node.id);
+                            console.log(this.ways[wayId]);
+                        }
+                    }
+                }
+                
+                node.ways = ways;
+                return node;
+            });
     },
     /**
      * Takes GeoJSON as input and 
@@ -195,10 +222,11 @@ var GeoData = {
      * @param {*} json 
      */
     addConstruction(json) {
+        console.log("construction: Loading " + json.features.length + " features");
         // this.constructionGeoJSON = json;
         for (var feature of json.features) {
             var bbox = turf.bbox(feature);
-            var candidates = this.footpathsQuadtree.retrieve({
+            var candidates = this.nodesQuadtree.retrieve({
                 x: bbox[0],
                 y: bbox[1],
                 width: bbox[2] - bbox[0],
@@ -212,6 +240,45 @@ var GeoData = {
                 }
             }
         }
+    },
+    addWays(json, wayCallback, nodeCallback) {
+        var start = new Date();
+
+        var i = 0;
+        var features = json['elements'];
+        // console.log(json);
+        console.log("Loading " + features.length + " features");
+
+        // Add all features (i.e. ways, nodes)
+        for (var feature of features) {
+            // Add way
+            if (feature.type === 'way') {
+                feature = wayCallback(feature);
+
+                // Just add the way directly to the dictionary
+                this.ways[feature.id] = feature;
+            } 
+            // Add node
+            else if (feature.type === 'node') {
+                feature = nodeCallback(feature);
+                // Add the node to the dictionary..
+                this.nodes[feature.id] = feature;
+
+                // .. and the quadtree.
+                this.nodesQuadtree.insert({
+                    x: feature.lon,
+                    y: feature.lat,
+                    width: 0.0001,
+                    height: 0.00008,
+                    node: feature.id
+                });
+            }
+
+            i++;
+        }
+
+        console.log("Loaded " + Object.keys(this.nodes).length + " nodes and " 
+            + Object.keys(this.ways).length + " ways in " + (new Date() - start) + "ms.");
     },
     drawQuadtree: function (node) {
         var coords = [];
@@ -249,7 +316,7 @@ var GeoData = {
         }
     },
     nearestFootpath(point) {
-        var candidates = this.footpathsQuadtree.retrieve({
+        var candidates = this.nodesQuadtree.retrieve({
             x: point[0],
             y: point[1],
             width: 0.01,
@@ -285,7 +352,9 @@ async function fetchJson(path) {
 (async () => {
     GeoData.initFootpaths();
     GeoData.addFootpaths(await fetchJson('./res/footpaths/footpaths.min.json'));
+    GeoData.addBuildings(await fetchJson('./res/buildings/buildings.min.json'));
     GeoData.addConstruction(await fetchJson('./res/constructions/construction.min.geojson'));
+    // document.getElementById("loading-info-text").innerHTML = "Loaded.";
     // GeoData.addFootpaths(
     //     await fetch('./res/footpaths/footpaths.min.json').then(response => response.json()));
     // GeoData.setFootpathsXml('./res/footpaths.osm');
@@ -307,7 +376,7 @@ map.on('mousemove', (e) => {
             height: 0.0008
         };
 
-        var candidates = GeoData.footpathsQuadtree.retrieve(quad);
+        var candidates = GeoData.nodesQuadtree.retrieve(quad);
         var traversableNodes = turf.multiPoint(candidates
             .filter(i => !GeoData.untraversableNodes.has(i.node))
             .map(i => [i.x, i.y]),

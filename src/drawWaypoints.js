@@ -1,4 +1,3 @@
-
 /**
  * Contains functions and fields for drawing waypoints from A to B on the map, 
  * and getting nearest nodes to those points.
@@ -9,9 +8,14 @@ const Waypoints = {
     pathEndpoints: [],
     pathRoute: [],
     addWaypoint(waypoint) {
+        var nearestFootpath = GeoData.nearestFootpath(waypoint);
+        if(nearestFootpath == undefined){
+            console.log("No footpath found; cannot set waypoint");
+            return;
+        }
+
         this.userEndpoints.push(waypoint);
 
-        var nearestFootpath = GeoData.nearestFootpath(waypoint);
         console.log("nearest footpath: " + [nearestFootpath.x, nearestFootpath.y]);
         if (nearestFootpath != undefined) {
             this.pathEndpoints.push(nearestFootpath);
@@ -152,6 +156,10 @@ const Algorithms = {
         return document.getElementById("path-delay-checkbox").checked ? 10 : 0;
     },
 
+    pathThroughBuildings() {
+        return document.getElementById("path-buildings-checkbox").checked;
+    },
+
     /**
      * Gets the neighbors of the current Node by traversing within and between Ways
      * by moving between neighbors and Ways connected by the same Node.
@@ -166,27 +174,37 @@ const Algorithms = {
             throw new Error("Received a number. Algorithms.getNeighbors accepts nodes, not node ids.");
 
         for (var wayId of node.ways) {
-            var way = GeoData.footpaths[wayId];
+            var way = GeoData.ways[wayId];
 
             if (way === undefined)
                 console.log("Error: way " + wayId + " not found.", node);
 
-            // console.log("  Found way " + wayId, way)
-            // Push adjacent nodes in way
-            for (var i = 0; i < way.nodes.length; i++) {
-                if (way.nodes[i] == node.id) {
-                    // console.log("    Found original node. Pushing: " + way.nodes[i-1] + ", " + way.nodes[i+1] );
-                    if (i - 1 >= 0){
-                        var wayNode = way.nodes[i - 1];
-                        if(!GeoData.untraversableNodes.has(wayNode))
-                            neighbors.push(wayNode);
+            // way is building
+            if (
+                this.pathThroughBuildings() &&
+                way.tags != undefined && "building" in way.tags && way.entrances != undefined)
+            {
+                neighbors.push(...way.entrances);
+            }
+            // way is footpath
+            else {
+                // console.log("  Found way " + wayId, way)
+                // Push adjacent nodes in way
+                for (var i = 0; i < way.nodes.length; i++) {
+                    if (way.nodes[i] == node.id) {
+                        // console.log("    Found original node. Pushing: " + way.nodes[i-1] + ", " + way.nodes[i+1] );
+                        if (i - 1 >= 0){
+                            var wayNode = way.nodes[i - 1];
+                            if(!GeoData.untraversableNodes.has(wayNode))
+                                neighbors.push(wayNode);
+                        }
+                        if (i + 1 < way.nodes.length){
+                            var wayNode = way.nodes[i + 1];
+                            if(!GeoData.untraversableNodes.has(wayNode))
+                                neighbors.push(wayNode);
+                        }
+                        break;
                     }
-                    if (i + 1 < way.nodes.length){
-                        var wayNode = way.nodes[i + 1];
-                        if(!GeoData.untraversableNodes.has(wayNode))
-                            neighbors.push(wayNode);
-                    }
-                    break;
                 }
             }
         }
@@ -671,4 +689,8 @@ map.on('click', (e) => {
     // JSON.stringify(Waypoints.getUserEndpoints())+
     // "<br><br>Path Endpoints:<br>" +
     // JSON.stringify(Waypoints.getPathEndpoints())
+});
+
+map.on('touchstart', (e) => {
+    Waypoints.addWaypoint([e.lngLat["lng"], e.lngLat["lat"]]);
 });

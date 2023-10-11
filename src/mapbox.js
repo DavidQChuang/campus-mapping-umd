@@ -91,5 +91,5 @@ fetch("https://api.github.com/repos/DavidQChuang/campus-mapping-umd/commits/HEAD
   .then((response) => response.json())
   .then((json) => {
     var commit = json.commit;
-    document.getElementById("github-commit-msg").innerHTML = "[" + json.sha.substring(0, 7) + "] " + commit.author.name + ": " + commit.message;
+    document.getElementById("github-commit-msg").innerHTML = `[<a href='${json.html_url}'>` + json.sha.substring(0, 7) + "<a/>] " + commit.author.name + ": " + commit.message;
   });
