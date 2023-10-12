@@ -210,10 +210,15 @@ var GeoData = {
                             console.log(this.ways[wayId]);
                         }
                     }
+
+                    node.ways = ways;
+                    return node;
                 }
-                
-                node.ways = ways;
-                return node;
+
+                // Only add entrance nodes to node list
+                // ? Maybe add but mark as untraversable, but for now 
+                // there's no reason to, so just save memory
+                return undefined;
             });
     },
     /**
@@ -254,6 +259,7 @@ var GeoData = {
             // Add way
             if (feature.type === 'way') {
                 feature = wayCallback(feature);
+                if(feature == undefined) continue;
 
                 // Just add the way directly to the dictionary
                 this.ways[feature.id] = feature;
@@ -261,6 +267,8 @@ var GeoData = {
             // Add node
             else if (feature.type === 'node') {
                 feature = nodeCallback(feature);
+                if(feature == undefined) continue;
+
                 // Add the node to the dictionary..
                 this.nodes[feature.id] = feature;
 
