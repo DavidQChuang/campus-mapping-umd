@@ -302,7 +302,7 @@ const Algorithms = {
 
             actualPathLength += dist;
             
-            // Assume the path takes a right turn through a building at a 33% slower speed than walking outside
+            // Assume the path takes a right turn through a building
             if(n1.tags && n1.tags.entrance == "yes" && n2.tags && n2.tags.entrance == "yes" ) {
                 estPathLength += dist * 1.41;
             } else {
@@ -397,39 +397,8 @@ const Algorithms = {
     },
 }
 
-const UI = {
-    writePathInfo({ pathLength, time }) {
-        var pathDistance = document.getElementById("path-distance");
-        var pathTime = document.getElementById("path-time");
-
-        pathDistance.innerHTML = (0.621371 * pathLength).toFixed(2) + "mi";
-        pathTime.innerHTML = (Math.ceil(time * 60)) + "min";
-    }
-};
-
 function sleep(ms) {
     return new Promise(r => setTimeout(r, ms));
-}
-
-
-function drawWaypointRoute(algorithm) {
-    if (Waypoints.getUserEndpoints().length != 2) {
-        return;
-    }
-
-    var endpoints = Waypoints.getPathEndpoints();
-    // console.log("Pathing from " + JSON.stringify(endpoints[0]) + " to " + JSON.stringify(endpoints[1]));
-
-    var start = GeoData.nodes[endpoints[0].node];
-    var goal = GeoData.nodes[endpoints[1].node];
-
-    var route = algorithm(start, goal);
-
-    if (route != false) {
-        console.log("Routed: ", route);
-    } else {
-        console.log("Failed routing.")
-    }
 }
 
 function timeLogs(startTime, iters, tickSize) {
@@ -503,7 +472,7 @@ async function pathfindAstar(start, goal, h) {
             console.log("Found goal " + curr.id + " == " + goal.id);
             infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}.` +
                 ` Distance: ${pathLength.toFixed(2)}km, ${(time * 60).toFixed(2)} mins`;
-            UI.writePathInfo({pathLength, time})
+            // UI.writePathInfo({pathLength, time})
             return path;
         }
 

@@ -10,13 +10,30 @@ class RouteViewer {
                         <td>
                             <span class="material-symbols-rounded" style="vertical-align: top;">person_pin_circle</span>
                         </td>
-                        <td><input type="text"></td>
+                        <td>
+                            <div class="input-part">
+                                <input type="text" placeholder="Search or select">
+                                <div class="action-button" onclick="getLocation()">
+                                    <span class="material-symbols-rounded p12-icon">my_location</span>
+                                </div>
+                                <div class="action-button input-part-icon">
+                                    <span class="material-symbols-rounded p12-icon">pin_drop</span>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
                         <td>
                             <span class="material-symbols-rounded" style="vertical-align: top;">location_on</span>
                         </td>
-                        <td><input type="text"></td>
+                        <td>
+                            <div class="input-part">
+                                <input type="text" placeholder="Search or select">
+                                <div class="action-button input-part-icon">
+                                    <span class="material-symbols-rounded p12-icon ">pin_drop</span>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -31,7 +48,10 @@ class RouteViewer {
                         </p>
                     </td>
                     <td style="text-align:right">
-                        <button class="go-button" onclick="drawWaypointRoute(Algorithms.Astar)">Go</button>
+                        <button class="go-button" onclick="drawWaypointRoute(Algorithms.Astar)">
+                            <span id="loading-go">Go</span>
+                            <div id="loading-spin" class="loading-spin"><div></div><div></div><div></div></div>
+                        </button>
                     </td>
                 </tr>
             </table>

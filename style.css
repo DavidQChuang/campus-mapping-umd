@@ -1,3 +1,7 @@
+:root {
+    --go: skyblue;
+}
+
 @font-face {
     font-family: 'Bembo';
     src: url('res/Bembo.ttf') format('truetype');
@@ -5,9 +9,9 @@
 }
 
 #canvas {
-    position:absolute;
-    width:100%;
-    height:100%;
+    position: absolute;
+    width: 100%;
+    height: 100%;
     z-index: 1;
     pointer-events: none;
 }
@@ -47,29 +51,25 @@ body {
     padding-bottom: 5px;
 }
 
-.display-info input[type="text"] {
-    border: black 1px solid;
-    border-radius: 5px;
-}
-
-.display-info tr:not(:last-child) > td > .material-symbols-rounded:after{
-    content: '';
-    border: black 1px dashed;
-    height: 6px;
-    width: 0px;
-    display: block;
-    position: absolute;
-    left: 19px;
-    transform: translate(0,-2px);
-}
-
 .go-button {
-    background: skyblue !important;
+    background: var(--go) !important;
     border-radius: 5px !important;
     height: 20px !important;
     font-size: 12px;
     font-weight: bold;
     display: inline-block !important;
+}
+
+.action-button {
+    background: var(--go);
+    /* box-shadow: inset 0 0 0 2px #fff; */
+    cursor: pointer;
+    transition: box-shadow 300ms ease;
+}
+
+.action-button:hover {
+    /* background: var(--go); */
+    box-shadow: inset 0 0 0 1px #fff;
 }
 
 .p12-icon {
@@ -88,6 +88,22 @@ body {
     font-size: 12px;
     color: #222;
     background: #fff;
+}
+
+/* .display-info input[type="text"] {
+    border: black 1px solid;
+    border-radius: 5px;
+} */
+
+.display-info tr:not(:last-child)>td>.material-symbols-rounded:after {
+    content: '';
+    border: black 1px dashed;
+    height: 6px;
+    width: 0px;
+    display: block;
+    position: absolute;
+    left: 19px;
+    transform: translate(0, -2px);
 }
 
 .umd-logo {
@@ -115,7 +131,7 @@ body {
     flex-direction: column;
     row-gap: 2px;
     display: flex;
-    width:30%;
+    width: 30%;
 }
 
 .controls>div {
@@ -127,7 +143,8 @@ body {
 .tooltip {
     position: relative;
     display: inline-block;
-    border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+    border-bottom: 1px dotted black;
+    /* If you want dots under the hoverable text */
     margin-bottom: 4px;
 }
 
@@ -163,4 +180,85 @@ body {
 
 .tooltip:hover .tooltiptext {
     visibility: visible;
+}
+
+/* Multi-section input thing */
+
+.input-part {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 18px;
+    line-height: 18px;
+    color: black;
+    font-size: 13px;
+    /* column-gap: 1px; */
+}
+
+.input-part > * {
+    border: black 1px solid;
+    height: calc(100% + 2px);
+    padding: 0 2px;
+    border-radius: 5px;
+}
+
+.input-part > input { 
+    border: black 1px solid;
+    flex-grow: 1
+}
+
+.input-part > *:first-child {
+    border-radius: 5px 0 0 5px;
+}
+.input-part > *:not(:first-child) {
+    border-radius: 0;
+    border-left:none;
+}
+.input-part > *:last-child {
+    border-radius: 0 5px 5px 0;
+}
+
+/* Loading spin thing */
+.loading-spin {
+    display: inline-block;
+    position: relative;
+    width: 29px;
+    height: 15px;
+    top: 2px;
+}
+
+.loading-spin div {
+    display: inline-block;
+    position: absolute;
+    left: 8px;
+    width: 5px;
+    background: #0275ff;
+    animation: loading-spin 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+}
+
+.loading-spin div:nth-child(1) {
+    left: 5px;
+    animation-delay: -0.24s;
+}
+
+.loading-spin div:nth-child(2) {
+    left: 13px;
+    animation-delay: -0.12s;
+}
+
+.loading-spin div:nth-child(3) {
+    left: 21px;
+    animation-delay: 0;
+}
+
+@keyframes loading-spin {
+    0% {
+        top: -5%;
+        height: 110%;
+    }
+
+    50%, 100% {
+        top: 10%;
+        height: 80%;
+    }
 }
