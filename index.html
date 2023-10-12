@@ -32,7 +32,11 @@
 </head>
 <body>
     <div class="content">
-        <div id='map'></div>
+        <div id='map'>
+            <div id='map-overlay'>
+                
+            </div>
+        </div>
         <div class="controls">
             <span><b>Controls</b></span>
             <div>
@@ -127,6 +131,12 @@
                             <span class="tooltiptext">Allows pathing through buildings</span>
                         </span>
                         <input type="checkbox" id="path-buildings-checkbox" checked>
+                    </label>
+                    <label>
+                        <span class="tooltip">Path through fields
+                            <span class="tooltiptext">Allows pathing across fields</span>
+                        </span>
+                        <input type="checkbox" id="path-fields-checkbox" checked>
                     </label>
                 </div>
             </div>

@@ -26,11 +26,15 @@ const Layers = {
         'id': 'user-waypoints-path',
         'type': 'line',
         'source': 'user-waypoints-path',
+        'layout': {
+          'line-cap': 'round',
+          'line-join': 'round'
+        },
         'paint': {
             'line-color': '#aae',
             'line-opacity': 0.75,
             'line-width': 3,
-            'line-dasharray': [3, 1]
+            'line-dasharray': [2, 1.3]
         }
     },
     // Pathfinding endpoint visualization
@@ -147,9 +151,18 @@ const DrawStyles = [{
       'line-cap': 'round',
       'line-join': 'round'
     },
-    'paint': {
-      'line-color': '#3bb2d0',
-      'line-width': 2
+    "paint": {
+      "line-color": "#ffd200",
+      "line-width": 3,
+      "line-gap-width": 0,
+      "line-dasharray": [
+        1.1,
+        1.3
+      ]
+    },
+    "layout": {
+      "line-join": "bevel",
+      "line-cap": "round"
     }
   },
   {

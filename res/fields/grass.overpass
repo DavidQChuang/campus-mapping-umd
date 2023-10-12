@@ -1,0 +1,24 @@
+/*
+This shows the cycleway and cycleroute network.
+highway is pedestrian, crossing, steps, path, footway, service
+ENGLISH
+*/
+
+{{box=-76.93181343780238,
+       38.9812838575651,
+      -76.95459155746272,
+      38.998046641685335}}
+
+[out:json];
+
+(
+  way[landuse=grass](38.9812838575651,
+       -76.95459155746272,
+      38.998046641685335,
+      -76.93181343780238);
+);
+
+out body;
+>;
+
+out body qt;
