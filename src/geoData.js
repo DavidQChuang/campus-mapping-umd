@@ -207,7 +207,6 @@ var GeoData = {
                                 way.entrances = [];
                             }
                             way.entrances.push(node.id);
-                            console.log(this.ways[wayId]);
                         }
                     }
 
@@ -334,20 +333,17 @@ var GeoData = {
         if (!candidates || candidates.length == 0) {
             return undefined;
         } else {
-            var minDist = 999;
-            var minNode = undefined;
+            var minDist = 999999;
+            var minQuad = candidates[0];
 
-            for (var node of candidates) {
-                var xd = node.x - point[0];
-                var yd = node.y - point[1];
-
-                var dist = xd * xd + yd * yd;
+            for (var quad of candidates) {
+                var dist = Algorithms.getDistance({lon: point[0], lat:point[1]}, GeoData.nodes[quad.node]);
                 if (dist < minDist) {
                     minDist = dist;
-                    minNode = node;
+                    minQuad = quad;
                 }
             }
-            return minNode;
+            return minQuad;
         }
     }
 };
