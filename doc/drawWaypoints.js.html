@@ -26,8 +26,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>
-/**
+            <pre class="prettyprint source linenums"><code>/**
  * Contains functions and fields for drawing waypoints from A to B on the map, 
  * and getting nearest nodes to those points.
  * @namespace Waypoints
@@ -37,9 +36,14 @@ const Waypoints = {
     pathEndpoints: [],
     pathRoute: [],
     addWaypoint(waypoint) {
+        var nearestFootpath = GeoData.nearestFootpath(waypoint);
+        if(nearestFootpath == undefined){
+            console.log("No footpath found; cannot set waypoint");
+            return;
+        }
+
         this.userEndpoints.push(waypoint);
 
-        var nearestFootpath = GeoData.nearestFootpath(waypoint);
         console.log("nearest footpath: " + [nearestFootpath.x, nearestFootpath.y]);
         if (nearestFootpath != undefined) {
             this.pathEndpoints.push(nearestFootpath);
@@ -180,6 +184,10 @@ const Algorithms = {
         return document.getElementById("path-delay-checkbox").checked ? 10 : 0;
     },
 
+    pathThroughBuildings() {
+        return document.getElementById("path-buildings-checkbox").checked;
+    },
+
     /**
      * Gets the neighbors of the current Node by traversing within and between Ways
      * by moving between neighbors and Ways connected by the same Node.
@@ -194,27 +202,37 @@ const Algorithms = {
             throw new Error("Received a number. Algorithms.getNeighbors accepts nodes, not node ids.");
 
         for (var wayId of node.ways) {
-            var way = GeoData.footpaths[wayId];
+            var way = GeoData.ways[wayId];
 
             if (way === undefined)
                 console.log("Error: way " + wayId + " not found.", node);
 
-            // console.log("  Found way " + wayId, way)
-            // Push adjacent nodes in way
-            for (var i = 0; i &lt; way.nodes.length; i++) {
-                if (way.nodes[i] == node.id) {
-                    // console.log("    Found original node. Pushing: " + way.nodes[i-1] + ", " + way.nodes[i+1] );
-                    if (i - 1 >= 0){
-                        var wayNode = way.nodes[i - 1];
-                        if(!GeoData.untraversableNodes.has(wayNode))
-                            neighbors.push(wayNode);
+            // way is building
+            if (
+                this.pathThroughBuildings() &amp;&amp;
+                way.tags != undefined &amp;&amp; "building" in way.tags &amp;&amp; way.entrances != undefined)
+            {
+                neighbors.push(...way.entrances);
+            }
+            // way is footpath
+            else {
+                // console.log("  Found way " + wayId, way)
+                // Push adjacent nodes in way
+                for (var i = 0; i &lt; way.nodes.length; i++) {
+                    if (way.nodes[i] == node.id) {
+                        // console.log("    Found original node. Pushing: " + way.nodes[i-1] + ", " + way.nodes[i+1] );
+                        if (i - 1 >= 0){
+                            var wayNode = way.nodes[i - 1];
+                            if(!GeoData.untraversableNodes.has(wayNode))
+                                neighbors.push(wayNode);
+                        }
+                        if (i + 1 &lt; way.nodes.length){
+                            var wayNode = way.nodes[i + 1];
+                            if(!GeoData.untraversableNodes.has(wayNode))
+                                neighbors.push(wayNode);
+                        }
+                        break;
                     }
-                    if (i + 1 &lt; way.nodes.length){
-                        var wayNode = way.nodes[i + 1];
-                        if(!GeoData.untraversableNodes.has(wayNode))
-                            neighbors.push(wayNode);
-                    }
-                    break;
                 }
             }
         }
@@ -357,8 +375,30 @@ const Algorithms = {
      * @returns {number} The distance in kilometers.
      */
     getDistance(n1, n2) {
-        return turf.distance([n1.lon, n1.lat], [n2.lon, n2.lat], { units: 'kilometers' });
+        var dist = turf.distance([n1.lon, n1.lat], [n2.lon, n2.lat], { units: 'kilometers' });
+        return dist;
     },
+
+    /**
+     * Calculates the time to walk the given distance.
+     * 
+     * Walking through buildings (i.e. from one entrance to another) 
+     * is assumed to be 1.615 times slower than walking the distance in a straight line
+     * directly between the entrance/exit nodes.
+     * @param {number} dist 
+     * @returns {{time: {number}, dist: {number}}} The time (in hours) to walk the given distance (in km) at a pace of 4.5km/h.
+     */
+    getWalkTime(n1, n2) {
+        var dist = this.getDistance(n1, n2);
+        var estDist = dist;
+        
+        // Assume the path takes a right turn through a building at a 33% slower speed than walking outside
+        if(n1.id in GeoData.untraversableNodes &amp;&amp; n2.id in GeoData.untraversableNodes) {
+            estDist *= 1.41 * 1.5;
+        }
+        
+        return { time: estDist / 4.5, dist: dist };
+    }
 }
 
 function sleep(ms) {
@@ -455,7 +495,8 @@ async function pathfindAstar(start, goal, h) {
             const { path, pathLength } = Algorithms.getPathLength(cameFrom, start, curr);
 
             console.log("Found goal " + curr.id + " == " + goal.id);
-            infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}. Distance: ${pathLength.toFixed(2)}km`;
+            infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}.` +
+                ` Distance: ${pathLength.toFixed(2)}km, ${Algorithms.getWalkTime(pathLength)}`;
 
             return path;
         }
@@ -699,6 +740,10 @@ map.on('click', (e) => {
     // JSON.stringify(Waypoints.getUserEndpoints())+
     // "&lt;br>&lt;br>Path Endpoints:&lt;br>" +
     // JSON.stringify(Waypoints.getPathEndpoints())
+});
+
+map.on('touchstart', (e) => {
+    Waypoints.addWaypoint([e.lngLat["lng"], e.lngLat["lat"]]);
 });</code></pre>
         </article>
     </section>
@@ -715,7 +760,7 @@ map.on('click', (e) => {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Mon Oct 09 2023 23:30:14 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Oct 12 2023 14:22:36 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
