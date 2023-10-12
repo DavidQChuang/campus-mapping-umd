@@ -278,7 +278,7 @@ const Algorithms = {
      * is assumed to be 1.41 times slower than walking the distance in a straight line
      * directly between the entrance/exit nodes.
      * @param {number} dist 
-     * @returns {{time: {number}, dist: {number}}} time: The time (in hours) to walk the given distance (in km) at a pace of 4.5km/h. dist: The actual distance.
+     * @returns {{time: {number}, dist: {number}}} time: The time (in hours) to walk the given distance (in km) at a pace of 4.3km/h. dist: The actual distance.
      */
     getPathTime(cameFrom, start, node) {
         var currId = node.id;
@@ -313,7 +313,7 @@ const Algorithms = {
         }
         nodeIds.push(start.id);
 
-        return { time: estPathLength / 4.5, path: nodeIds, pathLength: actualPathLength };
+        return { time: estPathLength / 4.3, path: nodeIds, pathLength: actualPathLength };
     },
 
     /**
@@ -396,6 +396,16 @@ const Algorithms = {
         return dist;
     },
 }
+
+const UI = {
+    writePathInfo({ pathLength, time }) {
+        var pathDistance = document.getElementById("path-distance");
+        var pathTime = document.getElementById("path-time");
+
+        pathDistance.innerHTML = (0.621371 * pathLength).toFixed(2) + "mi";
+        pathTime.innerHTML = (Math.ceil(time * 60)) + "min";
+    }
+};
 
 function sleep(ms) {
     return new Promise(r => setTimeout(r, ms));
@@ -493,7 +503,7 @@ async function pathfindAstar(start, goal, h) {
             console.log("Found goal " + curr.id + " == " + goal.id);
             infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}.` +
                 ` Distance: ${pathLength.toFixed(2)}km, ${(time * 60).toFixed(2)} mins`;
-
+            UI.writePathInfo({pathLength, time})
             return path;
         }
 

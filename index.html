@@ -8,6 +8,7 @@
 
     <!--style-->
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20,400,0,0" />
 
     <!--lib-->
     <script
@@ -34,13 +35,13 @@
     <div class="content">
         <div id='map'>
             <div id='map-overlay'>
-                
+
             </div>
         </div>
         <div class="controls">
             <span><b>Controls</b></span>
             <div>
-                <p id="info" class="display-info">[long, lat]:<br/>[]</p>
+                <p id="info" class="display-info" style="text-align: center;">[long, lat]:<br/>[]</p>
                 <!-- <p id="waypoints-display" class="display-info" style="margin-top:5px">Waypoints:<br/>[]</p> -->
             </div>
             <div>
@@ -125,18 +126,6 @@
                             <span class="tooltiptext">Adds a 10ms timestep to each tick of the pathfinding algorithm.</span>
                         </span>
                         <input type="checkbox" id="path-delay-checkbox">
-                    </label>
-                    <label>
-                        <span class="tooltip">Path through buildings
-                            <span class="tooltiptext">Allows pathing through buildings</span>
-                        </span>
-                        <input type="checkbox" id="path-buildings-checkbox" checked>
-                    </label>
-                    <label>
-                        <span class="tooltip">Path through fields
-                            <span class="tooltiptext">Allows pathing across fields</span>
-                        </span>
-                        <input type="checkbox" id="path-fields-checkbox" checked>
                     </label>
                 </div>
             </div>

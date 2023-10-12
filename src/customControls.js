@@ -2,7 +2,54 @@ class RouteViewer {
     onAdd(map) {
         const div = document.createElement("div");
         div.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
-        div.innerHTML = ``;
+        div.innerHTML = `
+        <div class="display-info">
+            <table style="width: 100%; text-align: left;">
+                <tbody>
+                    <tr>
+                        <td>
+                            <span class="material-symbols-rounded" style="vertical-align: top;">person_pin_circle</span>
+                        </td>
+                        <td><input type="text"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="material-symbols-rounded" style="vertical-align: top;">location_on</span>
+                        </td>
+                        <td><input type="text"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <table style="width: 100%; text-align: left;">
+                <tr>
+                    <td>
+                        <p style="margin:0; font-size:12px"><b>
+                            <span class="material-symbols-rounded p12-icon">directions_walk</span>
+                            <span id="path-distance">.. mi</span>
+                            <span class="material-symbols-rounded p12-icon">schedule</span>
+                            <span id="path-time">.. min</span></b>
+                        </p>
+                    </td>
+                    <td style="text-align:right">
+                        <button class="go-button" onclick="drawWaypointRoute(Algorithms.Astar)">Go</button>
+                    </td>
+                </tr>
+            </table>
+            <label>
+                <span class="tooltip">Allow entering buildings
+                    <span class="tooltiptext">Allows pathing through buildings</span>
+                </span>
+                <input type="checkbox" id="path-buildings-checkbox" checked>
+            </label>
+            <br/>
+            <label>
+                <span class="tooltip">Allow crossing grass
+                    <span class="tooltiptext">Allows pathing across fields</span>
+                </span>
+                <input type="checkbox" id="path-fields-checkbox" checked>
+            </label>
+        </div>
+        `;
         div.id = "route-viewer";
         return div;
     }

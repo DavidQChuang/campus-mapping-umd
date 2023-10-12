@@ -47,17 +47,45 @@ body {
     padding-bottom: 5px;
 }
 
+.display-info input[type="text"] {
+    border: black 1px solid;
+    border-radius: 5px;
+}
+
+.display-info tr:not(:last-child) > td > .material-symbols-rounded:after{
+    content: '';
+    border: black 1px dashed;
+    height: 6px;
+    width: 0px;
+    display: block;
+    position: absolute;
+    left: 19px;
+    transform: translate(0,-2px);
+}
+
+.go-button {
+    background: skyblue !important;
+    border-radius: 5px !important;
+    height: 20px !important;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block !important;
+}
+
+.p12-icon {
+    font-size: 14px !important;
+    vertical-align: text-bottom;
+}
+
 .display-info {
     display: table;
     position: relative;
     margin: 0px auto;
     word-wrap: anywhere;
-    white-space: pre-wrap;
-    padding: 10px;
+    padding: 5px;
     border: none;
     border-radius: 3px;
     font-size: 12px;
-    text-align: center;
     color: #222;
     background: #fff;
 }
@@ -101,6 +129,10 @@ body {
     display: inline-block;
     border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
     margin-bottom: 4px;
+}
+
+.display-info .tooltip {
+    margin-bottom: 0;
 }
 
 .tooltip .tooltiptext {
