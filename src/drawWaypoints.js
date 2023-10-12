@@ -272,6 +272,51 @@ const Algorithms = {
     },
 
     /**
+     * Calculates the time to walk the given path.
+     * 
+     * Walking through buildings (i.e. from one entrance to another) 
+     * is assumed to be 1.41 times slower than walking the distance in a straight line
+     * directly between the entrance/exit nodes.
+     * @param {number} dist 
+     * @returns {{time: {number}, dist: {number}}} time: The time (in hours) to walk the given distance (in km) at a pace of 4.5km/h. dist: The actual distance.
+     */
+    getPathTime(cameFrom, start, node) {
+        var currId = node.id;
+        var nodeIds = [];
+        var actualPathLength = 0;
+        var estPathLength = 0;
+
+        while (currId != start.id) {
+            // Push the current id then go to the previous node.
+            nodeIds.push(currId);
+            var nextId = cameFrom[currId];
+
+            if (nextId === undefined) {
+                console.log("Error")
+                throw new RangeError("Node path does not exist");
+            }
+
+            var n1 = GeoData.nodes[currId];
+            var n2 = GeoData.nodes[nextId]
+            var dist = Algorithms.getDistance(n1, n2);
+
+            actualPathLength += dist;
+            
+            // Assume the path takes a right turn through a building at a 33% slower speed than walking outside
+            if(n1.tags && n1.tags.entrance == "yes" && n2.tags && n2.tags.entrance == "yes" ) {
+                estPathLength += dist * 1.41;
+            } else {
+                estPathLength += dist;
+            }
+
+            currId = nextId;
+        }
+        nodeIds.push(start.id);
+
+        return { time: estPathLength / 4.5, path: nodeIds, pathLength: actualPathLength };
+    },
+
+    /**
      * Draws a path on the map given an array of node IDs.
      * @param {string} id The ID of the map feature to be drawn.
      *   Drawing a feature with an ID corresponding to an existing feature will overwrite the previous one.
@@ -347,7 +392,8 @@ const Algorithms = {
      * @returns {number} The distance in kilometers.
      */
     getDistance(n1, n2) {
-        return turf.distance([n1.lon, n1.lat], [n2.lon, n2.lat], { units: 'kilometers' });
+        var dist = turf.distance([n1.lon, n1.lat], [n2.lon, n2.lat], { units: 'kilometers' });
+        return dist;
     },
 }
 
@@ -442,10 +488,11 @@ async function pathfindAstar(start, goal, h) {
 
         // This is the goal. Path back using cameFrom to create the path.
         if (curr.id == goal.id) {
-            const { path, pathLength } = Algorithms.getPathLength(cameFrom, start, curr);
+            const { path, pathLength, time } = Algorithms.getPathTime(cameFrom, start, curr);
 
             console.log("Found goal " + curr.id + " == " + goal.id);
-            infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}. Distance: ${pathLength.toFixed(2)}km`;
+            infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}.` +
+                ` Distance: ${pathLength.toFixed(2)}km, ${(time * 60).toFixed(2)} mins`;
 
             return path;
         }
