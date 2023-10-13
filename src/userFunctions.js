@@ -2,12 +2,12 @@
 
 
 const UI = {
-    writePathInfo({ pathLength, time }) {
-        var pathDistance = document.getElementById("path-distance");
-        var pathTime = document.getElementById("path-time");
+    writePathInfo({ pathLength, pathTime }) {
+        var pathDistanceLabel = document.getElementById("path-distance");
+        var pathTimeLabel = document.getElementById("path-time");
 
-        pathDistance.innerHTML = (0.621371 * pathLength).toFixed(2) + "mi";
-        pathTime.innerHTML = (Math.ceil(time * 60)) + "min";
+        pathDistanceLabel.innerHTML = (0.621371 * pathLength).toFixed(2) + "mi";
+        pathTimeLabel.innerHTML = (Math.ceil(pathTime * 60)) + "min";
     }
 };
 
@@ -48,7 +48,7 @@ function showError(error) {
   }
 }
 
-function drawWaypointRoute(algorithm) {
+async function drawWaypointRoute(algorithm) {
     if (Waypoints.getUserEndpoints().length != 2) {
         return;
     }
@@ -59,11 +59,14 @@ function drawWaypointRoute(algorithm) {
     var start = GeoData.nodes[endpoints[0].node];
     var goal = GeoData.nodes[endpoints[1].node];
 
-    var route = algorithm(start, goal);
-
-    if (route != false) {
-        console.log("Routed: ", route);
+    const {
+        path, pathLength, pathTime,
+        runTime, tickSize, iters
+    } = await algorithm(start, goal);
+    
+    if(path != undefined) {
+        UI.writePathInfo({ pathLength, pathTime })
     } else {
-        console.log("Failed routing.")
+        UI.writePathInfo({ pathLength: 0, pathTime: 0 });
     }
 }

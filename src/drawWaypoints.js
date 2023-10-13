@@ -278,7 +278,7 @@ const Algorithms = {
      * is assumed to be 1.41 times slower than walking the distance in a straight line
      * directly between the entrance/exit nodes.
      * @param {number} dist 
-     * @returns {{time: {number}, dist: {number}}} time: The time (in hours) to walk the given distance (in km) at a pace of 4.3km/h. dist: The actual distance.
+     * @returns {{pathTime: number, path: number[], pathLength: number}} time: The time (in hours) to walk the given distance (in km) at a pace of 4.3km/h. dist: The actual distance.
      */
     getPathTime(cameFrom, start, node) {
         var currId = node.id;
@@ -313,7 +313,7 @@ const Algorithms = {
         }
         nodeIds.push(start.id);
 
-        return { time: estPathLength / 4.3, path: nodeIds, pathLength: actualPathLength };
+        return { pathTime: estPathLength / 4.3, path: nodeIds, pathLength: actualPathLength };
     },
 
     /**
@@ -454,7 +454,10 @@ async function pathfindAstar(start, goal, h) {
         if (openSet.length > 250) {
             infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; search was too large.`;
             console.log("Too long.");
-            return false;
+            return {
+                path: undefined,
+                runTime: new Date() - startTime, tickSize, iters
+            };
         }
         var curr = openSet.pop();
 
@@ -467,13 +470,16 @@ async function pathfindAstar(start, goal, h) {
 
         // This is the goal. Path back using cameFrom to create the path.
         if (curr.id == goal.id) {
-            const { path, pathLength, time } = Algorithms.getPathTime(cameFrom, start, curr);
+            const { path, pathLength, pathTime: pathTime } = Algorithms.getPathTime(cameFrom, start, curr);
 
             console.log("Found goal " + curr.id + " == " + goal.id);
             infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}.` +
-                ` Distance: ${pathLength.toFixed(2)}km, ${(time * 60).toFixed(2)} mins`;
+                ` Distance: ${pathLength.toFixed(2)}km, ${(pathTime * 60).toFixed(2)} mins`;
             // UI.writePathInfo({pathLength, time})
-            return path;
+            return {
+                path, pathLength, pathTime,
+                runTime: new Date() - startTime, tickSize, iters
+            };
         }
 
         // Find neighbors by looking for adjacent nodes in ways.
@@ -504,7 +510,10 @@ async function pathfindAstar(start, goal, h) {
     }
     // Open set is empty but goal was never reached
     infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; goal was never reached.`;
-    return false;
+    return {
+        path: undefined,
+        runTime: new Date() - startTime, tickSize, iters
+    };
 }
 
 ////////////////////////////////////////
@@ -645,7 +654,10 @@ async function pathfindDijkstra(start, goal, h) {
         if (openSet.length > 250) {
             infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; search was too large.`;
             console.log("Too long.");
-            return false;
+            return {
+                path: undefined,
+                runTime: new Date() - startTime, tickSize, iters
+            };
         }
 
         var curr = openSet.pop();
@@ -695,16 +707,22 @@ async function pathfindDijkstra(start, goal, h) {
     // Finish when the absolute shortest path is known or we ran out of paths.
     if (cameFrom[goal.id] != undefined) {
         // Draw path
-        const { path, pathLength } = Algorithms.getPathLength(cameFrom, start, goal);
+        const { path, pathLength, pathTime } = Algorithms.getPathTime(cameFrom, start, goal);
         Algorithms.drawRoute('dijkstra-path', path);
 
         console.log("Found goal " + goal.id + " == " + goal.id);
         infoLabel.innerHTML = `Success in ${timeLogs(startTime, iters, tickSize)}. Distance: ${pathLength.toFixed(2)}km, Dijkstra distance: ${dist[goal.id].toFixed(2)}km`;
-        return path;
+        return {
+            path, pathLength, pathTime,
+            runTime: new Date() - startTime, tickSize, iters
+        };
     } else {
         // Open set is empty but goal was never reached
         infoLabel.innerHTML = `Failed in ${timeLogs(startTime, iters, tickSize)}; goal was never reached.`;
-        return false;
+        return {
+            path: undefined,
+            runTime: new Date() - startTime, tickSize, iters
+        };
     }
 }
 
