@@ -5,31 +5,31 @@ class RouteViewer {
         div.innerHTML = `
         <div class="display-info">
             <table style="width: 100%; text-align: left;">
-                <tbody>
-                    <tr>
+                <tbody id="map-waypoint-list">
+                    <tr class="map-waypoint">
                         <td>
                             <span class="material-symbols-rounded" style="vertical-align: top;">person_pin_circle</span>
                         </td>
                         <td>
                             <div class="input-part">
                                 <input type="text" placeholder="Search or select">
-                                <div class="action-button" onclick="getLocation()">
+                                <div class="action-button" onclick="waypointAtUserLocation()">
                                     <span class="material-symbols-rounded p12-icon">my_location</span>
                                 </div>
-                                <div class="action-button input-part-icon">
+                                <div class="action-button input-part-icon" onclick="new SetWaypointOnClick(0).on()">
                                     <span class="material-symbols-rounded p12-icon">pin_drop</span>
                                 </div>
                             </div>
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="map-waypoint-dest" class="map-waypoint map-waypoint-dest">
                         <td>
                             <span class="material-symbols-rounded" style="vertical-align: top;">location_on</span>
                         </td>
                         <td>
                             <div class="input-part">
                                 <input type="text" placeholder="Search or select">
-                                <div class="action-button input-part-icon">
+                                <div class="action-button input-part-icon" onclick="new SetWaypointOnClick(1).on()">
                                     <span class="material-symbols-rounded p12-icon ">pin_drop</span>
                                 </div>
                             </div>
@@ -89,12 +89,36 @@ class HomeButton {
     }
 }
 
+class SettingsButton {
+    onAdd(map) {
+        const div = document.createElement("div");
+        div.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
+        div.innerHTML = `<button>
+        <span class="material-symbols-rounded">tune</span>
+        </button>`;
+
+        div.addEventListener("contextmenu", (e) => e.preventDefault());
+        div.addEventListener("click", () => {
+            var controls = document.getElementById("debug-controls");
+            if(controls.getAttribute('unhidden') == 'true') {
+                controls.setAttribute('unhidden', 'false');
+            }else{
+                controls.setAttribute('unhidden', 'true');
+            }
+        });
+
+        return div;
+    }
+}
+
 const homeButton = new HomeButton();
+const settingsButton = new SettingsButton();
 const routeViewer = new RouteViewer();
 
 // OpenStreetMap style for the map
-map.addControl(Geocoder);
+// map.addControl(Geocoder);
 map.addControl(Draw, 'top-left');
 map.addControl(routeViewer, 'top-right');
 map.addControl(nav, 'top-right');
 map.addControl(homeButton, "top-right");
+map.addControl(settingsButton, "top-right");

@@ -123,7 +123,7 @@ body {
     flex-wrap: wrap;
 }
 
-.controls {
+/* .controls {
     min-width: 200px;
     background: lightgray;
     padding: 5px;
@@ -132,6 +132,36 @@ body {
     row-gap: 2px;
     display: flex;
     width: 30%;
+} */
+.controls[unhidden='true'] {
+    right: 0%;
+}
+.controls {
+    position: absolute;
+    min-width: 200px;
+    background: lightgray;
+    padding: 5px;
+    border-radius: 5px;
+    flex-direction: column;
+    row-gap: 2px;
+    /* display: flex; */
+    width: 30%;
+    right: -35%;
+    z-index: 3;
+    height: 100%;
+    overflow-y: scroll;
+    transition: right 300ms ease;
+}
+
+.controls-unhide-btn {
+        position: absolute;
+        right: 0%;
+        top: 50%;
+        width: 30px;
+        height: 30px;
+        background: white;
+        border-radius: 5px;
+        box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
 }
 
 .controls>div {

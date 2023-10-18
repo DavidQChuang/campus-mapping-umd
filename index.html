@@ -38,8 +38,22 @@
 
             </div>
         </div>
-        <div class="controls">
-            <span><b>Controls</b></span>
+        <div class="controls" id="debug-controls">
+            <span>
+                <b>Controls</b>
+                <a style="
+                    font-weight: 900;
+                    color: red;
+                    top: 5px;
+                    cursor:pointer;"
+                    onclick="document.getElementById('debug-controls').setAttribute('unhidden','false')">
+                    close
+                    <span class="material-symbols-rounded" style="
+                        line-height: 16px;
+                        vertical-align: bottom;
+                    ">close</span>
+                </a>
+            </span>
             <div>
                 <p id="info" class="display-info" style="text-align: center;">[long, lat]:<br/>[]</p>
                 <!-- <p id="waypoints-display" class="display-info" style="margin-top:5px">Waypoints:<br/>[]</p> -->
