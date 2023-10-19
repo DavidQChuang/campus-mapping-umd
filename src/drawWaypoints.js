@@ -8,9 +8,22 @@ const Waypoints = {
     pathEndpoints: [],
     pathRoute: [],
 
-    renderWaypoints(userEndpoints, pathEndpoints) {
-        // Update/create waypoints
+    unrenderUserEndpoints() {
+        if (map.getSource('user-waypoints') != undefined) {
+            map.setLayoutProperty('user-waypoints', 'visibility', 'none');
+        }
+        if (map.getSource('user-waypoints-path') != undefined) {
+            map.setLayoutProperty('user-waypoints-path', 'visibility', 'none');
+        }
+    },
 
+    unrenderPathEndpoints() {
+        if (map.getSource('path-waypoints') != undefined) {
+            map.setLayoutProperty('path-waypoints', 'visibility', 'none');
+        }
+    },
+
+    renderUserEndpoints(userEndpoints) {
         // Render points A and B
         var validUserPointCount = this.getValidEndpoints(userEndpoints).length;
         if (map.getSource('user-waypoints') == undefined) {
@@ -25,7 +38,10 @@ const Waypoints = {
         } else {
             // Has to be at least one endpoint to render
             if (validUserPointCount > 0) {
+                map.setLayoutProperty('user-waypoints', 'visibility', 'visible');
                 map.getSource('user-waypoints').setData(Waypoints.userPointFeature(userEndpoints));
+            } else {
+                map.setLayoutProperty('user-waypoints', 'visibility', 'none');
             }
         }
 
@@ -47,7 +63,9 @@ const Waypoints = {
                 map.setLayoutProperty('user-waypoints-path', 'visibility', 'none');
             }
         }
+    },
 
+    renderPathEndpoints(pathEndpoints) {
         // Render path endpoints
         var validPathPointCount = this.getValidEndpoints(pathEndpoints).length;
         if (map.getSource('path-endpoints') == undefined) {
@@ -63,6 +81,12 @@ const Waypoints = {
         } else {
             map.getSource('path-endpoints').setData(Waypoints.pathPointFeature(pathEndpoints));
         }
+    },
+
+    renderWaypoints(userEndpoints, pathEndpoints) {
+        // Update/create waypoints
+        this.renderUserEndpoints(userEndpoints);
+        this.renderPathEndpoints(pathEndpoints);
     },
     // addWaypoint(waypoint) {
     //     var nearestFootpath = GeoData.nearestFootpath(waypoint);

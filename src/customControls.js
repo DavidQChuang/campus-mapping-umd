@@ -13,10 +13,10 @@ class RouteViewer {
                         <td>
                             <div class="input-part">
                                 <input type="text" placeholder="Search or select">
-                                <div class="action-button input-part-icon" onclick="waypointAtUserLocation()">
+                                <div class="action-button input-part-icon" onclick="setWaypointAtUserLocation(0)">
                                     <span class="material-symbols-rounded map-waypoint-list-icon-small">my_location</span>
                                 </div>
-                                <div class="action-button input-part-icon" onclick="SetWaypointOnClick.on(0)">
+                                <div class="action-button input-part-icon" onclick="SetWaypointOnClick.on(this, 0)">
                                     <span class="material-symbols-rounded map-waypoint-list-icon-small">pin_drop</span>
                                 </div>
                             </div>
@@ -29,7 +29,7 @@ class RouteViewer {
                         <td>
                             <div class="input-part">
                                 <input type="text" placeholder="Search or select">
-                                <div class="action-button input-part-icon" onclick="SetWaypointOnClick.on(1)">
+                                <div class="action-button input-part-icon" onclick="SetWaypointOnClick.on(this, 1)">
                                     <span class="material-symbols-rounded map-waypoint-list-icon-small ">pin_drop</span>
                                 </div>
                             </div>
@@ -82,7 +82,7 @@ class HomeButton {
         div.innerHTML = `<button>
         <svg focusable="false" viewBox="0 0 24 24" aria-hidden="true" style="font-size: 20px;"><title>Reset map</title><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
         </button>`;
-        div.addEventListener("contextmenu", (e) => e.preventDefault());
+        // div.addEventListener("contextmenu", (e) => e.preventDefault());
         div.addEventListener("click", () => map.flyTo({...mapOrigin, duration:1000, essential:true}));
 
         return div;
@@ -97,7 +97,7 @@ class SettingsButton {
         <span class="material-symbols-rounded">tune</span>
         </button>`;
 
-        div.addEventListener("contextmenu", (e) => e.preventDefault());
+        // div.addEventListener("contextmenu", (e) => e.preventDefault());
         div.addEventListener("click", () => {
             var controls = document.getElementById("debug-controls");
             if(controls.getAttribute('unhidden') == 'true') {

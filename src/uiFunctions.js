@@ -82,6 +82,7 @@ function markerAtUserLocation() {
 function setWaypointAtUserLocation(idx) {
     getUserLocation((pos) => {
         UI.setWaypoint(idx, [pos.coords.longitude, pos.coords.latitude]);
+        Waypoints.renderWaypoints(UI.userEndpoints, UI.pathEndpoints);
     });
 }
 
@@ -92,42 +93,72 @@ const SetWaypointOnClick = {
     onTouchMove() {
         $(this).data('moved', '1');
     },
+    onMouseMoves: {},
+    onMouseMove(self, idx) {
+        if(!(idx in this.onMouseMoves)) {
+            this.onMouseMoves[idx] = ((self) => (e) => {
+                var userEndpoints = UI.userEndpoints;
+                userEndpoints[idx] = [e.lngLat["lng"], e.lngLat["lat"]]
+                Waypoints.renderUserEndpoints(userEndpoints);
+            })(self);
+        }
+        return this.onMouseMoves[idx];
+    },
     onTouchEnds: {},
-    onTouchEnd(idx) {
+    onTouchEnd(self, idx) {
         if(!(idx in this.onTouchEnds)) {
-            this.onTouchEnds[idx] = (e) => {
+            this.onTouchEnds[idx] = ((self) => (e) => {
                 if($(this).data('moved') == 0){
                     UI.setWaypoint(idx, [e.lngLat["lng"], e.lngLat["lat"]]);
-                    Waypoints.renderWaypoints(UI.userEndpoints, UI.pathEndpoints);
-                    SetWaypointOnClick.off(idx);
+                    Waypoints.unrenderUserEndpoints();
+                    Waypoints.renderPathEndpoints(UI.pathEndpoints);
+                    SetWaypointOnClick.off(self, idx);
                 }
-            };
+            })(self);
         }
         return this.onTouchEnds[idx];
     },
     onClicks: {},
-    onClick(idx) {
+    onClick(self, idx) {
         if(!(idx in this.onClicks)) {
-            this.onClicks[idx] = (e) => {
+            this.onClicks[idx] = ((self) => (e) => {
                 UI.setWaypoint(idx, [e.lngLat["lng"], e.lngLat["lat"]]);
-                Waypoints.renderWaypoints(UI.userEndpoints, UI.pathEndpoints);
-                SetWaypointOnClick.off(idx);
-            };
+                Waypoints.unrenderUserEndpoints();
+                Waypoints.renderPathEndpoints(UI.pathEndpoints);
+                SetWaypointOnClick.off(self, idx);
+            })(self);
         }
         return this.onClicks[idx];
     },
     
-    on(idx) {
-        map.on('touchstart', this.onTouchStart)
-           .on('touchmove', this.onTouchMove)
-           .on('touchend', this.onTouchEnd(idx))
-           .on('click', this.onClick(idx));
+    activeEvents: [],
+    on(self, idx) {
+        var existsAlready = false;
+        for(var event of this.activeEvents) {
+            this.off(event.self, event.idx);
+            if(event.idx == idx)
+                existsAlready = true;
+        }
+        this.activeEvents = [];
+
+        if(!existsAlready) {
+            this.activeEvents.push({self, idx});
+
+            self.setAttribute('selected', '');
+            map//.on('touchstart', this.onTouchStart)
+            .on('touchmove', this.onTouchMove)
+            .on('touchend', this.onTouchEnd(self, idx))
+            .on('mousemove', this.onMouseMove(self, idx))
+            .on('click', this.onClick(self, idx));
+        }
     },
-    off(idx) {
+    off(self, idx) {
+        self.removeAttribute('selected');
         map.off('touchstart', this.onTouchStart)
            .off('touchmove', this.onTouchMove)
-           .off('touchend', this.onTouchEnd(idx))
-           .off('click', this.onClick(idx));
+           .off('touchend', this.onTouchEnd(self, idx))
+           .off('mousemove', this.onMouseMove(self, idx))
+           .off('click', this.onClick(self, idx));
     }
 };
 
