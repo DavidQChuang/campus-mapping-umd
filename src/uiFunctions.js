@@ -87,12 +87,6 @@ function setWaypointAtUserLocation(idx) {
 }
 
 const SetWaypointOnClick = {
-    onTouchStart() {
-        $(this).data('moved', '0');
-    },
-    onTouchMove() {
-        $(this).data('moved', '1');
-    },
     onMouseMoves: {},
     onMouseMove(self, idx) {
         if(!(idx in this.onMouseMoves)) {
@@ -108,12 +102,10 @@ const SetWaypointOnClick = {
     onTouchEnd(self, idx) {
         if(!(idx in this.onTouchEnds)) {
             this.onTouchEnds[idx] = ((self) => (e) => {
-                if($(this).data('moved') == 0){
-                    UI.setWaypoint(idx, [e.lngLat["lng"], e.lngLat["lat"]]);
-                    Waypoints.unrenderUserEndpoints();
-                    Waypoints.renderPathEndpoints(UI.pathEndpoints);
-                    SetWaypointOnClick.off(self, idx);
-                }
+                UI.setWaypoint(idx, [e.lngLat["lng"], e.lngLat["lat"]]);
+                Waypoints.unrenderUserEndpoints();
+                Waypoints.renderPathEndpoints(UI.pathEndpoints);
+                SetWaypointOnClick.off(self, idx);
             })(self);
         }
         return this.onTouchEnds[idx];
@@ -145,17 +137,15 @@ const SetWaypointOnClick = {
             this.activeEvents.push({self, idx});
 
             self.setAttribute('selected', '');
-            map.on('touchstart', this.onTouchStart)
-            .on('touchmove', this.onTouchMove)
-            .on('touchend', this.onTouchEnd(self, idx))
-            .on('mousemove', this.onMouseMove(self, idx))
-            .on('click', this.onClick(self, idx));
+            map
+                .on('touchend', this.onTouchEnd(self, idx))
+                .on('mousemove', this.onMouseMove(self, idx))
+                .on('click', this.onClick(self, idx));
         }
     },
     off(self, idx) {
         self.removeAttribute('selected');
-        map.off('touchstart', this.onTouchStart)
-           .off('touchmove', this.onTouchMove)
+        map
            .off('touchend', this.onTouchEnd(self, idx))
            .off('mousemove', this.onMouseMove(self, idx))
            .off('click', this.onClick(self, idx));
