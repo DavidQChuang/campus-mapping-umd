@@ -40,9 +40,9 @@ class RouteViewer {
             <table style="width: 100%; text-align: left;">
                 <tr>
                     <td>
-                        <p style="margin:0; font-size:12px"><b>
-                            <span class="material-symbols-rounded p12-icon">directions_walk</span>
-                            <span id="path-distance">.. mi</span>
+                        <p style="margin:0;"><b>
+                            <span class="material-symbols-rounded p12-icon">directions_walk</span><span id="path-distance">.. mi</span>
+                            &nbsp;
                             <span class="material-symbols-rounded p12-icon">schedule</span>
                             <span id="path-time">.. min</span></b>
                         </p>
@@ -50,7 +50,7 @@ class RouteViewer {
                     <td style="text-align:right">
                         <button class="go-button" onclick="drawWaypointRoute(Algorithms.Astar)">
                             <span id="loading-go">Go</span>
-                            <div id="loading-spin" class="loading-spin"><div></div><div></div><div></div></div>
+                            <div nodisplay id="loading-spin" class="loading-spin"><div></div><div></div><div></div></div>
                         </button>
                     </td>
                 </tr>

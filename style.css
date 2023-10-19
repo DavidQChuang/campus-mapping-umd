@@ -35,8 +35,12 @@ body {
     overflow:hidden;
 }
 
+[nodisplay] {
+    display: none !important;
+}
+
 [unselectable] {
-    user-select:none;
+    user-select:none !important;
 }
 
 #map-overlay {
@@ -64,13 +68,19 @@ body {
     padding-bottom: 5px;
 }
 
-.go-button {
-    background: var(--go) !important;
+.go-button,
+.mapboxgl-ctrl-group button.go-button {
+    background: var(--go);
     border-radius: 5px !important;
-    height: 20px !important;
-    font-size: 12px;
+    /* height: 1.5em; */
+    padding: 0.3em 0.1em;
+    vertical-align: middle;
+    font-size: inherit;
     font-weight: bold;
-    display: inline-block !important;
+    display: inline-block;
+    height: 1.8em;
+    width: auto;
+    aspect-ratio:2;
 }
 
 .action-button {
@@ -87,18 +97,12 @@ body {
 }
 
 .p12-icon {
-    font-size: 14px !important;
+    font-size: 1.2em !important;
     vertical-align: text-bottom;
 }
 
 .map-waypoint {
     font-size: 30px;
-}
-
-@media screen and (max-width: 600px) {
-    .map-waypoint {
-        font-size: 38px;
-    }
 }
 
 .material-symbols-rounded.map-waypoint-list-icon {
@@ -120,7 +124,7 @@ body {
     padding: 5px;
     border: none;
     border-radius: 3px;
-    font-size: 12px;
+    font-size: 15px;
     color: #222;
     background: #fff;
 }
@@ -268,6 +272,8 @@ body {
 }
 
 .input-part > input { 
+    font-size: 0.7em;
+    vertical-align: bottom;
     border: #000000a0 1px solid;
     flex-grow: 1
 }
@@ -337,5 +343,15 @@ body {
     50%, 100% {
         top: 10%;
         height: 80%;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .map-waypoint {
+        font-size: 38px;
+    }
+
+    .display-info {
+        font-size: 18px;
     }
 }

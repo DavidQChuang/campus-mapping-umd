@@ -87,6 +87,16 @@ function setWaypointAtUserLocation(idx) {
 }
 
 const SetWaypointOnClick = {
+
+    setWaypointAndUpdateCallback(self, idx) {
+        return ((self, idx) => (e) => {
+            UI.setWaypoint(idx, [e.lngLat["lng"], e.lngLat["lat"]]);
+            Waypoints.unrenderUserEndpoints();
+            Waypoints.renderPathEndpoints(UI.pathEndpoints);
+            SetWaypointOnClick.off(self, idx);
+        })(self, idx);
+    },
+
     onMouseMoves: {},
     onMouseMove(self, idx) {
         if(!(idx in this.onMouseMoves)) {
@@ -101,24 +111,14 @@ const SetWaypointOnClick = {
     onTouchEnds: {},
     onTouchEnd(self, idx) {
         if(!(idx in this.onTouchEnds)) {
-            this.onTouchEnds[idx] = ((self) => (e) => {
-                UI.setWaypoint(idx, [e.lngLat["lng"], e.lngLat["lat"]]);
-                Waypoints.unrenderUserEndpoints();
-                Waypoints.renderPathEndpoints(UI.pathEndpoints);
-                SetWaypointOnClick.off(self, idx);
-            })(self);
+            this.onTouchEnds[idx] = this.setWaypointAndUpdateCallback(self, idx);
         }
         return this.onTouchEnds[idx];
     },
     onClicks: {},
     onClick(self, idx) {
         if(!(idx in this.onClicks)) {
-            this.onClicks[idx] = ((self) => (e) => {
-                UI.setWaypoint(idx, [e.lngLat["lng"], e.lngLat["lat"]]);
-                Waypoints.unrenderUserEndpoints();
-                Waypoints.renderPathEndpoints(UI.pathEndpoints);
-                SetWaypointOnClick.off(self, idx);
-            })(self);
+            this.onClicks[idx] = this.setWaypointAndUpdateCallback(self, idx);
         }
         return this.onClicks[idx];
     },
