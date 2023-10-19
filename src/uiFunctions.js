@@ -145,7 +145,7 @@ const SetWaypointOnClick = {
             this.activeEvents.push({self, idx});
 
             self.setAttribute('selected', '');
-            map//.on('touchstart', this.onTouchStart)
+            map.on('touchstart', this.onTouchStart)
             .on('touchmove', this.onTouchMove)
             .on('touchend', this.onTouchEnd(self, idx))
             .on('mousemove', this.onMouseMove(self, idx))
