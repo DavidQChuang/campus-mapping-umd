@@ -57,7 +57,7 @@ function polygonFromQuad(quadObj) {
  * Contains functions for loading and querying map data.
  * @namespace GeoData
  */
-var GeoData = {
+const GeoData = {
     /**
      * Bounding box, used to set bounds of quadtree.
      * @memberof GeoData
@@ -322,6 +322,12 @@ var GeoData = {
             }
         }
     },
+    /**
+     * 
+     * @param {number[]} point Long/lat coordinates in array form.
+     * @returns {Object|undefined} A quad from the nodes quadtree, or undefined if not found.
+     * See {@link GeoData.nodesQuadtree} for object layout.
+     */
     nearestFootpath(point) {
         var candidates = this.nodesQuadtree.retrieve({
             x: point[0],

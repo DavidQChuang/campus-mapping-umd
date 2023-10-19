@@ -32,157 +32,157 @@
     <script src="lib/mapbox-draw-static-mode.js"></script>
 </head>
 <body>
-    <div class="content">
-        <div id='map'>
-            <div id='map-overlay'>
+    <div id='map'>
+        <div id='map-overlay'>
 
-            </div>
         </div>
-        <div class="controls" id="debug-controls">
-            <span>
-                <b>Controls</b>
-                <a style="
-                    font-weight: 900;
-                    color: red;
-                    top: 5px;
-                    cursor:pointer;"
-                    onclick="document.getElementById('debug-controls').setAttribute('unhidden','false')">
-                    close
-                    <span class="material-symbols-rounded" style="
-                        line-height: 16px;
-                        vertical-align: bottom;
-                    ">close</span>
-                </a>
-            </span>
+    </div>
+    <div class="controls" id="debug-controls">
+        <span>
+            <b>Controls</b>
+            <a style="
+                font-weight: 900;
+                color: red;
+                top: 5px;
+                cursor:pointer;"
+                onclick="document.getElementById('debug-controls').setAttribute('unhidden','false')">
+                close
+                <span class="material-symbols-rounded" style="
+                    line-height: 16px;
+                    vertical-align: bottom;
+                ">close</span>
+            </a>
+        </span>
+        <div>
+            <p id="info" class="display-info" style="text-align: center;">[long, lat]:<br/>[]</p>
+            <!-- <p id="waypoints-display" class="display-info" style="margin-top:5px">Waypoints:<br/>[]</p> -->
+        </div>
+        <div>
             <div>
-                <p id="info" class="display-info" style="text-align: center;">[long, lat]:<br/>[]</p>
-                <!-- <p id="waypoints-display" class="display-info" style="margin-top:5px">Waypoints:<br/>[]</p> -->
-            </div>
-            <div>
-                <div>
-                    <span class="tooltip">
-                        Load GPX Route
-                        <span class="tooltiptext">
-                            Loads a route from a .gpx file from WayLog or another GPS logging app,
-                            then draws it on the map.
-                        </span>
+                <span class="tooltip">
+                    Load GPX Route
+                    <span class="tooltiptext">
+                        Loads a route from a .gpx file from WayLog or another GPS logging app,
+                        then draws it on the map.
                     </span>
-                </div>
-                <label>
-                    <input type="file" accept=".gpx" id="gpx-selector">
-                    <button onclick="loadRouteOnclick(this, getPointsFromGPX)" for="gpx-selector">Load</button>
-                </label>
+                </span>
             </div>
+            <label>
+                <input type="file" accept=".gpx" id="gpx-selector">
+                <button onclick="loadRouteOnclick(this, getPointsFromGPX)" for="gpx-selector">Load</button>
+            </label>
+        </div>
+        <div>
             <div>
-                <div>
-                    <span class="tooltip">
-                        Load JSON Route
-                        <span class="tooltiptext">
-                            Loads a route from a .json file,
-                            then draws it on the map.
-                            The file should contain only an array of [long,lat] coordinates:
-                            e.g. something like this: [[1,2],[1.1,2.1]]
-                        </span>
+                <span class="tooltip">
+                    Load JSON Route
+                    <span class="tooltiptext">
+                        Loads a route from a .json file,
+                        then draws it on the map.
+                        The file should contain only an array of [long,lat] coordinates:
+                        e.g. something like this: [[1,2],[1.1,2.1]]
                     </span>
-                </div>
-                <label>
-                    <input type="file" accept=".json" id="json-selector">
-                    <button onclick="loadRouteOnclick(this, getPointsFromJSON)" for="json-selector">Load</button>
-                </label>
+                </span>
             </div>
-            <div>
-                <div class="control-item">
-                    <div>
-                        <span class="tooltip">
-                            Pathfind (A*)
-                            <span class="tooltiptext"></span>
-                        </span>
-                    </div>
-                    <label>
-                        <button onclick="drawWaypointRoute(Algorithms.Astar)">Path</button>
-                        <button id="astar-path-toggle" hidden
-                            onclick="Algorithms.toggleFeatureButton(this, 'astar-path')">
-                            Hide</button>
-                        <span id="astar-path-info"></span>
-                    </label>
-                </div>
-                <div class="control-item">
-                    <div>
-                        <span class="tooltip">
-                            Pathfind (D*)
-                            <span class="tooltiptext"></span>
-                        </span>
-                    </div>
-                    <label>
-                        <button onclick="drawWaypointRoute(Algorithms.Dstar)">Path</button>
-                        <button id="dstar-path-toggle" hidden
-                            onclick="Algorithms.toggleFeatureButton(this, 'dstar-path')">Hide</button>
-                        <span id="dstar-path-info"></span>
-                    </label>
-                </div>
-                <div class="control-item">
-                    <div>
-                        <span class="tooltip">
-                            Pathfind (Dijkstra's)
-                            <span class="tooltiptext"></span>
-                        </span>
-                    </div>
-                    <label>
-                        <button onclick="drawWaypointRoute(Algorithms.Dijkstra)">Path</button>
-                        <button id="dijkstra-path-toggle" hidden
-                            onclick="Algorithms.toggleFeatureButton(this, 'dijkstra-path')">Hide</button>
-                        <span id="dijkstra-path-info"></span>
-                    </label>
-                </div>
-                <div class="control-item">
-                    <label>
-                        <span class="tooltip">Add Pathfinding Delay
-                            <span class="tooltiptext">Adds a 10ms timestep to each tick of the pathfinding algorithm.</span>
-                        </span>
-                        <input type="checkbox" id="path-delay-checkbox">
-                    </label>
-                </div>
-            </div>
-            <div>
+            <label>
+                <input type="file" accept=".json" id="json-selector">
+                <button onclick="loadRouteOnclick(this, getPointsFromJSON)" for="json-selector">Load</button>
+            </label>
+        </div>
+        <div>
+            <div class="control-item">
                 <div>
                     <span class="tooltip">
-                        Geolocate
+                        Pathfind (A*)
                         <span class="tooltiptext"></span>
                     </span>
                 </div>
                 <label>
-                    <button onclick="getLocation()">Locate</button>
-                    <span id="geolocation"></span>
+                    <button onclick="drawWaypointRoute(Algorithms.Astar)">Path</button>
+                    <button id="astar-path-toggle" hidden
+                        onclick="Algorithms.toggleFeatureButton(this, 'astar-path')">
+                        Hide</button>
+                    <span id="astar-path-info"></span>
                 </label>
             </div>
+            <div class="control-item">
+                <div>
+                    <span class="tooltip">
+                        Pathfind (D*)
+                        <span class="tooltiptext"></span>
+                    </span>
+                </div>
+                <label>
+                    <button onclick="drawWaypointRoute(Algorithms.Dstar)">Path</button>
+                    <button id="dstar-path-toggle" hidden
+                        onclick="Algorithms.toggleFeatureButton(this, 'dstar-path')">Hide</button>
+                    <span id="dstar-path-info"></span>
+                </label>
+            </div>
+            <div class="control-item">
+                <div>
+                    <span class="tooltip">
+                        Pathfind (Dijkstra's)
+                        <span class="tooltiptext"></span>
+                    </span>
+                </div>
+                <label>
+                    <button onclick="drawWaypointRoute(Algorithms.Dijkstra)">Path</button>
+                    <button id="dijkstra-path-toggle" hidden
+                        onclick="Algorithms.toggleFeatureButton(this, 'dijkstra-path')">Hide</button>
+                    <span id="dijkstra-path-info"></span>
+                </label>
+            </div>
+            <div class="control-item">
+                <label>
+                    <span class="tooltip">Add Pathfinding Delay
+                        <span class="tooltiptext">Adds a 10ms timestep to each tick of the pathfinding algorithm.</span>
+                    </span>
+                    <input type="checkbox" id="path-delay-checkbox">
+                </label>
+            </div>
+        </div>
+        <div>
             <div>
-                <div class="control-item">
-                    <div>
-                        <span class="tooltip">
-                            Debug
-                            <span class="tooltiptext"></span>
-                        </span>
-                    </div>
-                    <label>
-                        <button onclick="GeoData.drawQuadtree(GeoData.footpathsQuadtree);">Draw Footpaths Quadtree</button>
-                    </label>
+                <span class="tooltip">
+                    Geolocate
+                    <span class="tooltiptext"></span>
+                </span>
+            </div>
+            <label>
+                <button onclick="navAtUserPosition()">Locate</button>
+                <span id="geolocation"></span>
+            </label>
+        </div>
+        <div>
+            <div class="control-item">
+                <div>
+                    <span class="tooltip">
+                        Debug
+                        <span class="tooltiptext"></span>
+                    </span>
                 </div>
-                <div class="control-item">
-                    <label>
-                        <span class="tooltip">
-                            Show path nodes
-                            <span class="tooltiptext">Draws the path nodes around the cursor.</span>
-                        </span>
-                        <input type="checkbox" id="show-path-nodes-checkbox">
-                    </label>
-                    <a href="./doc/index.html">Documentation</a>
-                    <br>
-                    <span>Latest commit:</span>
-                    <span id="github-commit-msg"></span>
-                </div>
+                <label>
+                    <button onclick="GeoData.drawQuadtree(GeoData.footpathsQuadtree);">Draw Footpaths Quadtree</button>
+                </label>
+            </div>
+            <div class="control-item">
+                <label>
+                    <span class="tooltip">
+                        Show path nodes
+                        <span class="tooltiptext">Draws the path nodes around the cursor.</span>
+                    </span>
+                    <input type="checkbox" id="show-path-nodes-checkbox">
+                </label>
+                <a href="./doc/index.html">Documentation</a>
+                <br>
+                <span>Latest commit:</span>
+                <span id="github-commit-msg"></span>
             </div>
         </div>
     </div>
+    <!-- <div class="content">
+    </div> -->
     <div class="header content">
         <div class="text">
             <img src="res/umd-logo.svg" class="umd-logo" height="50px" alt="umd logo">
@@ -197,7 +197,8 @@
     <script src="src/geoData.js"></script>
     <script src="src/drawRoute.js"></script>
     <script src="src/drawWaypoints.js"></script>
+    <script src="src/drawAlgorithms.js"></script>
     <script src="src/drawConstruction.js"></script>
-    <script src="src/userFunctions.js"></script>
+    <script src="src/uiFunctions.js"></script>
 </body>
 </html>

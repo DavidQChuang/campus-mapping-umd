@@ -8,29 +8,29 @@ class RouteViewer {
                 <tbody id="map-waypoint-list">
                     <tr class="map-waypoint">
                         <td>
-                            <span class="material-symbols-rounded" style="vertical-align: top;">person_pin_circle</span>
+                            <span class="material-symbols-rounded map-waypoint-list-icon" style="vertical-align: top;">person_pin_circle</span>
                         </td>
                         <td>
                             <div class="input-part">
                                 <input type="text" placeholder="Search or select">
-                                <div class="action-button" onclick="waypointAtUserLocation()">
-                                    <span class="material-symbols-rounded p12-icon">my_location</span>
+                                <div class="action-button input-part-icon" onclick="waypointAtUserLocation()">
+                                    <span class="material-symbols-rounded map-waypoint-list-icon-small">my_location</span>
                                 </div>
-                                <div class="action-button input-part-icon" onclick="new SetWaypointOnClick(0).on()">
-                                    <span class="material-symbols-rounded p12-icon">pin_drop</span>
+                                <div class="action-button input-part-icon" onclick="SetWaypointOnClick.on(0)">
+                                    <span class="material-symbols-rounded map-waypoint-list-icon-small">pin_drop</span>
                                 </div>
                             </div>
                         </td>
                     </tr>
                     <tr id="map-waypoint-dest" class="map-waypoint map-waypoint-dest">
                         <td>
-                            <span class="material-symbols-rounded" style="vertical-align: top;">location_on</span>
+                            <span class="material-symbols-rounded map-waypoint-list-icon" style="vertical-align: top;">location_on</span>
                         </td>
                         <td>
                             <div class="input-part">
                                 <input type="text" placeholder="Search or select">
-                                <div class="action-button input-part-icon" onclick="new SetWaypointOnClick(1).on()">
-                                    <span class="material-symbols-rounded p12-icon ">pin_drop</span>
+                                <div class="action-button input-part-icon" onclick="SetWaypointOnClick.on(1)">
+                                    <span class="material-symbols-rounded map-waypoint-list-icon-small ">pin_drop</span>
                                 </div>
                             </div>
                         </td>

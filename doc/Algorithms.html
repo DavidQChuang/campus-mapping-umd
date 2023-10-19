@@ -73,7 +73,7 @@ as well as helper methods for use in algorithms.</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawWaypoints.js.html">drawWaypoints.js</a>, <a href="drawWaypoints.js.html#line139">line 139</a>
+        <a href="drawAlgorithms.js.html">drawAlgorithms.js</a>, <a href="drawAlgorithms.js.html#line1">line 1</a>
     </li></ul></dd>
     
 
@@ -146,7 +146,7 @@ as well as helper methods for use in algorithms.</p></div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawWaypoints.js.html">drawWaypoints.js</a>, <a href="drawWaypoints.js.html#line305">line 305</a>
+        <a href="drawAlgorithms.js.html">drawAlgorithms.js</a>, <a href="drawAlgorithms.js.html#line212">line 212</a>
     </li></ul></dd>
     
 
@@ -299,7 +299,7 @@ Drawing a feature with an ID corresponding to an existing feature will overwrite
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawWaypoints.js.html">drawWaypoints.js</a>, <a href="drawWaypoints.js.html#line281">line 281</a>
+        <a href="drawAlgorithms.js.html">drawAlgorithms.js</a>, <a href="drawAlgorithms.js.html#line188">line 188</a>
     </li></ul></dd>
     
 
@@ -477,7 +477,7 @@ Drawing a feature with an ID corresponding to an existing feature will overwrite
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawWaypoints.js.html">drawWaypoints.js</a>, <a href="drawWaypoints.js.html#line349">line 349</a>
+        <a href="drawAlgorithms.js.html">drawAlgorithms.js</a>, <a href="drawAlgorithms.js.html#line256">line 256</a>
     </li></ul></dd>
     
 
@@ -637,7 +637,7 @@ by moving between neighbors and Ways connected by the same Node.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawWaypoints.js.html">drawWaypoints.js</a>, <a href="drawWaypoints.js.html#line169">line 169</a>
+        <a href="drawAlgorithms.js.html">drawAlgorithms.js</a>, <a href="drawAlgorithms.js.html#line31">line 31</a>
     </li></ul></dd>
     
 
@@ -843,7 +843,7 @@ which node to move to from the current node.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawWaypoints.js.html">drawWaypoints.js</a>, <a href="drawWaypoints.js.html#line223">line 223</a>
+        <a href="drawAlgorithms.js.html">drawAlgorithms.js</a>, <a href="drawAlgorithms.js.html#line85">line 85</a>
     </li></ul></dd>
     
 
@@ -1050,7 +1050,7 @@ which node to move to from the current node.</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawWaypoints.js.html">drawWaypoints.js</a>, <a href="drawWaypoints.js.html#line251">line 251</a>
+        <a href="drawAlgorithms.js.html">drawAlgorithms.js</a>, <a href="drawAlgorithms.js.html#line113">line 113</a>
     </li></ul></dd>
     
 
@@ -1108,7 +1108,7 @@ which node to move to from the current node.</p></td>
     
 
     
-    <h4 class="name" id=".getWalkTime"><span class="type-signature">(static) </span>getWalkTime<span class="signature">(dist)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id=".getPathTime"><span class="type-signature">(static) </span>getPathTime<span class="signature">(dist)</span><span class="type-signature"> &rarr; {Object}</span></h4>
     
 
     
@@ -1116,9 +1116,9 @@ which node to move to from the current node.</p></td>
 
 
 <div class="description">
-    <p>Calculates the time to walk the given distance.</p>
+    <p>Calculates the time to walk the given path.</p>
 <p>Walking through buildings (i.e. from one entrance to another)
-is assumed to be 1.615 times slower than walking the distance in a straight line
+is assumed to be 1.41 times slower than walking the distance in a straight line
 directly between the entrance/exit nodes.</p>
 </div>
 
@@ -1212,7 +1212,7 @@ directly between the entrance/exit nodes.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawWaypoints.js.html">drawWaypoints.js</a>, <a href="drawWaypoints.js.html#line363">line 363</a>
+        <a href="drawAlgorithms.js.html">drawAlgorithms.js</a>, <a href="drawAlgorithms.js.html#line145">line 145</a>
     </li></ul></dd>
     
 
@@ -1241,7 +1241,7 @@ directly between the entrance/exit nodes.</p>
 
         
 <div class="param-desc">
-    <p>The time (in hours) to walk the given distance (in km) at a pace of 4.5km/h.</p>
+    <p>time: The time (in hours) to walk the given distance (in km) at a pace of 4.3km/h. dist: The actual distance.</p>
 </div>
 
 
@@ -1371,7 +1371,7 @@ directly between the entrance/exit nodes.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawWaypoints.js.html">drawWaypoints.js</a>, <a href="drawWaypoints.js.html#line312">line 312</a>
+        <a href="drawAlgorithms.js.html">drawAlgorithms.js</a>, <a href="drawAlgorithms.js.html#line219">line 219</a>
     </li></ul></dd>
     
 
@@ -1557,7 +1557,7 @@ Undefined if the feature doesn't exist in either the cache or list of active fea
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="drawWaypoints.js.html">drawWaypoints.js</a>, <a href="drawWaypoints.js.html#line333">line 333</a>
+        <a href="drawAlgorithms.js.html">drawAlgorithms.js</a>, <a href="drawAlgorithms.js.html#line240">line 240</a>
     </li></ul></dd>
     
 
@@ -1627,7 +1627,7 @@ Undefined if the feature doesn't exist in either the cache or list of active fea
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Oct 12 2023 14:22:36 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Oct 17 2023 15:01:44 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
