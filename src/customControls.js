@@ -4,7 +4,7 @@ class RouteViewer {
         div.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
         div.innerHTML = `
         <div class="display-info">
-            <table style="width: 100%; text-align: left;">
+            <table style="width: 100%; text-align: left;user-select:none">
                 <tbody id="map-waypoint-list">
                     <tr class="map-waypoint">
                         <td>
@@ -57,14 +57,14 @@ class RouteViewer {
             </table>
             <label>
                 <span class="tooltip">Allow entering buildings
-                    <span class="tooltiptext">Allows pathing through buildings</span>
+                    <span class="tooltiptext">This enables pathing through buildings. Routes will go between building entrances, but hallways are not included in the map.</span>
                 </span>
                 <input type="checkbox" id="path-buildings-checkbox" checked>
             </label>
             <br/>
             <label>
                 <span class="tooltip">Allow crossing grass
-                    <span class="tooltiptext">Allows pathing across fields</span>
+                    <span class="tooltiptext">This enables taking routes across fields, which may involve stepping over grass or mulch.</span>
                 </span>
                 <input type="checkbox" id="path-fields-checkbox" checked>
             </label>
