@@ -11,6 +11,7 @@ const Waypoints = {
     unrenderUserEndpoints() {
         if (map.getSource('user-waypoints') != undefined) {
             map.setLayoutProperty('user-waypoints', 'visibility', 'none');
+            map.setLayoutProperty('user-waypoints-text', 'visibility', 'none');
         }
         if (map.getSource('user-waypoints-path') != undefined) {
             map.setLayoutProperty('user-waypoints-path', 'visibility', 'none');
