@@ -15,6 +15,11 @@ html, body, #map {
     overflow:hidden;
 }
 
+.mapboxgl-ctrl.control-panel {
+    /* max-width: calc(100% - 60px); */
+    display: block;
+}
+
 #canvas {
     position: absolute;
     width: 100%;
@@ -218,7 +223,7 @@ body {
 }
 
 .display-info .tooltip {
-    margin-bottom: 0;
+    margin-left: 8px;
 }
 
 .tooltip .tooltiptext {
@@ -334,6 +339,51 @@ body {
     animation-delay: 0;
 }
 
+.mapboxgl-ctrl.popout-bottom {
+    transition: height 100ms ease, padding 300ms ease, margin 300ms ease;
+    display: block;
+}
+
+.mapboxgl-ctrl.popout-bottom[hidden] {
+    overflow: hidden;
+    height: 0px !important;
+    margin: 0;
+    padding: 0;
+}
+
+.mapboxgl-ctrl button .material-symbols-rounded {
+    vertical-align: bottom;
+}
+
+.construction-button {
+    background-color: orange;
+    border: rgb(171, 111, 0) 2px solid;
+}
+
+#route-viewer {
+    padding-left: 20px;
+}
+
+#route-viewer.mapboxgl-ctrl[hidden] {
+    padding: 0;
+}
+
+#route-viewer.mapboxgl-ctrl[hidden] li,
+#route-viewer.mapboxgl-ctrl[hidden] a {
+    display:none;
+}
+
+.long-button {
+    width: auto !important;
+    text-align: left;
+}
+
+#route-viewer.mapboxgl-ctrl:not([hidden]) .route-icon {
+    display: none;
+    position:absolute;
+}
+
+
 @keyframes loading-spin {
     0% {
         top: -5%;
@@ -347,6 +397,10 @@ body {
 }
 
 @media screen and (max-width: 600px) {
+    .mapboxgl-map {
+        font-size: 18px;
+    }
+
     .map-waypoint {
         font-size: 34px;
     }

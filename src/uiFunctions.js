@@ -48,6 +48,21 @@ const UI = {
         }
     },
 
+    startLoading(text) {
+        var loadingPanel = document.getElementById("loading-panel");
+        var loadingText = document.getElementById("loading-text");
+
+        loadingPanel.removeAttribute("hidden");
+        loadingText.innerHTML = text;
+    },
+
+    stopLoading() {
+        var loadingPanel = document.getElementById("loading-panel");
+        setTimeout(() => {
+            loadingPanel.setAttribute("hidden", '');
+        }, 400);
+    },
+
     writePathInfo({ pathLength, pathTime }) {
         var pathDistanceLabel = document.getElementById("path-distance");
         var pathTimeLabel = document.getElementById("path-time");
@@ -80,9 +95,19 @@ function markerAtUserLocation() {
 }
 
 function setWaypointAtUserLocation(idx) {
+    UI.startLoading("Finding user location.");
     getUserLocation((pos) => {
         UI.setWaypoint(idx, [pos.coords.longitude, pos.coords.latitude]);
         Waypoints.renderWaypoints(UI.userEndpoints, UI.pathEndpoints);
+        UI.stopLoading();
+    });
+}
+
+function queryConstructionAt(waypoint) {
+    getUserLocation((pos) => {
+        // find surrounding footpaths within 0.03km
+        GeoData.getSurroundingFootpaths(pos, 0.03);
+
     });
 }
 
@@ -123,18 +148,18 @@ const SetWaypointOnClick = {
         return this.onClicks[idx];
     },
     
-    activeEvents: [],
+    activeEvents: {},
     on(self, idx) {
         var existsAlready = false;
-        for(var event of this.activeEvents) {
+        for(var event of Object.values(this.activeEvents)) {
             this.off(event.self, event.idx);
             if(event.idx == idx)
                 existsAlready = true;
         }
-        this.activeEvents = [];
+        this.activeEvents = {};
 
         if(!existsAlready) {
-            this.activeEvents.push({self, idx});
+            this.activeEvents[idx] = {self, idx};
 
             self.setAttribute('selected', '');
             map
@@ -144,6 +169,7 @@ const SetWaypointOnClick = {
         }
     },
     off(self, idx) {
+        delete this.activeEvents[idx];
         self.removeAttribute('selected');
         map
            .off('touchend', this.onTouchEnd(self, idx))
@@ -177,6 +203,7 @@ async function drawWaypointRoute(algorithm) {
     }
 
     // console.log("Pathing from " + JSON.stringify(endpoints[0]) + " to " + JSON.stringify(endpoints[1]));
+    UI.startLoading("Finding route.")
 
     var start = GeoData.nodes[endpoints[0].node];
     var goal = GeoData.nodes[endpoints[1].node];
@@ -191,4 +218,5 @@ async function drawWaypointRoute(algorithm) {
     } else {
         UI.writePathInfo({ pathLength: 0, pathTime: 0 });
     }
+    UI.stopLoading();
 }

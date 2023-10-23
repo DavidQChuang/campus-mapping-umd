@@ -322,6 +322,23 @@ const GeoData = {
             }
         }
     },
+    getSurroundingFootpaths(point, radius) {
+        var candidates = this.nodesQuadtree.retrieve({
+            x: point[0],
+            y: point[1],
+            width: 0.01,
+            height: 0.08
+        });
+
+        if (!candidates || candidates.length == 0) {
+            return [];
+        } else {
+            return candidates.filter(quad =>
+                Algorithms.getDistance(
+                    {lon: point[0], lat:point[1]},
+                    GeoData.nodes[quad.node]) < radius );
+        }
+    },
     /**
      * 
      * @param {number[]} point Long/lat coordinates in array form.

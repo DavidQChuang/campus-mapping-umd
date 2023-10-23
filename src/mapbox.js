@@ -39,6 +39,7 @@ const map = new mapboxgl.Map({
     style: style, // style URL
     center: mapOrigin.center, // starting position [lng, lat]
     zoom: mapOrigin.zoom, // starting zoom
+    hash: true
 });
 
 /**

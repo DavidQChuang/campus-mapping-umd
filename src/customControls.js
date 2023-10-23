@@ -1,7 +1,7 @@
-class RouteViewer {
+class NavigationControl {
     onAdd(map) {
         const div = document.createElement("div");
-        div.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
+        div.className = "mapboxgl-ctrl mapboxgl-ctrl-group control-panel";
         div.innerHTML = `
         <div class="display-info">
             <table style="width: 100%; text-align: left;user-select:none">
@@ -70,7 +70,6 @@ class RouteViewer {
             </label>
         </div>
         `;
-        div.id = "route-viewer";
         return div;
     }
 }
@@ -92,9 +91,81 @@ class HomeButton {
 class SettingsButton {
     onAdd(map) {
         const div = document.createElement("div");
-        div.className = "mapboxgl-ctrl mapboxgl-ctrl-group";
-        div.innerHTML = `<button>
-        <span class="material-symbols-rounded">tune</span>
+        div.className = "mapboxgl-ctrl mapboxgl-ctrl-group ";
+        div.innerHTML = `<button class="long-button">
+        <span class="material-symbols-rounded">arrow_left</span><span class="material-symbols-rounded">bug_report</span>
+        </button>`;
+
+        // div.addEventListener("contextmenu", (e) => e.preventDefault());
+        div.addEventListener("click", () => {
+            var controls = document.getElementById("debug-controls");
+            if(controls.getAttribute('unhidden') == 'true') {
+                controls.setAttribute('unhidden', 'false');
+            }else{
+                controls.setAttribute('unhidden', 'true');
+            }
+        });
+
+        return div;
+    }
+}
+
+class LoadingPanel {
+    onAdd(map) {
+        const div = document.createElement("div");
+        div.id = "loading-panel";
+        div.className = "mapboxgl-ctrl display-info popout-bottom";
+        div.setAttribute('hidden', '');
+        div.style = "height: 1em";
+        div.innerHTML = `
+        <div class="loading-spin"><div></div><div></div><div></div></div>
+        &nbsp;<span id="loading-text">Loading stuff</span>`;
+        return div;
+    }
+}
+
+class RouteControl {
+    onAdd(map) {
+        const div = document.createElement("ul");
+        div.id = "route-viewer";
+        div.className = "mapboxgl-ctrl mapboxgl-ctrl-group control-panel";
+        div.setAttribute('hidden', '');
+        div.innerHTML = `
+        <button class="route-icon long-button"
+            onclick="document.getElementById('route-viewer').removeAttribute('hidden')">
+            <span class="material-symbols-rounded">arrow_left</span><span class="material-symbols-rounded">route</span>
+        </button>
+        <a style="
+            font-weight: 900;
+            color: red;
+            top: 5px;
+            cursor:pointer;"
+           onclick="document.getElementById('route-viewer').setAttribute('hidden','')">
+            <span class="material-symbols-rounded">arrow_right</span> Close
+        </a>
+        <li>(not working, in progress)</li>
+        <li>-xx.xxxxx, xx.xxxxx, near Somewhere Drive</li>
+        <li>Go forward 300 feet</li>
+        <li>Turn right near Someplace St</li>
+        <li>Enter building Microbiology Building (MCB) from the east side, entrance 7</li>
+        <li>Exit building Microbiology Building (MCB) from the east side, entrance 1</li>
+        <li>Exit building Microbiology Building (MCB) from the east side, entrance 1</li>
+        `;
+        return div;
+    }
+}
+
+class ConstructionButton {
+    onAdd(map) {
+        const div = document.createElement("div");
+        div.className = "mapboxgl-ctrl mapboxgl-ctrl-group construction-button";
+        div.innerHTML = `
+        <button class="long-button" style="
+            display: flex;
+            align-items: center;
+            padding-right: 5px;
+        ">
+            <span class="material-symbols-rounded">fmd_bad</span> <span>Report blocked path</span>
         </button>`;
 
         // div.addEventListener("contextmenu", (e) => e.preventDefault());
@@ -113,12 +184,19 @@ class SettingsButton {
 
 const homeButton = new HomeButton();
 const settingsButton = new SettingsButton();
-const routeViewer = new RouteViewer();
+const navControl = new NavigationControl();
+const loadingPanel = new LoadingPanel();
+const routeControl = new RouteControl();
+const constructionButton = new ConstructionButton();
 
 // OpenStreetMap style for the map
 // map.addControl(Geocoder);
 map.addControl(Draw, 'top-left');
-map.addControl(routeViewer, 'top-right');
+map.addControl(navControl, 'top-right');
+map.addControl(loadingPanel, 'top-right');
+map.addControl(routeControl, 'top-right');
 map.addControl(nav, 'top-right');
 map.addControl(homeButton, "top-right");
-map.addControl(settingsButton, "top-right");
+
+map.addControl(settingsButton, "bottom-right");
+map.addControl(constructionButton, "bottom-right");
