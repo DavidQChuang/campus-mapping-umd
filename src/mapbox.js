@@ -20,15 +20,15 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZGF2aWRxY2h1YW5nIiwiYSI6ImNsbTl0amx4NzA3Z3Qzc
  * Contains the default center of the map and default zoom level.
  * ```js
  * {
- *   center: [-76.94514,38.98951],
- *   zoom: 14.2
+ *  center: [-76.943309,38.988232],
+ *  zoom: 15.2
  * }
  * ```
  * @type {MapOrigin}
  */
 const mapOrigin = {
-    center: [-76.94514,38.98951],
-    zoom: 14.2
+    center: [-76.943309,38.988232],
+    zoom: 15.2
 };
 
 /**

@@ -3,6 +3,33 @@ class NavigationControl {
         const div = document.createElement("div");
         div.className = "mapboxgl-ctrl mapboxgl-ctrl-group control-panel";
         div.innerHTML = `
+        <div class="display-info" nodisplay style="
+            padding: 15px;
+        ">
+            <p style="margin:0;text-align: center;">
+            <b><span>Is this route blocked off?</span></b>
+            </p>
+            <table style="width: 100%; text-align: left;">
+                <tbody>
+                <tr>
+                    <td style="
+                        text-align: right;
+                    ">
+                        <button class="go-button" onclick="drawWaypointRoute(Algorithms.Astar)">
+                            <span id="loading-go">Yes</span>
+                            <div nodisplay="" id="loading-spin" class="loading-spin"><div></div><div></div><div></div></div>
+                        </button>
+                    </td>
+                    <td>
+                        <button class="go-button" onclick="drawWaypointRoute(Algorithms.Astar)">
+                            <span id="loading-go">No</span>
+                            <div nodisplay="" id="loading-spin" class="loading-spin"><div></div><div></div><div></div></div>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
         <div class="display-info">
             <table style="width: 100%; text-align: left;user-select:none">
                 <tbody id="map-waypoint-list">
@@ -116,7 +143,7 @@ class LoadingPanel {
         div.id = "loading-panel";
         div.className = "mapboxgl-ctrl display-info popout-bottom";
         div.setAttribute('hidden', '');
-        div.style = "height: 1em";
+        div.style = "height: auto";
         div.innerHTML = `
         <div class="loading-spin"><div></div><div></div><div></div></div>
         &nbsp;<span id="loading-text">Loading stuff</span>`;

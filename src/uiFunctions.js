@@ -97,7 +97,9 @@ function markerAtUserLocation() {
 function setWaypointAtUserLocation(idx) {
     UI.startLoading("Finding user location.");
     getUserLocation((pos) => {
-        UI.setWaypoint(idx, [pos.coords.longitude, pos.coords.latitude]);
+        var point = [pos.coords.longitude, pos.coords.latitude];
+
+        UI.setWaypoint(idx, point);
         Waypoints.renderWaypoints(UI.userEndpoints, UI.pathEndpoints);
         UI.stopLoading();
     });
@@ -215,8 +217,12 @@ async function drawWaypointRoute(algorithm) {
     
     if(path != undefined) {
         UI.writePathInfo({ pathLength, pathTime })
+        UI.stopLoading();
     } else {
         UI.writePathInfo({ pathLength: 0, pathTime: 0 });
+        UI.startLoading("Failed to find route, please choose another nearby route.")
+        setTimeout(() => {
+            UI.stopLoading();
+        }, 5000);
     }
-    UI.stopLoading();
 }
