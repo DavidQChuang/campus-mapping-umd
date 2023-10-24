@@ -226,6 +226,17 @@ const GeoData = {
             });
     },
     /**
+     * Takes OSM JSON as input, and adds fields and nodes to
+     * {@link GeoData.ways}, {@link GeoData.nodes}, and {@link GeoData.nodesQuadtree}.
+     * 
+     * Call before addConstruction.
+     * @param {Object} json The OSM JSON data in Object format to load.
+     */
+    addFields(json) {
+        console.log("fields: Loading " + json.elements.length + " features");
+        this.addFootpaths(json);
+    },
+    /**
      * Takes GeoJSON as input and 
      * marks nodes in {@link GeoData.nodes} as untraversable if they overlap.
      * @param {*} json 
@@ -386,6 +397,7 @@ async function fetchJson(path) {
     GeoData.addFootpaths(await fetchJson('./res/footpaths/footpaths.min.json'));
     GeoData.addBuildings(await fetchJson('./res/buildings/buildings.min.json'));
     GeoData.addConstruction(await fetchJson('./res/constructions/construction.min.geojson'));
+    GeoData.addFields(await fetchJson('./res/fields/fields.min.json'));
     // document.getElementById("loading-info-text").innerHTML = "Loaded.";
     // GeoData.addFootpaths(
     //     await fetch('./res/footpaths/footpaths.min.json').then(response => response.json()));
@@ -417,13 +429,21 @@ map.on('mousemove', (e) => {
         var untraversableNodes = turf.multiPoint(candidates
             .filter(i => GeoData.untraversableNodes.has(i.node))
             .map(i => [i.x, i.y]), {
-                red: true
+                color: "#ff0000"
             },
             { id: 'points-red' });
+            
+        var closestQuad = GeoData.nearestFootpath([e.lngLat["lng"], e.lngLat["lat"]]);
+        var closestNode = turf.point([closestQuad.x, closestQuad.y], {
+                color: "#00ff00",
+                radius: 5
+            },
+            { id: 'points-closest' });
 
         Draw.add(traversableNodes);
         Draw.add(untraversableNodes);
-        console.log(untraversableNodes);
+        Draw.add(closestNode);
+        // console.log(untraversableNodes);
     }
 
     // var feature2 = {

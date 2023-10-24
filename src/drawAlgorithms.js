@@ -22,6 +22,10 @@ const Algorithms = {
         return document.getElementById("path-buildings-checkbox").checked;
     },
 
+    pathThroughGrass() {
+        return document.getElementById("path-grass-checkbox").checked;
+    },
+
     /**
      * Gets the neighbors of the current Node by traversing within and between Ways
      * by moving between neighbors and Ways connected by the same Node.
@@ -42,11 +46,17 @@ const Algorithms = {
                 console.log("Error: way " + wayId + " not found.", node);
 
             // way is building
-            if (
-                this.pathThroughBuildings() &&
+            if (this.pathThroughBuildings() &&
                 way.tags != undefined && "building" in way.tags && way.entrances != undefined)
             {
                 neighbors.push(...way.entrances);
+            }
+            else if(this.pathThroughGrass() && 
+                way.tags != undefined
+                && (("landuse" in way.tags && way.tags.landuse == "grass")
+                || ("leisure" in way.tags && way.tags.leisure == "park")))
+            {
+                neighbors.push(...way.nodes);
             }
             // way is footpath
             else {
