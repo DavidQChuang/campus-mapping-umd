@@ -222,13 +222,13 @@ const SetWaypointOnClick = {
 function getError(error) {
   switch(error.code) {
     case error.PERMISSION_DENIED:
-      return "User denied the request for Geolocation.";
+        return "User denied the request for Geolocation.\nYou may need to enable location services.";
     case error.POSITION_UNAVAILABLE:
-      return "Location information is unavailable.";
+        return "Location information is unavailable.";
     case error.TIMEOUT:
-      return "The request to get user location timed out.";
+        return "The request to get user location timed out.";
     case error.UNKNOWN_ERROR:
-      return "An unknown error occurred.";
+        return "An unknown error occurred.";
   }
 }
 
