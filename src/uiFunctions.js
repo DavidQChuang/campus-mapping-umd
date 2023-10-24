@@ -56,11 +56,20 @@ const UI = {
         loadingText.innerHTML = text;
     },
 
-    stopLoading() {
+    stopLoading(err) {
         var loadingPanel = document.getElementById("loading-panel");
-        setTimeout(() => {
-            loadingPanel.setAttribute("hidden", '');
-        }, 400);
+
+        if(err == undefined) {
+            setTimeout(() => {
+                loadingPanel.setAttribute("hidden", '');
+            }, 400);
+        }
+        else {
+            UI.startLoading(err);
+            setTimeout(() => {
+                UI.stopLoading(undefined);
+            }, 3000);
+        }
     },
 
     writePathInfo({ pathLength, pathTime }) {
@@ -74,10 +83,10 @@ const UI = {
 
 var x = document.getElementById("geolocation");
 
-function getUserLocation(callback) {
+function getUserLocation(callback, errorCallback) {
   if (navigator.geolocation) {
     x.innerHTML = "Locating...";
-    navigator.geolocation.getCurrentPosition(callback, showError);
+    navigator.geolocation.getCurrentPosition(callback, errorCallback);
   } else { 
     x.innerHTML = "Geolocation is not supported by this browser.";
   }
@@ -91,7 +100,7 @@ function markerAtUserLocation() {
         const marker = new mapboxgl.Marker()
           .setLngLat([pos.coords.longitude, pos.coords.latitude])
           .addTo(map);
-    })
+    }, showError)
 }
 
 function setWaypointAtUserLocation(idx) {
@@ -102,6 +111,10 @@ function setWaypointAtUserLocation(idx) {
         UI.setWaypoint(idx, point);
         Waypoints.renderWaypoints(UI.userEndpoints, UI.pathEndpoints);
         UI.stopLoading();
+    },
+    (err) => {
+        UI.stopLoading(getError(err));
+        showError(err);
     });
 }
 
@@ -111,9 +124,9 @@ function queryConstructionAtUserLocation() {
         var point = [pos.coords.longitude, pos.coords.latitude];
 
         UI.startLoading("Showing surrounding walkway nodes.");
-        queryConstructionAt(point, 0.03);
+        queryConstructionAt(point, 0.05);
         UI.stopLoading();
-    });
+    }, showError);
 }
 
 function queryConstructionAt(waypoint, radius=0.03) {
@@ -206,21 +219,21 @@ const SetWaypointOnClick = {
     }
 };
 
-function showError(error) {
+function getError(error) {
   switch(error.code) {
     case error.PERMISSION_DENIED:
-      x.innerHTML = "User denied the request for Geolocation."
-      break;
+      return "User denied the request for Geolocation.";
     case error.POSITION_UNAVAILABLE:
-      x.innerHTML = "Location information is unavailable."
-      break;
+      return "Location information is unavailable.";
     case error.TIMEOUT:
-      x.innerHTML = "The request to get user location timed out."
-      break;
+      return "The request to get user location timed out.";
     case error.UNKNOWN_ERROR:
-      x.innerHTML = "An unknown error occurred."
-      break;
+      return "An unknown error occurred.";
   }
+}
+
+function showError(error) {
+    x.innerHtml = getError(error);
 }
 
 async function drawWaypointRoute(algorithm) {
