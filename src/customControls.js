@@ -93,7 +93,7 @@ class NavigationControl {
                 <span class="tooltip">Allow crossing grass
                     <span class="tooltiptext">This enables taking routes across fields, which may involve stepping over grass or mulch.</span>
                 </span>
-                <input type="checkbox" id="path-fields-checkbox" checked>
+                <input type="checkbox" id="path-grass-checkbox">
             </label>
         </div>
         `;
