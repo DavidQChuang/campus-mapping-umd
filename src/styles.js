@@ -60,6 +60,7 @@ const Layers = {
             'text-color': '#fff'
         }
     },
+    // Construction overlay 
     'construction-dynamic': {
         "id": "construction-dynamic",
         "type": "fill",
@@ -69,6 +70,41 @@ const Layers = {
             "fill-color": "hsla(39, 100%, 60%, 0.44)",
             "fill-pattern": "construction"
         }
+    },
+    // 
+    'user-construction-points': {
+      "id": "user-construction-points",
+      "type": "circle",
+      "paint": {
+        "circle-color": [
+          "case", 
+          ['==', ["get", "walkable"], 'false'], "#ff0000",
+          '#3bb2d0'
+        ]
+      },
+      "layout": {},
+      "source": "user-construction-points",
+    },
+    'user-construction-bounds': {
+      "id": "user-construction-bounds",
+      "type": "fill",
+      "paint": {
+        "fill-color": "hsl(187, 56%, 44%)",
+        "fill-opacity": 0.1
+      },
+      "layout": {},
+      "source": "user-construction-bounds"
+    },
+    'user-construction-fill': {
+      "id": "user-construction-fill",
+      "type": "line",
+      "paint": {
+        "line-width": 2,
+        "line-color": "#000000",
+        "line-opacity": 0.15
+      },
+      "layout": {},
+      "source": "user-construction-bounds"
     }
 };
 

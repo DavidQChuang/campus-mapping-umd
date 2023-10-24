@@ -105,12 +105,38 @@ function setWaypointAtUserLocation(idx) {
     });
 }
 
-function queryConstructionAt(waypoint) {
+function queryConstructionAtUserLocation() {
+    UI.startLoading("Finding user location.");
     getUserLocation((pos) => {
-        // find surrounding footpaths within 0.03km
-        GeoData.getSurroundingFootpaths(pos, 0.03);
+        var point = [pos.coords.longitude, pos.coords.latitude];
 
+        UI.startLoading("Showing surrounding walkway nodes.");
+        queryConstructionAt(point, 0.03);
+        UI.stopLoading();
     });
+}
+
+function queryConstructionAt(waypoint, radius=0.03) {
+    map.flyTo({center: waypoint, duration:1000, essential:true})
+    // find surrounding footpaths within 0.03km
+    var nodeQuads = GeoData.getSurroundingFootpaths(waypoint, radius);
+
+    map.addSource('user-construction-points', {
+        "type": "geojson",
+        "data": turf.featureCollection(nodeQuads.map((quad) => {
+            return turf.point([quad.x, quad.y], {
+                walkable: !GeoData.untraversableNodes.has(quad.node)
+            })
+        }))
+    });
+    map.addSource('user-construction-bounds', {
+        "type": "geojson",
+        "data": turf.circle(waypoint, radius, {units:"kilometers"})
+    });
+
+    map.addLayer(Layers['user-construction-points']);
+    map.addLayer(Layers['user-construction-bounds']);
+    map.addLayer(Layers['user-construction-fill']);
 }
 
 const SetWaypointOnClick = {

@@ -94,6 +94,11 @@ const GeoData = {
      * @type {Object.<number, OSMNode>}
      */
     nodes: {},
+    /**
+     * Contains Node IDs of untraversable nodes.
+     * 
+     * @type {Set.<number>}
+     */
     untraversableNodes: new Set(),
 
     /**

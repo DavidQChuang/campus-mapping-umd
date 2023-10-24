@@ -191,20 +191,10 @@ class ConstructionButton {
             display: flex;
             align-items: center;
             padding-right: 5px;
-        ">
+        "
+            onclick="queryConstructionAtUserLocation()">
             <span class="material-symbols-rounded">fmd_bad</span> <span>Report blocked path</span>
         </button>`;
-
-        // div.addEventListener("contextmenu", (e) => e.preventDefault());
-        div.addEventListener("click", () => {
-            var controls = document.getElementById("debug-controls");
-            if(controls.getAttribute('unhidden') == 'true') {
-                controls.setAttribute('unhidden', 'false');
-            }else{
-                controls.setAttribute('unhidden', 'true');
-            }
-        });
-
         return div;
     }
 }
