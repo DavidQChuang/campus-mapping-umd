@@ -105,6 +105,24 @@ const Layers = {
       },
       "layout": {},
       "source": "user-construction-bounds"
+    },
+    'remote-construction-points': {
+      "id": "remote-construction-points",
+      "type": "circle",
+      "paint": {
+        "circle-color":[
+          "case",
+          ["has", "bbox"],  "#aaa",
+          "#ff0000"
+        ],
+        "circle-radius": [
+          "case",
+          ["has", "bbox"], 3,
+          5
+        ],
+      },
+      "layout": {},
+      "source": "remote-construction-points",
     }
 };
 
@@ -264,10 +282,14 @@ const DrawStyles = [{
       ['!=', 'mode', 'static']
     ],
     'paint': {
-      'circle-radius': 2,
+      'circle-radius': [
+        "case", 
+            ['has', "user_radius"], ['get', "user_radius"],
+        2
+      ],
       'circle-color': [
         "case", 
-            ['has', "user_red"], "#ff0000",
+            ['has', "user_color"], ['get', "user_color"],
         '#3bb2d0'
       ]
     }
