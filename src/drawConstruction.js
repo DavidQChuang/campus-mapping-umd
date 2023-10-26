@@ -18,7 +18,8 @@ map.on('load', async () => {
   console.log("Creating polygon: ", coords);
   const bboxSize = [ 0.00001, 0.000008 ];
   var polyCoords = coords.reduce((acc, coord) => {
-    var theta = Math.random() * Math.PI;
+    // var theta = Math.random() * Math.PI;
+    var theta = 0;
     var rotate = (point, offset) => {
       // var offset = [point[0] - coord[0], point[1] - coord[1]];
       return [
@@ -43,12 +44,17 @@ map.on('load', async () => {
 
   var poly = concaveman(polyCoords, 100);
   console.log("Created: ", poly);
-  var constructionPolys = await fetchJson('./res/constructions/construction.min.geojson');
-  constructionPolys.features.push(turf.polygon([poly]));
 
   map.addSource('construction-dynamic', {
     "type": "geojson",
-    "data": constructionPolys
+    "data": turf.polygon([poly])
   });
   map.addLayer(Layers['construction-dynamic']);
+
+  var constructionPolys = await fetchJson('./res/constructions/construction.min.geojson');
+  map.addSource('construction-static', {
+    "type": "geojson",
+    "data": constructionPolys
+  });
+  map.addLayer(Layers['construction-static']);
 });

@@ -34,29 +34,30 @@ const Algorithms = {
      */
     getNeighbors(node) {
         var neighbors = []
+        var pathThroughBuildings = this.pathThroughBuildings();
+        var pathThroughGrass = this.pathThroughGrass();
         // console.log("asdf", node);
 
         if (typeof node === "number")
             throw new Error("Received a number. Algorithms.getNeighbors accepts nodes, not node ids.");
 
+        var nodeIsGrass = false;
         for (var wayId of node.ways) {
             var way = GeoData.ways[wayId];
 
-            if (way === undefined)
+            if (way === undefined) {
                 console.log("Error: way " + wayId + " not found.", node);
 
             // way is building
-            if (this.pathThroughBuildings() &&
-                way.tags != undefined && "building" in way.tags && way.entrances != undefined)
-            {
+            } else if(pathThroughBuildings && GeoData.wayIsBuilding(way)) {
                 neighbors.push(...way.entrances);
             }
-            else if(this.pathThroughGrass() && 
-                way.tags != undefined
-                && (("landuse" in way.tags && way.tags.landuse == "grass")
-                || ("leisure" in way.tags && way.tags.leisure == "park")))
-            {
-                neighbors.push(...way.nodes);
+            else if(GeoData.wayIsGrass(way)) {
+                nodeIsGrass = true;
+                if(pathThroughGrass){
+                    console.log("grass")
+                    neighbors.push(...way.nodes);
+                }
             }
             // way is footpath
             else {
@@ -80,6 +81,25 @@ const Algorithms = {
                 }
             }
         }
+
+        // If this is a grass node, search for the nearest non-grass node
+        // and add a bidirectional reference.
+        if(nodeIsGrass) {
+            if(node.nearestFootpath == undefined) {
+                node.nearestFootpath = GeoData.nearestFootpath([node.lon, node.lat]).node;
+                GeoData.nodes[node.nearestFootpath].nearestGrass = node.id;
+            }
+            if(node.nearestFootpath != undefined) {
+                neighbors.push(node.nearestFootpath);
+            }
+        }
+
+        // If able to walk through grass and this (non-grass) node is close to a grass node,
+        // consider it a neighbor.
+        if(pathThroughGrass && node.nearestGrass != undefined) {
+            neighbors.push(node.nearestGrass);
+        }
+
         return neighbors;
     },
 

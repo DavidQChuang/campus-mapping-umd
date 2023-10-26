@@ -68,6 +68,17 @@ const Layers = {
         "source": "construction-dynamic",
         "paint": {
             "fill-color": "hsla(39, 100%, 60%, 0.44)",
+            "fill-pattern": "construction-purple"
+        }
+    },
+    // Construction overlay 
+    'construction-static': {
+        "id": "construction-static",
+        "type": "fill",
+        "layout": {},
+        "source": "construction-static",
+        "paint": {
+            "fill-color": "hsla(39, 100%, 60%, 0.44)",
             "fill-pattern": "construction"
         }
     },

@@ -234,7 +234,38 @@ const GeoData = {
      */
     addFields(json) {
         console.log("fields: Loading " + json.elements.length + " features");
-        this.addFootpaths(json);
+        this.addWays(json, 
+            (way) => {
+                for (var nodeId of way.nodes) {
+                    if (nodeId in this.nodes) {
+                        // Add the ways to the node entry.
+                        var node = this.nodes[nodeId];
+                        var ways = node.ways;
+
+                        if (ways == undefined) {
+                            node.ways = [];
+                        }
+                        node.ways.push(way.id);
+                    } else {
+                        // Create a new node entry with only the ways,
+                        // the rest of it will be filled in later.
+                        this.nodes[nodeId] = {
+                            ways: [way.id]
+                        };
+                    }
+                }
+                return way;
+            },
+            (node) => {
+                var ways = [];
+                // If node already has a list of ways, retrieve it.
+                if (node.id in this.nodes) {
+                    ways = this.nodes[node.id].ways;
+                }
+                
+                node.ways = ways;
+                return node;
+            });
     },
     /**
      * Takes GeoJSON as input and 
@@ -303,6 +334,33 @@ const GeoData = {
         console.log("Loaded " + Object.keys(this.nodes).length + " nodes and " 
             + Object.keys(this.ways).length + " ways in " + (new Date() - start) + "ms.");
     },
+    wayIsBuilding(way) {
+        return way.tags != undefined
+            && "building" in way.tags && way.entrances != undefined;
+    },
+    wayIsGrass(way) {
+        return way.tags != undefined
+            && (("landuse" in way.tags && way.tags.landuse == "grass")
+             || ("leisure" in way.tags && way.tags.leisure == "park"));
+    },
+    nodeIsBuilding(node) {
+        for (var wayId of node.ways) {
+            var way = GeoData.ways[wayId];
+            if (this.wayIsBuilding(way)) {
+                return true;
+            }
+        }
+        return false;
+    },
+    nodeIsGrass(node) {
+        for (var wayId of node.ways) {
+            var way = GeoData.ways[wayId];
+            if (this.wayIsGrass(way)) {
+                return true;
+            }
+        }
+        return false;
+    },
     drawQuadtree: function (node) {
         var coords = [];
         this.drawQuadtreeRecursive(node, coords);
@@ -361,7 +419,7 @@ const GeoData = {
      * @returns {Object|undefined} A quad from the nodes quadtree, or undefined if not found.
      * See {@link GeoData.nodesQuadtree} for object layout.
      */
-    nearestFootpath(point) {
+    nearestFootpath(point, allowGrass) {
         var candidates = this.nodesQuadtree.retrieve({
             x: point[0],
             y: point[1],
@@ -377,9 +435,11 @@ const GeoData = {
 
             for (var quad of candidates) {
                 var dist = Algorithms.getDistance({lon: point[0], lat:point[1]}, GeoData.nodes[quad.node]);
-                if (dist < minDist) {
-                    minDist = dist;
-                    minQuad = quad;
+                if (allowGrass || !this.nodeIsGrass(GeoData.nodes[quad.node])) {
+                    if (dist < minDist) {
+                        minDist = dist;
+                        minQuad = quad;
+                    }
                 }
             }
             return minQuad;
@@ -396,8 +456,8 @@ async function fetchJson(path) {
     GeoData.initFootpaths();
     GeoData.addFootpaths(await fetchJson('./res/footpaths/footpaths.min.json'));
     GeoData.addBuildings(await fetchJson('./res/buildings/buildings.min.json'));
-    GeoData.addConstruction(await fetchJson('./res/constructions/construction.min.geojson'));
     GeoData.addFields(await fetchJson('./res/fields/fields.min.json'));
+    GeoData.addConstruction(await fetchJson('./res/constructions/construction.min.geojson'));
     // document.getElementById("loading-info-text").innerHTML = "Loaded.";
     // GeoData.addFootpaths(
     //     await fetch('./res/footpaths/footpaths.min.json').then(response => response.json()));
@@ -433,12 +493,27 @@ map.on('mousemove', (e) => {
             },
             { id: 'points-red' });
             
-        var closestQuad = GeoData.nearestFootpath([e.lngLat["lng"], e.lngLat["lat"]]);
-        var closestNode = turf.point([closestQuad.x, closestQuad.y], {
+        var closestQuad = GeoData.nearestFootpath([e.lngLat["lng"], e.lngLat["lat"]], true);
+        var closestQuadFootpath = GeoData.nodes[closestQuad.node].nearestFootpath;
+        var closestNodes = [
+            turf.point([closestQuad.x, closestQuad.y], {
                 color: "#00ff00",
                 radius: 5
             },
-            { id: 'points-closest' });
+            { id: 'points-closest' })
+        ];
+        if(closestQuadFootpath != undefined) {
+            var closestQuadFootpathNode = GeoData.nodes[closestQuadFootpath];
+            closestNodes.push(
+                turf.point([closestQuadFootpathNode.lon, closestQuadFootpathNode.lat], {
+                    color: "#00ffff",
+                    radius: 5
+                },
+                { id: 'points-closest2' })
+            );
+        }
+
+        var closestNode = turf.featureCollection(closestNodes);
 
         Draw.add(traversableNodes);
         Draw.add(untraversableNodes);
