@@ -16,7 +16,7 @@ const UI = {
         waypointElement.querySelector('input').value = waypoint[0].toFixed(5) + ", " + waypoint[1].toFixed(5);
 
         this.userEndpoints[idx] = waypoint;
-        this.pathEndpoints[idx] = GeoData.nearestFootpath(waypoint); // may be undefined
+        this.pathEndpoints[idx] = GeoData.nearestFootpath(waypoint, Algorithms.pathThroughGrass(), false); // may be undefined
     },
 
     ensureWaypointCount(count) {

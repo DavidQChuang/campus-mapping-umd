@@ -4,14 +4,18 @@
  * @namespace Algorithms
  */
 const Algorithms = {
+    getCost(goal, node) {
+        var dist = Algorithms.getDistance(goal, node);
+        return dist;
+    },
     Astar(start, goal) {
-        return pathfindAstar(start, goal, node => Algorithms.getDistance(goal, node))
+        return pathfindAstar(start, goal, node => Algorithms.getCost(goal, node))
     },
     Dstar(start, goal) {
-        return pathfindDstar(start, goal, node => Algorithms.getDistance(goal, node))
+        return pathfindDstar(start, goal, node => Algorithms.getCost(goal, node))
     },
     Dijkstra(start, goal) {
-        return pathfindDijkstra(start, goal, node => Algorithms.getDistance(goal, node))
+        return pathfindDijkstra(start, goal, node => Algorithms.getCost(goal, node))
     },
 
     getTickDelay() {
@@ -85,17 +89,17 @@ const Algorithms = {
         // If this is a grass node, search for the nearest non-grass node
         // and add a bidirectional reference.
         if(nodeIsGrass) {
-            if(node.nearestFootpath == undefined) {
-                node.nearestFootpath = GeoData.nearestFootpath([node.lon, node.lat]).node;
-                GeoData.nodes[node.nearestFootpath].nearestGrass = node.id;
-            }
+            // if(node.nearestFootpath == undefined) {
+            //     node.nearestFootpath = GeoData.nearestFootpath([node.lon, node.lat]).node;
+            //     GeoData.nodes[node.nearestFootpath].nearestGrass = node.id;
+            // }
             if(node.nearestFootpath != undefined) {
                 neighbors.push(node.nearestFootpath);
             }
         }
 
-        // If able to walk through grass and this (non-grass) node is close to a grass node,
-        // consider it a neighbor.
+        // // If able to walk through grass and this (non-grass) node is close to a grass node,
+        // // consider it a neighbor.
         if(pathThroughGrass && node.nearestGrass != undefined) {
             neighbors.push(node.nearestGrass);
         }

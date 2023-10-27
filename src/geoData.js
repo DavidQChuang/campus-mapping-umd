@@ -116,12 +116,24 @@ const GeoData = {
     initFootpaths() {
         this.ways = {};
         this.nodes = {};
-        this.nodesQuadtree = new Quadtree({
-            x: this.bbox[0][0],
-            y: this.bbox[0][1],
-            width: this.bbox[1][0] - this.bbox[0][0],
-            height: this.bbox[1][1] - this.bbox[0][1]
-        }, 10, 10);
+
+        var width = this.bbox[1][0] - this.bbox[0][0];
+        var x = this.bbox[0][0];
+        if(width < 0) {
+            width = -width;
+            x = this.bbox[1][0];
+        }
+
+        var height = this.bbox[1][1] - this.bbox[0][1];
+        var y = this.bbox[0][1];
+        if(height < 0) {
+            height = -height;
+            y = this.bbox[1][1];
+        }
+
+        this.nodesQuadtree = new QT.QuadTree(new QT.Box(
+            x, y, width, height
+        ));
     },
     /**
      * Takes OSM JSON as input, and adds footpaths and nodes to
@@ -264,6 +276,10 @@ const GeoData = {
                 }
                 
                 node.ways = ways;
+                node.nearestFootpath = GeoData.nearestFootpath([node.lon, node.lat], false)?.node;
+                if(node.nearestFootpath != undefined) {
+                    GeoData.nodes[node.nearestFootpath].nearestGrass = node.id;
+                }
                 return node;
             });
     },
@@ -277,17 +293,17 @@ const GeoData = {
         // this.constructionGeoJSON = json;
         for (var feature of json.features) {
             var bbox = turf.bbox(feature);
-            var candidates = this.nodesQuadtree.retrieve({
-                x: bbox[0],
-                y: bbox[1],
-                width: bbox[2] - bbox[0],
-                height: bbox[3] - bbox[1]
-            });
+            var candidates = this.nodesQuadtree.query(new QT.Box(
+                bbox[0],
+                bbox[1],
+                bbox[2] - bbox[0],
+                bbox[3] - bbox[1]
+            ));
 
             for (var candidate of candidates) {
                 var candPoint = turf.point([candidate.x, candidate.y]);
                 if (turf.booleanPointInPolygon(candPoint, feature)) {
-                    GeoData.untraversableNodes.add(candidate.node);
+                    GeoData.untraversableNodes.add(candidate.data);
                 }
             }
         }
@@ -297,6 +313,7 @@ const GeoData = {
 
         var i = 0;
         var features = json['elements'];
+        var failed = 0;
         // console.log(json);
         console.log("Loading " + features.length + " features");
 
@@ -319,19 +336,27 @@ const GeoData = {
                 this.nodes[feature.id] = feature;
 
                 // .. and the quadtree.
-                this.nodesQuadtree.insert({
-                    x: feature.lon,
-                    y: feature.lat,
-                    width: 0.0001,
-                    height: 0.00008,
-                    node: feature.id
-                });
+                var success = this.nodesQuadtree.insert(new QT.Point(
+                    feature.lon,
+                    feature.lat,
+                    feature.id
+                ));
+
+                if(!success) {
+                    if(!GeoData.nodesQuadtree.container.contains(new QT.Point(
+                        feature.lon,
+                        feature.lat
+                    ))) {
+                        failed++;
+                    }
+                }
             }
 
             i++;
         }
 
-        console.log("Loaded " + Object.keys(this.nodes).length + " nodes and " 
+        console.log("Loaded " + Object.keys(this.nodes).length
+            + " nodes, of which " + failed + " were not placed, and " 
             + Object.keys(this.ways).length + " ways in " + (new Date() - start) + "ms.");
     },
     wayIsBuilding(way) {
@@ -397,12 +422,7 @@ const GeoData = {
         }
     },
     getSurroundingFootpaths(point, radius) {
-        var candidates = this.nodesQuadtree.retrieve({
-            x: point[0],
-            y: point[1],
-            width: 0.01,
-            height: 0.08
-        });
+        var candidates = this.getNearNodes(point, radius);
 
         if (!candidates || candidates.length == 0) {
             return [];
@@ -410,8 +430,18 @@ const GeoData = {
             return candidates.filter(quad =>
                 Algorithms.getDistance(
                     {lon: point[0], lat:point[1]},
-                    GeoData.nodes[quad.node]) < radius );
+                    GeoData.nodes[quad.data]) < radius );
         }
+    },
+    getNearNodes(point, width) {
+        width ??= 0.001;
+        var height = width * 0.8;
+        return this.nodesQuadtree.query(new QT.Box(
+            point[0] - width / 2,
+            point[1] - height / 2,
+            width,
+            height
+        )); 
     },
     /**
      * 
@@ -419,13 +449,8 @@ const GeoData = {
      * @returns {Object|undefined} A quad from the nodes quadtree, or undefined if not found.
      * See {@link GeoData.nodesQuadtree} for object layout.
      */
-    nearestFootpath(point, allowGrass) {
-        var candidates = this.nodesQuadtree.retrieve({
-            x: point[0],
-            y: point[1],
-            width: 0.01,
-            height: 0.08
-        });
+    nearestFootpath(point, allowGrass, allowUnwalkable) {
+        var candidates = this.getNearNodes(point);
 
         if (!candidates || candidates.length == 0) {
             return undefined;
@@ -434,15 +459,20 @@ const GeoData = {
             var minQuad = candidates[0];
 
             for (var quad of candidates) {
-                var dist = Algorithms.getDistance({lon: point[0], lat:point[1]}, GeoData.nodes[quad.node]);
-                if (allowGrass || !this.nodeIsGrass(GeoData.nodes[quad.node])) {
+                var dist = Algorithms.getDistance({lon: point[0], lat:point[1]}, GeoData.nodes[quad.data]);
+                if ((allowGrass || !this.nodeIsGrass(GeoData.nodes[quad.data]))
+                 && (allowUnwalkable || !this.untraversableNodes.has(quad.data))) {
                     if (dist < minDist) {
                         minDist = dist;
                         minQuad = quad;
                     }
                 }
             }
-            return minQuad;
+            return {
+                x: minQuad.x,
+                y: minQuad.y,
+                node: minQuad.data
+            };
         }
     }
 };
@@ -472,28 +502,21 @@ showNodeCheckbox.addEventListener('change', (event) => {
 })
 map.on('mousemove', (e) => {
     if (showNodeCheckbox.checked) {
-
-        var quad = {
-            x: e.lngLat["lng"] - 0.0005,
-            y: e.lngLat['lat'] - 0.0004,
-            width: 0.001,
-            height: 0.0008
-        };
-
-        var candidates = GeoData.nodesQuadtree.retrieve(quad);
+        var point = [e.lngLat["lng"], e.lngLat["lat"]]
+        var candidates = GeoData.getNearNodes(point);
         var traversableNodes = turf.multiPoint(candidates
-            .filter(i => !GeoData.untraversableNodes.has(i.node))
+            .filter(i => !GeoData.untraversableNodes.has(i.data))
             .map(i => [i.x, i.y]),
             {},
             { id: 'points' });
         var untraversableNodes = turf.multiPoint(candidates
-            .filter(i => GeoData.untraversableNodes.has(i.node))
+            .filter(i => GeoData.untraversableNodes.has(i.data))
             .map(i => [i.x, i.y]), {
                 color: "#ff0000"
             },
             { id: 'points-red' });
             
-        var closestQuad = GeoData.nearestFootpath([e.lngLat["lng"], e.lngLat["lat"]], true);
+        var closestQuad = GeoData.nearestFootpath(point, true);
         var closestQuadFootpath = GeoData.nodes[closestQuad.node].nearestFootpath;
         var closestNodes = [
             turf.point([closestQuad.x, closestQuad.y], {

@@ -12,10 +12,10 @@ map.on('load', async () => {
   var nodes = (await fetchJson('./res/constructions/remote-construction.json')).nodes;
   var coords = nodes.map(id => {
     var node = GeoData.nodes[id];
+    GeoData.untraversableNodes.add(id);
     return [node.lon, node.lat];
   });
-
-  console.log("Creating polygon: ", coords);
+  // console.log("Creating polygon: ", coords);
   const bboxSize = [ 0.00001, 0.000008 ];
   var polyCoords = coords.reduce((acc, coord) => {
     // var theta = Math.random() * Math.PI;
@@ -43,7 +43,7 @@ map.on('load', async () => {
   map.addLayer(Layers['remote-construction-points']);
 
   var poly = concaveman(polyCoords, 100);
-  console.log("Created: ", poly);
+  // console.log("Created: ", poly);
 
   map.addSource('construction-dynamic', {
     "type": "geojson",
