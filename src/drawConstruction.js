@@ -57,4 +57,11 @@ map.on('load', async () => {
     "data": constructionPolys
   });
   map.addLayer(Layers['construction-static']);
+
+  var umdConstruction = await fetchJson('https://maps.umd.edu/arcgis/rest/services/Layers/CampusReference/MapServer/4/query?where=1%3D1&outFields=*&f=geojson')
+  map.addSource('-umdmaps-construction', {
+    "type": "geojson",
+    "data": umdConstruction
+  });
+  map.addLayer(Layers['-umdmaps-construction']);
 });

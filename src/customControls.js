@@ -68,9 +68,9 @@ class NavigationControl {
                 <tr>
                     <td>
                         <p style="margin:0;"><b>
-                            <span class="material-symbols-rounded p12-icon">directions_walk</span><span id="path-distance">.. mi</span>
+                            <span class="material-symbols-rounded p12-icon" alt="walk distance">directions_walk</span><span id="path-distance">.. mi</span>
                             &nbsp;
-                            <span class="material-symbols-rounded p12-icon">schedule</span>
+                            <span class="material-symbols-rounded p12-icon" alt="walk time">schedule</span>
                             <span id="path-time">.. min</span></b>
                         </p>
                     </td>
@@ -199,16 +199,115 @@ class ConstructionButton {
     }
 }
 
+class LayersButton {
+    onAdd(map) {
+        const div = document.createElement("div");
+        div.className = "mapboxgl-ctrl mapboxgl-ctrl-group ";
+        div.innerHTML = `<button class="long-button">
+        <span class="material-symbols-rounded">map</span><span class="material-symbols-rounded">arrow_right</span>
+        </button>`;
+/*<button class="long-button" style="
+    display: flex;
+    align-items: center;
+    padding-left: 2px;
+">
+        <div style="
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    overflow: hidden;
+"><img src="res/construction-light.svg" width="72" style="
+    background-color: #414b58;
+"></div><span class="material-symbols-rounded">arrow_right</span>
+        </button>*/
+        // div.addEventListener("contextmenu", (e) => e.preventDefault());
+        div.addEventListener("click", () => {
+            var controls = document.getElementById("layers-panel");
+            if(controls.getAttribute('unhidden') == 'true') {
+                controls.setAttribute('unhidden', 'false');
+            }else{
+                controls.setAttribute('unhidden', 'true');
+            }
+        });
+
+        return div;
+    }
+}
+class LayersPanel {
+    onAdd(map) {
+        const div = document.createElement("div");
+        div.className = "mapboxgl-ctrl mapboxgl-ctrl-group controls controls-left";
+        div.id = "layers-panel";
+        div.style = `
+            height: auto;
+            top: 10%;
+            width: 260px;
+            background: white;
+        `;
+        div.innerHTML = `
+            <span>
+                <b>Layers</b>
+                <a style="
+                    font-weight: 900;
+                    color: red;
+                    top: 5px;
+                    cursor:pointer;"
+                    onclick="document.getElementById('layers-panel').setAttribute('unhidden','false')">
+                    close
+                    <span class="material-symbols-rounded" style="
+                        line-height: 16px;
+                        vertical-align: bottom;
+                    ">close</span>
+                </a>
+            </span>
+            <span class="layer-dropdown" style="padding:0">
+                <div class="layer-text-item layer-dropdown-text" onclick="this.parentElement.children[1].toggleAttribute('hidden');this.children[0].children[0].toggleAttribute('expanded')">
+                    <div class="layer-swatch">
+                        <span class="material-symbols-rounded layer-dropdown-icon">expand_more</span>
+                    </div>
+                    <b>Unwalkable Areas/Construction</b>
+                </div>
+                <div class="layer-item-list" hidden>
+                    <span class="layer-text-item branch-item">
+                        <div class="layer-swatch">
+                            <img src="res/construction-orange.svg" width="72" style="background-color: #414b58;">
+                        </div>
+                        <b>Official Construction (maps.umd.edu)</b>
+                    </span>
+                    <span class="layer-text-item branch-item">
+                        <div class="layer-swatch">
+                            <img src="res/construction.svg" width="72" style="background-color: #414b58;">
+                        </div>
+                        <b>Verified Construction</b>
+                    </span>
+                    <span class="layer-text-item branch-item">
+                        <div class="layer-swatch">
+                            <img src="res/construction-purple.svg" width="72" style="background-color: #414b58;">
+                        </div>
+                        <b>User-reported Blockages</b>
+                    </span>
+                </div>
+            </span>`;
+        return div;
+    }
+}
+
 const homeButton = new HomeButton();
 const settingsButton = new SettingsButton();
 const navControl = new NavigationControl();
 const loadingPanel = new LoadingPanel();
 const routeControl = new RouteControl();
 const constructionButton = new ConstructionButton();
+const layersButton = new LayersButton();
+const layersPanel = new LayersPanel();
 
 // OpenStreetMap style for the map
 // map.addControl(Geocoder);
 map.addControl(Draw, 'top-left');
+
+map.addControl(layersButton, 'bottom-left');
+map.addControl(layersPanel, 'bottom-left');
+
 map.addControl(navControl, 'top-right');
 map.addControl(loadingPanel, 'top-right');
 map.addControl(routeControl, 'top-right');

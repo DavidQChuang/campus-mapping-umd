@@ -71,7 +71,6 @@ const Layers = {
             "fill-pattern": "construction-purple"
         }
     },
-    // Construction overlay 
     'construction-static': {
         "id": "construction-static",
         "type": "fill",
@@ -80,6 +79,17 @@ const Layers = {
         "paint": {
             "fill-color": "hsla(39, 100%, 60%, 0.44)",
             "fill-pattern": "construction"
+        }
+    },
+    // Construction overlay 
+    '-umdmaps-construction': {
+        "id": "-umdmaps-construction",
+        "type": "fill",
+        "layout": {},
+        "source": "-umdmaps-construction",
+        "paint": {
+            "fill-color": "hsla(39, 100%, 60%, 0.44)",
+            "fill-pattern": "construction-orange"
         }
     },
     // 

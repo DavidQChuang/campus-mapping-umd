@@ -70,6 +70,7 @@ const Geocoder = new MapboxGeocoder({
 const Draw = new MapboxDraw({
     // modes: modes,
     userProperties: true,
+    displayControlsDefault: false,
     styles: DrawStyles
 });
 const nav = new mapboxgl.NavigationControl({ visualizePitch: true });

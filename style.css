@@ -121,6 +121,17 @@ body {
     padding-bottom: 0.12em;
 }
 
+.material-symbols-rounded.layer-dropdown-icon {
+    font-size: 28px;
+    top: -1px;
+    position: relative;
+    left: -2px;
+    transition: transform 300ms ease;
+}
+.material-symbols-rounded.layer-dropdown-icon[expanded] {
+    transform:rotate(-90deg);
+}
+
 .display-info {
     display: table;
     position: relative;
@@ -177,41 +188,106 @@ body {
     display: flex;
     width: 30%;
 } */
-.controls[unhidden='true'] {
-    transform:translate(-100%, 0);
+.controls-right[unhidden='true'] {
+    transform:translate(0%, 0);
+}
+.controls-right {
+    transform:translate(110%, 0);
+}
+.controls-left[unhidden='true'] {
+    transform:translate(0%, 0);
+}
+.controls-left {
+    transform:translate(-110%, 0);
 }
 .controls {
-    position: absolute;
     min-width: 200px;
-    background: lightgray;
+    background: #eee;
     padding: 5px;
     border-radius: 5px;
     flex-direction: column;
     row-gap: 2px;
     width: 30%;
-    left: 100%;
     z-index: 3;
     height: 100%;
+    overflow-x: scroll;
     overflow-y: scroll;
     transition: transform 300ms ease;
     display:flex;
 }
 
 .controls-unhide-btn {
-        position: absolute;
-        right: 0%;
-        top: 50%;
-        width: 30px;
-        height: 30px;
-        background: white;
-        border-radius: 5px;
-        box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+    position: absolute;
+    right: 0%;
+    top: 50%;
+    width: 30px;
+    height: 30px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
 }
 
 .controls>div {
-    background: grey;
+    background: #cdcdcd;
     border-radius: 5px;
     padding: 5px;
+}
+
+.layer-dropdown {
+    row-gap: 10px;
+}
+
+.layer-dropdown > .layer-text-item {
+    background: #cdcdcd;
+    border-radius: 5px;
+}
+
+.layer-dropdown-text {
+    cursor: pointer;
+}
+
+.layer-item-list {
+    row-gap: 2px;
+    margin-top: 2px;
+    display: flex;
+    flex-direction: column;
+}
+
+.layer-item-list[hidden] {
+    height: 0;
+    overflow-y: hidden;
+}
+
+.layer-text-item {
+    vertical-align: middle;
+    display: flex;
+    align-items: center;
+    column-gap: 4px;
+}
+
+.branch-item::before {
+    content: '';
+    border: #cdcdcd 2px dashed;
+    border-top: none;
+    border-right: none;
+    position: relative;
+    display: block;
+    top: 0;
+    left: 2px;
+    height: 10px;
+    width: 5px;
+    background: none;
+}
+
+.layer-swatch,
+div.layer-swatch {
+    padding: 0;
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    display: inline-block;
+    overflow: hidden;
 }
 
 .tooltip {
@@ -382,7 +458,6 @@ body {
     display: none;
     position:absolute;
 }
-
 
 @keyframes loading-spin {
     0% {
