@@ -12,6 +12,7 @@ from itertools import product
 X = []
 Y = []
 
+max_walking_speed = 8
 
 csv_file = pd.read_csv("/Users/shriyanssairy/Desktop/gps_csv_files/combined_file.csv")
 
