@@ -233,7 +233,48 @@ class LayersButton {
         return div;
     }
 }
+
 class LayersPanel {
+    getLayerGroupElement(group) {
+        var container = document.createElement('span');
+        container.className = "layer-dropdown";
+        container.style = "padding:0";
+
+        var layers = "";
+        for(var layer of Object.values(group.layers)) {
+            console.log(layer);
+            var icon;
+            if(layer.img != undefined) {
+                icon = `<img class="layer-swatch-icon" src='${layer.img.src}' width='${layer.img.width}' style="${layer.icon?.style}">`;
+            } else if (layer.symbol != undefined) {
+                icon = `<span class="material-symbols-rounded layer-swatch-icon" style="${layer.icon?.style}">${layer.symbol}</span>`;
+            } else {
+                icon = `<span class="material-symbols-rounded layer-swatch-icon" style="${layer.icon?.style}">public</span>`;
+            }
+
+            layers += `
+                <span class="layer-text-item branch-item">
+                    <div class="layer-swatch" onclick="UI.toggleLayer('${layer.id}', this)" 
+                        ${layer.visible == true ? "checked" : "" }>
+                        <span class="material-symbols-rounded visibility-icon"></span>
+                        ${icon}
+                    </div>
+                    <b>${layer.name}</b>
+                </span>`;
+        }
+
+        container.innerHTML = `
+            <div class="layer-text-item layer-dropdown-text" onclick="this.parentElement.children[1].toggleAttribute('hidden');this.children[0].children[0].toggleAttribute('expanded')">
+                <div class="layer-swatch">
+                    <span class="material-symbols-rounded layer-dropdown-icon">expand_more</span>
+                </div>
+                <b>${group.name}</b>
+            </div>
+            <div class="layer-item-list" hidden>
+                ${layers}
+            </div>`;
+        return container;
+    }
     onAdd(map) {
         const div = document.createElement("div");
         div.className = "mapboxgl-ctrl mapboxgl-ctrl-group controls controls-left";
@@ -260,34 +301,10 @@ class LayersPanel {
                     ">close</span>
                 </a>
             </span>
-            <span class="layer-dropdown" style="padding:0">
-                <div class="layer-text-item layer-dropdown-text" onclick="this.parentElement.children[1].toggleAttribute('hidden');this.children[0].children[0].toggleAttribute('expanded')">
-                    <div class="layer-swatch">
-                        <span class="material-symbols-rounded layer-dropdown-icon">expand_more</span>
-                    </div>
-                    <b>Unwalkable Areas/Construction</b>
-                </div>
-                <div class="layer-item-list" hidden>
-                    <span class="layer-text-item branch-item">
-                        <div class="layer-swatch">
-                            <img src="res/construction-orange.svg" width="72" style="background-color: #414b58;">
-                        </div>
-                        <b>Official Construction (maps.umd.edu)</b>
-                    </span>
-                    <span class="layer-text-item branch-item">
-                        <div class="layer-swatch">
-                            <img src="res/construction.svg" width="72" style="background-color: #414b58;">
-                        </div>
-                        <b>Verified Construction</b>
-                    </span>
-                    <span class="layer-text-item branch-item">
-                        <div class="layer-swatch">
-                            <img src="res/construction-purple.svg" width="72" style="background-color: #414b58;">
-                        </div>
-                        <b>User-reported Blockages</b>
-                    </span>
-                </div>
-            </span>`;
+            `;
+        for(var group of MapLayers.groups) {
+            div.appendChild(this.getLayerGroupElement(group));
+        }
         return div;
     }
 }

@@ -256,6 +256,7 @@ body {
 .layer-item-list[hidden] {
     height: 0;
     overflow-y: hidden;
+    visibility: hidden;
 }
 
 .layer-text-item {
@@ -263,6 +264,10 @@ body {
     display: flex;
     align-items: center;
     column-gap: 4px;
+}
+
+.layer-swatch-icon {
+    background-color: #414b58;
 }
 
 .branch-item::before {
@@ -288,6 +293,24 @@ div.layer-swatch {
     border-radius: 5px;
     display: inline-block;
     overflow: hidden;
+}
+
+.layer-swatch > .material-symbols-rounded.visibility-icon {
+    display: block;
+    color: white;
+    position: absolute;
+    font-size: 14px;
+    transform: translate(-6px, -4px);
+    background: #343434;
+    border-radius: 100%;
+}
+.layer-swatch > .material-symbols-rounded.visibility-icon:before {
+    content: "visibility_off";
+    z-index: 99;
+}
+.layer-swatch[checked] > .material-symbols-rounded.visibility-icon:before {
+    content: "visibility";
+    z-index: 99;
 }
 
 .tooltip {

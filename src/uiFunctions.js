@@ -78,6 +78,42 @@ const UI = {
 
         pathDistanceLabel.innerHTML = (0.621371 * pathLength).toFixed(2) + "mi";
         pathTimeLabel.innerHTML = (Math.ceil(pathTime * 60)) + "min";
+    },
+
+    async toggleLayer(layerName, button) {
+        var layer = MapLayers.layers[layerName];
+        var checked = false;
+        if (button != undefined) {
+            button.toggleAttribute("checked");
+            checked = button.hasAttribute("checked");
+        }
+
+        if (checked == true) {
+            if (map.getSource(layer.id) == undefined) {
+                UI.startLoading("Loading map source.");
+                try {
+                    if(layer.id in Layers) {
+                        var data = await fetchJson(layer.src);
+                        map.addSource(layer.id, {
+                        "type": "geojson",
+                        "data": data
+                        });
+                        map.addLayer(Layers[layer.id]);
+                        UI.stopLoading();
+                    } else {
+                        UI.stopLoading(`Failed to load map source: Layer ${layer.id} has no corresponding style.`);
+                        console.log(`!! Layer ${layer.id} has no corresponding style.`);
+                    }
+                } catch(e) {
+                    UI.stopLoading("Failed to load map source: "+e);
+                    throw e;
+                }
+            } else {
+                map.setLayoutProperty(layer.id, 'visibility', 'visible');
+            }
+        } else {
+            map.setLayoutProperty(layer.id, 'visibility', 'none');
+        }
     }
 };
 

@@ -144,6 +144,30 @@ const Layers = {
       },
       "layout": {},
       "source": "remote-construction-points",
+    },
+    "-umdmaps-campus-plant-inventory": {
+      "id": "-umdmaps-campus-plant-inventory",
+      "type": "circle",
+      "paint": {
+        "circle-color": "hsl(120, 100%, 37%)",
+        "circle-stroke-color": "hsl(120, 100%, 24%)",
+        "circle-stroke-width": 1,
+        "circle-radius": 3
+      },
+      "layout": {},
+      "source": "-umdmaps-campus-plant-inventory",
+    },
+    "-umdmaps-gardens": {
+      "id": "-umdmaps-gardens",
+      "minzoom": 0,
+      "maxzoom": 22,
+      "type": "fill",
+      "paint": {
+        "fill-color": "hsl(120, 100%, 37%)",
+        "fill-outline-color": "hsl(120, 100%, 24%)",
+      },
+      "layout": {},
+      "source": "-umdmaps-gardens"
     }
 };
 
@@ -393,3 +417,71 @@ const DrawStyles = [{
     }
   }
 ]
+
+const MapLayers = {
+    groups: [
+      {
+        name: "Unwalkable Areas/Construction",
+        layers: [
+          {
+            name: "Current Major Construction (UMD)",
+            id: "-umdmaps-construction",
+            src: "https://maps.umd.edu/arcgis/rest/services/Layers/CampusReference/MapServer/4/query?where=1%3D1&outFields=*&f=geojson",
+            visible: true,
+            img: {
+              src: "res/construction-orange.svg",
+              width: 72
+            }
+          },
+          {
+            name: "Verified Construction Blockages",
+            id: "construction-static",
+            src: "./res/constructions/construction.min.geojson",
+            visible: true,
+            img: {
+              src: "res/construction.svg",
+              width: 72
+            }
+          },
+          {
+            name: "User-reported Blockages",
+            id: "remote-construction-points",
+            visible: true,
+            src: undefined,
+            img: {
+              src: "res/construction-purple.svg",
+              width: 72
+            }
+          }
+        ]
+      },
+      {
+        name: "Arboretum and Botanical Garden",
+        layers: [
+          {
+            name: "Campus Plant Inventory (UMD)",
+            id: "-umdmaps-campus-plant-inventory",
+            src: "https://maps.umd.edu/arcgis/rest/services/Layers/CampusPlantInventory/MapServer/0/query?where=1%3D1&outFields=*&f=geojson",
+            visible: false,
+            symbol: "nature",
+            icon: { style: "background-color: #069800aa" }
+          },
+          {
+            name: "Gardens (UMD)",
+            id: "-umdmaps-gardens",
+            src: "https://maps.umd.edu/arcgis/rest/services/Layers/CampusGardens/MapServer/1/query?where=1%3D1&outFields=*&f=geojson",
+            visible: false,
+            symbol: "local_florist",
+            icon: { style: "background-color: #839800aa" }
+          }
+        ]
+      }
+    ],
+    layers: {}
+};
+
+for (var group of MapLayers.groups) {
+  for (var layer of group.layers) {
+    MapLayers.layers[layer.id] = layer;
+  }
+}
