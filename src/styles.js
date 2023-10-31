@@ -152,7 +152,7 @@ const Layers = {
         "circle-color": "hsl(120, 100%, 37%)",
         "circle-stroke-color": "hsl(120, 100%, 24%)",
         "circle-stroke-width": 1,
-        "circle-radius": 3
+        "circle-radius": 5
       },
       "layout": {},
       "source": "-umdmaps-campus-plant-inventory",
@@ -464,7 +464,25 @@ const MapLayers = {
             src: "https://maps.umd.edu/arcgis/rest/services/Layers/CampusPlantInventory/MapServer/0/query?where=1%3D1&outFields=*&f=geojson",
             visible: false,
             symbol: "nature",
-            icon: { style: "background-color: #069800aa" }
+            icon: { style: "background-color: #069800aa" },
+            callbacks: {
+              "click": (e) => {
+                var props = e.features[0].properties;
+
+                new mapboxgl.Popup()
+                  .setLngLat(e.lngLat)
+                  .setHTML(`<i>${props.genus} ${props.species}</i><br>${props.cname2} ${props.cname1}`)
+                  .addTo(map);
+              },
+              "touchend": (e) => {
+                var props = e.features[0].properties;
+
+                new mapboxgl.Popup()
+                  .setLngLat(e.lngLat)
+                  .setHTML(`<i>${props.genus} ${props.species}</i><br>${props.cname2} ${props.cname1}`)
+                  .addTo(map);
+              }
+            }
           },
           {
             name: "Gardens (UMD)",

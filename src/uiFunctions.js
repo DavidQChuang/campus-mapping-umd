@@ -80,6 +80,7 @@ const UI = {
         pathTimeLabel.innerHTML = (Math.ceil(pathTime * 60)) + "min";
     },
 
+    activeLayerCallbacks: new Set(),
     async toggleLayer(layerName, button) {
         var layer = MapLayers.layers[layerName];
         var checked = false;
@@ -89,6 +90,14 @@ const UI = {
         }
 
         if (checked == true) {
+            if(layer.callbacks != undefined && 
+                !this.activeLayerCallbacks.has(layer.id)) {
+                for(var callback of Object.entries(layer.callbacks)) {
+                    map.on(callback[0], layer.id, callback[1]);
+                }
+                this.activeLayerCallbacks.add(layer.id);
+            }
+
             if (map.getSource(layer.id) == undefined) {
                 UI.startLoading("Loading map source.");
                 try {
@@ -112,6 +121,13 @@ const UI = {
                 map.setLayoutProperty(layer.id, 'visibility', 'visible');
             }
         } else {
+            // if(layer.callbacks != undefined && 
+            //     this.activeLayerCallbacks.has(layer.id)) {
+            //     for(var callback of Object.entries(layer.callbacks)) {
+            //         map.off(callback[0], layer.id, callback[1]);
+            //     }
+            // }
+
             map.setLayoutProperty(layer.id, 'visibility', 'none');
         }
     }

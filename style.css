@@ -293,6 +293,8 @@ div.layer-swatch {
     border-radius: 5px;
     display: inline-block;
     overflow: hidden;
+    cursor:pointer;
+    user-select: none;
 }
 
 .layer-swatch > .material-symbols-rounded.visibility-icon {
