@@ -2,7 +2,8 @@ import pandas as pd
 import os
 
 # replace with your folder's path
-folder_path = r'/Users/shriyanssairy/Desktop/gps_csv_files/Test-files/CSV'
+git_dir = os.getcwd()
+folder_path = f'{git_dir}/gps_csv_files/Test-files/CSV'
 
 all_files = os.listdir(folder_path)
 
@@ -32,4 +33,5 @@ for csv in csv_files:
 big_df = pd.concat(df_list, ignore_index=True)
 
 # Save the final result to a new CSV file
-big_df.to_csv("/Users/shriyanssairy/Desktop/gps_csv_files/combined_file.csv", index=False)
+big_df.to_csv(f"{git_dir}/gps_csv_files/combined_file.csv", index=False)
+print(f"\nCombined csv file was saved at: {git_dir}/gps_csv_files/combined_file.csv")
