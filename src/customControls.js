@@ -251,12 +251,12 @@ class LayersPanel {
                     font-weight: 900;
                     color: red;
                     top: 5px;
+                    float: right;
                     cursor:pointer;"
                     onclick="document.getElementById('layers-panel').setAttribute('unhidden','false')">
-                    close
                     <span class="material-symbols-rounded" style="
                         line-height: 16px;
-                        vertical-align: bottom;
+                        vertical-align: text-bottom;
                     ">close</span>
                 </a>
             </span>
