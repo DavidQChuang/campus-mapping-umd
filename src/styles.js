@@ -99,9 +99,16 @@ const Layers = {
       "paint": {
         "circle-color": [
           "case", 
-          ['==', ["get", "walkable"], 'false'], "#ff0000",
+          ['==', ["get", "highlight"], true], "#ffff00",
+          ['==', ["get", "walkable"], false], "#ff0000",
           '#3bb2d0'
-        ]
+        ],
+        "circle-stroke-width": [
+          "case", 
+          ['==', ["get", "highlight"], true], 2,
+          0
+        ],
+        "circle-stroke-color": "hsl(0, 100%, 55%)"
       },
       "layout": {},
       "source": "user-construction-points",

@@ -207,66 +207,76 @@ function queryConstructionAt(waypoint, radius=0.03) {
     // find surrounding footpaths within 0.03km
     var nodeQuads = GeoData.getSurroundingFootpaths(waypoint, radius);
 
-    var rebuildSource = () => {
+    var rebuildSource = (highlightNode) => {
+        console.log("rebuilding", turf.featureCollection(nodeQuads.map((quad) => {
+            return turf.point([quad.x, quad.y], {
+                walkable: !GeoData.untraversableNodes.has(quad.data),
+                highlight: quad.data == highlightNode
+            })
+        })));
         map .getSource('user-construction-points')
             .setData(turf.featureCollection(nodeQuads.map((quad) => {
                 return turf.point([quad.x, quad.y], {
-                    walkable: !GeoData.untraversableNodes.has(quad.node)
+                    walkable: !GeoData.untraversableNodes.has(quad.data),
+                    highlight: quad.data == highlightNode
                 })
             })));
     };
     
-    map.addSource('user-construction-points', {
-        "type": "geojson",
-        "data": turf.featureCollection(nodeQuads.map((quad) => {
-            return turf.point([quad.x, quad.y], {
-                walkable: !GeoData.untraversableNodes.has(quad.node)
-            })
-        }))
-    });
-    map.addSource('user-construction-bounds', {
-        "type": "geojson",
-        "data": turf.circle(waypoint, radius, {units:"kilometers"})
-    });
-
-    map.addLayer(Layers['user-construction-points']);
-    map.addLayer(Layers['user-construction-bounds']);
-    map.addLayer(Layers['user-construction-fill']);
-
-    var x = document.getElementById("query-construction-container");
-    x.removeAttribute("nodisplay");
+    if(map.getSource('user-construction-points') == undefined) {
+        map.addSource('user-construction-points', {
+            "type": "geojson",
+            "data": turf.featureCollection(nodeQuads.map((quad) => {
+                return turf.point([quad.x, quad.y], {
+                    walkable: !GeoData.untraversableNodes.has(quad.data),
+                    highlight: quad.data == nodeQuads[0].data
+                })
+            }))
+        });
+        map.addSource('user-construction-bounds', {
+            "type": "geojson",
+            "data": turf.circle(waypoint, radius, {units:"kilometers"})
+        });
     
+        map.addLayer(Layers['user-construction-points']);
+        map.addLayer(Layers['user-construction-bounds']);
+        map.addLayer(Layers['user-construction-fill']);
+    }
 
-    var y = document.getElementById("navigation-panel");
-    y.setAttribute("nodisplay", "");
-    
-    
+    UI.currConstructionNode = 0;
+    rebuildSource(nodeQuads[UI.currConstructionNode].data);
+    var constructionPanel = document.getElementById("query-construction-container");
+    var navPanel = document.getElementById("navigation-panel");
+    constructionPanel.removeAttribute("nodisplay");
+    navPanel.setAttribute("nodisplay", "");
 
-
-    buttons = x.querySelectorAll(".go-button");
+    buttons = constructionPanel.querySelectorAll(".go-button");
     
     var yesClick = () => {
-        console.log(nodeQuads[UI.currConstructionNode])
-        GeoData.untraversableNodes.add(nodeQuads[UI.currConstructionNode].data);
-        rebuildSource();
-        console.log(UI.currConstructionNode)
+        var node = nodeQuads[UI.currConstructionNode].data;
+        GeoData.untraversableNodes.add(node);
         UI.currConstructionNode++;
+        rebuildSource(node);
         if(UI.currentConstructionNode >= nodeQuads.length){
             buttons[0].onclick = undefined;
             buttons[1].onclick = undefined;
+            navPanel.removeAttribute("nodisplay");
+            constructionPanel.setAttribute("nodisplay", "");
         }
     };
     console.log(buttons[0])
     buttons[0].onclick = yesClick;
 
     var noClick = () => {
-        console.log(nodeQuads[UI.currConstructionNode])
-        GeoData.untraversableNodes.delete(nodeQuads[UI.currConstructionNode].data);
-        rebuildSource();
+        var node = nodeQuads[UI.currConstructionNode].data;
+        GeoData.untraversableNodes.delete(node);
         UI.currConstructionNode++;
+        rebuildSource(node);
         if(UI.currentConstructionNode >= nodeQuads.length){
             buttons[0].onclick = undefined;
             buttons[1].onclick = undefined;
+            navPanel.removeAttribute("nodisplay");
+            constructionPanel.setAttribute("nodisplay", "");
         }
     };
     buttons[1].onclick = noClick;
