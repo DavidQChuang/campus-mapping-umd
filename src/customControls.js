@@ -3,7 +3,7 @@ class NavigationControl {
         const div = document.createElement("div");
         div.className = "mapboxgl-ctrl mapboxgl-ctrl-group control-panel";
         div.innerHTML = `
-        <div class="display-info" nodisplay style="
+        <div class="display-info" id="query-construction-container" nodisplay style="
             padding: 15px;
         ">
             <p style="margin:0;text-align: center;">
@@ -45,6 +45,19 @@ class NavigationControl {
                                 </div>
                                 <div class="action-button input-part-icon" onclick="SetWaypointOnClick.on(this, 0)">
                                     <span class="material-symbols-rounded map-waypoint-list-icon-small">pin_drop</span>
+                                </div>
+                            </div>
+                            <div class="display-info geocoder-list-container" hidden>
+                                <div class="geocoder-list">
+                                    <div>
+                                        asdf
+                                    </div>
+                                    <div>
+                                        asdf
+                                    </div>
+                                    <div>
+                                        asdf
+                                    </div>
                                 </div>
                             </div>
                         </td>

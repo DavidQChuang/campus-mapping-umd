@@ -130,6 +130,26 @@ const UI = {
 
             map.setLayoutProperty(layer.id, 'visibility', 'none');
         }
+    },
+    async geocode(input, geocoderList) {
+        var uuid;
+        if(document.cookie.split(";").some((item) => item.trim().startsWith("mapbox_session_token="))) {
+            uuid = document.cookie
+                .split("; ")
+                .find((row) => row.startsWith("mapbox_session_token="))
+                .split("=")[1];
+        }else {
+            uuid = crypto.randomUUID();
+            document.cookie = "mapbox_session_token=" + uuid;
+        }
+
+        geocoderList.children[0].innerHtml = await fetchJson(
+            ` https://api.mapbox.com/search/searchbox/v1/suggest?q=${input.value}
+                &language=en
+                &session_token=${uuid}
+                &access_token=${mapboxgl.accessToken}`
+        );
+        geocoderList.removeAttribute('hidden')
     }
 };
 
@@ -186,6 +206,14 @@ function queryConstructionAt(waypoint, radius=0.03) {
     // find surrounding footpaths within 0.03km
     var nodeQuads = GeoData.getSurroundingFootpaths(waypoint, radius);
 
+    var rebuildSource = () => {
+        map .getSource('user-construction-points')
+            .setData(turf.featureCollection(nodeQuads.map((quad) => {
+                return turf.point([quad.x, quad.y], {
+                    walkable: !GeoData.untraversableNodes.has(quad.node)
+                })
+            })));
+    };
     map.addSource('user-construction-points', {
         "type": "geojson",
         "data": turf.featureCollection(nodeQuads.map((quad) => {
