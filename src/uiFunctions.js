@@ -143,13 +143,17 @@ const UI = {
             uuid = crypto.randomUUID();
             document.cookie = "mapbox_session_token=" + uuid;
         }
-
-        geocoderList.children[0].innerHtml = await fetchJson(
+        console.log(input, geocoderList)
+        console.log(geocoderList.children[0].innerHtml);
+        var json = await fetchJson(
             ` https://api.mapbox.com/search/searchbox/v1/suggest?q=${input.value}
                 &language=en
                 &session_token=${uuid}
                 &access_token=${mapboxgl.accessToken}`
         );
+
+        console.log(json);
+        geocoderList.children[0].innerHtml =json;
         geocoderList.removeAttribute('hidden')
     }
 };
@@ -256,7 +260,7 @@ function queryConstructionAt(waypoint, radius=0.03) {
         var node = nodeQuads[UI.currConstructionNode].data;
         GeoData.untraversableNodes.add(node);
         UI.currConstructionNode++;
-        rebuildSource(node);
+        rebuildSource(nodeQuads[UI.currConstructionNode].data);
         if(UI.currentConstructionNode >= nodeQuads.length){
             buttons[0].onclick = undefined;
             buttons[1].onclick = undefined;
@@ -271,7 +275,7 @@ function queryConstructionAt(waypoint, radius=0.03) {
         var node = nodeQuads[UI.currConstructionNode].data;
         GeoData.untraversableNodes.delete(node);
         UI.currConstructionNode++;
-        rebuildSource(node);
+        rebuildSource(nodeQuads[UI.currConstructionNode].data);
         if(UI.currentConstructionNode >= nodeQuads.length){
             buttons[0].onclick = undefined;
             buttons[1].onclick = undefined;
