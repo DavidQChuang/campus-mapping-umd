@@ -30,7 +30,7 @@ class NavigationControl {
                 </tbody>
             </table>
         </div>
-        <div class="display-info">
+        <div class="display-info" id="navigation-panel">
             <table style="width: 100%; text-align: left;user-select:none">
                 <tbody id="map-waypoint-list">
                     <tr class="map-waypoint">

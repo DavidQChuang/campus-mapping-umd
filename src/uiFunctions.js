@@ -5,6 +5,7 @@ const UI = {
     userEndpoints: [],
     pathEndpoints: [],
     waypointElements: [],
+    currConstructionNode: 0,
 
     setWaypoint(idx, waypoint) {
         console.log(idx, this.waypointElements.length)
@@ -214,6 +215,7 @@ function queryConstructionAt(waypoint, radius=0.03) {
                 })
             })));
     };
+    
     map.addSource('user-construction-points', {
         "type": "geojson",
         "data": turf.featureCollection(nodeQuads.map((quad) => {
@@ -230,6 +232,44 @@ function queryConstructionAt(waypoint, radius=0.03) {
     map.addLayer(Layers['user-construction-points']);
     map.addLayer(Layers['user-construction-bounds']);
     map.addLayer(Layers['user-construction-fill']);
+
+    var x = document.getElementById("query-construction-container");
+    x.removeAttribute("nodisplay");
+    
+
+    var y = document.getElementById("navigation-panel");
+    y.setAttribute("nodisplay", "");
+    
+    
+
+
+    buttons = x.querySelectorAll(".go-button");
+    
+    var yesClick = () => {
+        console.log(nodeQuads[UI.currConstructionNode])
+        GeoData.untraversableNodes.add(nodeQuads[UI.currConstructionNode].data);
+        rebuildSource();
+        console.log(UI.currConstructionNode)
+        UI.currConstructionNode++;
+        if(UI.currentConstructionNode >= nodeQuads.length){
+            buttons[0].onclick = undefined;
+            buttons[1].onclick = undefined;
+        }
+    };
+    console.log(buttons[0])
+    buttons[0].onclick = yesClick;
+
+    var noClick = () => {
+        console.log(nodeQuads[UI.currConstructionNode])
+        GeoData.untraversableNodes.delete(nodeQuads[UI.currConstructionNode].data);
+        rebuildSource();
+        UI.currConstructionNode++;
+        if(UI.currentConstructionNode >= nodeQuads.length){
+            buttons[0].onclick = undefined;
+            buttons[1].onclick = undefined;
+        }
+    };
+    buttons[1].onclick = noClick;
 }
 
 const SetWaypointOnClick = {
