@@ -6,6 +6,10 @@ class NavigationControl {
         <div class="display-info" id="query-construction-container" nodisplay style="
             padding: 15px;
         ">
+            <span>
+                <a class="close-button" id="construction-close-button">close</span>
+                </a>
+            </span>
             <p style="margin:0;text-align: center;">
             <b><span>Is this route blocked off?</span></b>
             </p>
@@ -39,7 +43,7 @@ class NavigationControl {
                         </td>
                         <td>
                             <div class="input-part">
-                                <input type="text" placeholder="Search or select">
+                                <input type="text" placeholder="Search or select" onclick="UI.geocode(this, this.parentNode.parentNode.children[1])">
                                 <div class="action-button input-part-icon" onclick="setWaypointAtUserLocation(0)">
                                     <span class="material-symbols-rounded map-waypoint-list-icon-small">my_location</span>
                                 </div>

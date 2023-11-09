@@ -1,4 +1,24 @@
 const Layers = {
+    setOrAddLayer(layer, geoJsonData) {
+      var layerSource = map.getSource(layer);
+
+      if(layerSource == undefined) {
+        map.addSource(layer, {
+          "type": "geojson",
+          "data": geoJsonData
+        });
+        map.addLayer(Layers[layer]);
+      } else {
+        layerSource.setData(geoJsonData);
+      }
+    },
+    showLayer(layer) {
+      map.setLayoutProperty(layer, 'visibility', 'visible');
+    },
+    hideLayer(layer) {
+      map.setLayoutProperty(layer, 'visibility', 'none');
+    },
+
     // User waypoint visualization
     'user-waypoints': {
         'id': 'user-waypoints',
@@ -152,9 +172,83 @@ const Layers = {
       "layout": {},
       "source": "remote-construction-points",
     },
+    // "-umdmaps-campus-plant-inventory": {
+    //   "id": "-umdmaps-campus-plant-inventory",
+    //   "type": "circle",
+    //   "paint": {
+    //     "circle-color": "hsl(120, 100%, 37%)",
+    //     "circle-stroke-color": "hsl(120, 100%, 24%)",
+    //     "circle-stroke-width": 1,
+    //     "circle-radius": 5
+    //   },
+    //   "layout": {},
+    //   "source": "-umdmaps-campus-plant-inventory",
+    // },
     "-umdmaps-campus-plant-inventory": {
       "id": "-umdmaps-campus-plant-inventory",
-      "type": "circle",
+      "type": "symbol",
+      "paint": {
+        "text-color": "hsl(135, 0%, 0%)",
+        "icon-opacity": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          14,
+          0,
+          14.6,
+          0.8
+        ]
+      },
+      "layout": {
+        "icon-image": [
+          "case",
+          [
+            ">",
+            [
+              "get",
+              "diameter"
+            ],
+            0
+          ],
+          "deciduous",
+          ""
+        ],
+        "icon-allow-overlap": true,
+        "icon-size": [
+          "interpolate",
+          ["exponential", 1.33],
+          ["zoom"],
+          14,
+          0.05,
+          18,
+          [
+            "+",
+            [
+              "*",
+              [
+                "sqrt",
+                [
+                  "min",
+                  ["get", "diameter"],
+                  125
+                ]
+              ],
+              0.08
+            ],
+            0.15
+          ]
+        ]
+      },
+      "source": "-umdmaps-campus-plant-inventory",
+      "minzoom": 14
+    },
+    "-umdmaps-campus-plant-inventory2": {
+      "id": "-umdmaps-campus-plant-inventory2",
+      "type": "icon",
       "paint": {
         "circle-color": "hsl(120, 100%, 37%)",
         "circle-stroke-color": "hsl(120, 100%, 24%)",
@@ -468,7 +562,7 @@ const MapLayers = {
           {
             name: "Campus Plant Inventory (UMD)",
             id: "-umdmaps-campus-plant-inventory",
-            src: "https://maps.umd.edu/arcgis/rest/services/Layers/CampusPlantInventory/MapServer/0/query?where=1%3D1&outFields=*&f=geojson",
+            src: "https://maps.umd.edu/arcgis/rest/services/Layers/CampusPlantInventory/MapServer/0/query?where=1%3D1&outFields=genus,species,cname1,cname2,diameter&f=geojson",
             visible: false,
             symbol: "nature",
             icon: { style: "background-color: #069800aa" },
@@ -478,7 +572,10 @@ const MapLayers = {
 
                 new mapboxgl.Popup()
                   .setLngLat(e.lngLat)
-                  .setHTML(`<i>${props.genus} ${props.species}</i><br>${props.cname2} ${props.cname1}`)
+                  .setHTML(`
+                  <i>${props.genus} ${props.species}</i>
+                  <br>${props.cname2} ${props.cname1}
+                  <br>Diameter: ${props.diameter}in`)
                   .addTo(map);
               },
               "touchend": (e) => {
@@ -486,7 +583,10 @@ const MapLayers = {
 
                 new mapboxgl.Popup()
                   .setLngLat(e.lngLat)
-                  .setHTML(`<i>${props.genus} ${props.species}</i><br>${props.cname2} ${props.cname1}`)
+                  .setHTML(`
+                  <i>${props.genus} ${props.species}</i>
+                  <br>${props.cname2} ${props.cname1}
+                  <br>Diameter: ${props.diameter}in`)
                   .addTo(map);
               }
             }

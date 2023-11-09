@@ -105,8 +105,8 @@ const UI = {
                     if(layer.id in Layers) {
                         var data = await fetchJson(layer.src);
                         map.addSource(layer.id, {
-                        "type": "geojson",
-                        "data": data
+                            "type": "geojson",
+                            "data": data
                         });
                         map.addLayer(Layers[layer.id]);
                         UI.stopLoading();
@@ -228,22 +228,17 @@ function queryConstructionAt(waypoint, radius=0.03) {
     };
     
     if(map.getSource('user-construction-points') == undefined) {
-        map.addSource('user-construction-points', {
-            "type": "geojson",
-            "data": turf.featureCollection(nodeQuads.map((quad) => {
+        Layers.setOrAddLayer('user-construction-points',
+            turf.featureCollection(nodeQuads.map((quad) => {
                 return turf.point([quad.x, quad.y], {
                     walkable: !GeoData.untraversableNodes.has(quad.data),
                     highlight: quad.data == nodeQuads[0].data
                 })
             }))
-        });
-        map.addSource('user-construction-bounds', {
-            "type": "geojson",
-            "data": turf.circle(waypoint, radius, {units:"kilometers"})
-        });
-    
-        map.addLayer(Layers['user-construction-points']);
-        map.addLayer(Layers['user-construction-bounds']);
+        );
+        Layers.setOrAddLayer('user-construction-bounds',
+            turf.circle(waypoint, radius, {units:"kilometers"})
+        );
         map.addLayer(Layers['user-construction-fill']);
     }
 
@@ -254,6 +249,13 @@ function queryConstructionAt(waypoint, radius=0.03) {
     constructionPanel.removeAttribute("nodisplay");
     navPanel.setAttribute("nodisplay", "");
 
+    var closePanel = () => {
+        buttons[0].onclick = undefined;
+        buttons[1].onclick = undefined;
+        navPanel.removeAttribute("nodisplay");
+        constructionPanel.setAttribute("nodisplay", "");
+    };
+
     buttons = constructionPanel.querySelectorAll(".go-button");
     
     var yesClick = () => {
@@ -262,10 +264,7 @@ function queryConstructionAt(waypoint, radius=0.03) {
         UI.currConstructionNode++;
         rebuildSource(nodeQuads[UI.currConstructionNode].data);
         if(UI.currentConstructionNode >= nodeQuads.length){
-            buttons[0].onclick = undefined;
-            buttons[1].onclick = undefined;
-            navPanel.removeAttribute("nodisplay");
-            constructionPanel.setAttribute("nodisplay", "");
+            closePanel();
         }
     };
     console.log(buttons[0])
@@ -277,13 +276,13 @@ function queryConstructionAt(waypoint, radius=0.03) {
         UI.currConstructionNode++;
         rebuildSource(nodeQuads[UI.currConstructionNode].data);
         if(UI.currentConstructionNode >= nodeQuads.length){
-            buttons[0].onclick = undefined;
-            buttons[1].onclick = undefined;
-            navPanel.removeAttribute("nodisplay");
-            constructionPanel.setAttribute("nodisplay", "");
+            closePanel();
         }
     };
     buttons[1].onclick = noClick;
+
+    var closeButton = document.getElementById('construction-close-button');
+    closeButton.onclick = closePanel;
 }
 
 const SetWaypointOnClick = {

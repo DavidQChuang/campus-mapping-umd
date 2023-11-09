@@ -474,6 +474,15 @@ const GeoData = {
                 node: minQuad.data
             };
         }
+    },
+    loaded: false,
+    onLoadListeners: [],
+    onload(callback) {
+        if(this.loaded) {
+            callback();
+        } else {
+            this.onLoadListeners.push(callback);
+        }
     }
 };
 
@@ -487,7 +496,11 @@ async function fetchJson(path) {
     GeoData.addFootpaths(await fetchJson('./res/footpaths/footpaths.min.json'));
     GeoData.addBuildings(await fetchJson('./res/buildings/buildings.min.json'));
     GeoData.addFields(await fetchJson('./res/fields/fields.min.json'));
-    GeoData.addConstruction(await fetchJson('./res/constructions/construction.min.geojson'));
+    for(callback of GeoData.onLoadListeners) {
+        callback();
+    }
+    GeoData.onLoadListeners = [];
+    GeoData.loaded = true;
     // document.getElementById("loading-info-text").innerHTML = "Loaded.";
     // GeoData.addFootpaths(
     //     await fetch('./res/footpaths/footpaths.min.json').then(response => response.json()));
