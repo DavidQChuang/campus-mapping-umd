@@ -5,9 +5,16 @@ class NavigationControl {
         div.innerHTML = `
         <div class="display-info" id="query-construction-container" nodisplay style="
             padding: 15px;
+            padding-top:20px;
+            padding-bottom:5px;
         ">
-            <span>
-                <a class="close-button" id="construction-close-button">close</span>
+            <span style="
+                position: absolute;
+                right: 2px;
+                top: 2px;
+            ">
+                <a class="close-button" id="construction-close-button">
+                    <span class="material-symbols-rounded">close</span>
                 </a>
             </span>
             <p style="margin:0;text-align: center;">
@@ -19,14 +26,37 @@ class NavigationControl {
                     <td style="
                         text-align: right;
                     ">
-                        <button class="go-button" onclick="drawWaypointRoute(Algorithms.Astar)">
+                        <button class="go-button">
                             <span id="loading-go">Yes</span>
                             <div nodisplay="" id="loading-spin" class="loading-spin"><div></div><div></div><div></div></div>
                         </button>
                     </td>
                     <td>
-                        <button class="go-button" onclick="drawWaypointRoute(Algorithms.Astar)">
+                        <button class="go-button">
                             <span id="loading-go">No</span>
+                            <div nodisplay="" id="loading-spin" class="loading-spin"><div></div><div></div><div></div></div>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="
+                        text-align: right;
+                        padding-top: 5px;
+                    ">
+                        <button class="go-button" style="
+                            width: 100%;
+                        ">
+                            <span id="loading-go">Confirm</span>
+                            <div nodisplay="" id="loading-spin" class="loading-spin"><div></div><div></div><div></div></div>
+                        </button>
+                    </td>
+                    <td style="
+                        padding-top: 5px;
+                    ">
+                        <button class="go-button" style="
+                            width: 100%;
+                        ">
+                            <span id="loading-go">Cancel</span>
                             <div nodisplay="" id="loading-spin" class="loading-spin"><div></div><div></div><div></div></div>
                         </button>
                     </td>

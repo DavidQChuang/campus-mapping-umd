@@ -82,12 +82,14 @@ const UI = {
     },
 
     activeLayerCallbacks: new Set(),
-    async toggleLayer(layerName, button) {
+    async toggleLayer(layerName, toggle) {
         var layer = MapLayers.layers[layerName];
         var checked = false;
-        if (button != undefined) {
-            button.toggleAttribute("checked");
-            checked = button.hasAttribute("checked");
+        if (toggle instanceof HTMLElement) {
+            toggle.toggleAttribute("checked");
+            checked = toggle.hasAttribute("checked");
+        } else {
+            checked = toggle;
         }
 
         if (checked == true) {
@@ -210,37 +212,32 @@ function queryConstructionAt(waypoint, radius=0.03) {
     map.flyTo({center: waypoint, duration:1000, essential:true})
     // find surrounding footpaths within 0.03km
     var nodeQuads = GeoData.getSurroundingFootpaths(waypoint, radius);
+    var untraversableNodes = new Set(
+        nodeQuads.filter(quad => GeoData.untraversableNodes.has(quad.data)).map((quad) => quad.data)
+    );
+    console.log(untraversableNodes)
 
     var rebuildSource = (highlightNode) => {
-        console.log("rebuilding", turf.featureCollection(nodeQuads.map((quad) => {
+        var nodes = nodeQuads.map((quad) => quad.data);
+        var featureData = turf.featureCollection(nodeQuads.map((quad) => {
             return turf.point([quad.x, quad.y], {
-                walkable: !GeoData.untraversableNodes.has(quad.data),
+                walkable: !untraversableNodes.has(quad.data),
                 highlight: quad.data == highlightNode
             })
-        })));
-        map .getSource('user-construction-points')
-            .setData(turf.featureCollection(nodeQuads.map((quad) => {
-                return turf.point([quad.x, quad.y], {
-                    walkable: !GeoData.untraversableNodes.has(quad.data),
-                    highlight: quad.data == highlightNode
-                })
-            })));
+        }));
+
+        Layers.setOrAddLayer('user-construction-points', featureData);
+        Construction.drawPolygon(nodes.filter(x => untraversableNodes.has(x)));
     };
     
-    if(map.getSource('user-construction-points') == undefined) {
-        Layers.setOrAddLayer('user-construction-points',
-            turf.featureCollection(nodeQuads.map((quad) => {
-                return turf.point([quad.x, quad.y], {
-                    walkable: !GeoData.untraversableNodes.has(quad.data),
-                    highlight: quad.data == nodeQuads[0].data
-                })
-            }))
-        );
-        Layers.setOrAddLayer('user-construction-bounds',
-            turf.circle(waypoint, radius, {units:"kilometers"})
-        );
-        map.addLayer(Layers['user-construction-fill']);
-    }
+    rebuildSource(nodeQuads[0].data);
+    Layers.setOrAddLayer('user-construction-bounds',
+        turf.circle(waypoint, radius, {units:"kilometers"})
+    );
+    map.addLayer(Layers['user-construction-fill']);
+    Layers.showLayer('user-construction-points');
+    Layers.showLayer('user-construction-bounds');
+    Layers.showLayer('user-construction-fill');
 
     UI.currConstructionNode = 0;
     rebuildSource(nodeQuads[UI.currConstructionNode].data);
@@ -249,21 +246,36 @@ function queryConstructionAt(waypoint, radius=0.03) {
     constructionPanel.removeAttribute("nodisplay");
     navPanel.setAttribute("nodisplay", "");
 
-    var closePanel = () => {
+    var closePanel = (setUntraversableNodes) => {
         buttons[0].onclick = undefined;
         buttons[1].onclick = undefined;
         navPanel.removeAttribute("nodisplay");
         constructionPanel.setAttribute("nodisplay", "");
+        Layers.hideLayer('user-construction-points');
+        Layers.hideLayer('user-construction-bounds');
+        Layers.hideLayer('user-construction-fill');
+
+        if(setUntraversableNodes) {
+            for(node of untraversableNodes) {
+                GeoData.untraversableNodes.add(node);
+            }
+        }
     };
 
     buttons = constructionPanel.querySelectorAll(".go-button");
+
+    buttons[2].onclick = closePanel;
+    buttons[3].onclick = () => { closePanel();  };
     
     var yesClick = () => {
         var node = nodeQuads[UI.currConstructionNode].data;
-        GeoData.untraversableNodes.add(node);
+        untraversableNodes.add(node);
         UI.currConstructionNode++;
-        rebuildSource(nodeQuads[UI.currConstructionNode].data);
-        if(UI.currentConstructionNode >= nodeQuads.length){
+        console.log(UI.currConstructionNode, nodeQuads.length);
+        if(UI.currConstructionNode < nodeQuads.length){
+            rebuildSource(nodeQuads[UI.currConstructionNode].data);
+        }
+        if(UI.currConstructionNode >= nodeQuads.length){
             closePanel();
         }
     };
@@ -272,10 +284,12 @@ function queryConstructionAt(waypoint, radius=0.03) {
 
     var noClick = () => {
         var node = nodeQuads[UI.currConstructionNode].data;
-        GeoData.untraversableNodes.delete(node);
+        untraversableNodes.delete(node);
         UI.currConstructionNode++;
-        rebuildSource(nodeQuads[UI.currConstructionNode].data);
-        if(UI.currentConstructionNode >= nodeQuads.length){
+        if(UI.currConstructionNode < nodeQuads.length){
+            rebuildSource(nodeQuads[UI.currConstructionNode].data);
+        }
+        if(UI.currConstructionNode >= nodeQuads.length){
             closePanel();
         }
     };
@@ -398,3 +412,7 @@ async function drawWaypointRoute(algorithm) {
         }, 5000);
     }
 }
+
+map.on('load', async () => {
+    UI.toggleLayer('-umdmaps-construction', true)
+});

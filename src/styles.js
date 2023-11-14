@@ -208,40 +208,50 @@ const Layers = {
           "case",
           [
             ">",
-            [
-              "get",
-              "diameter"
-            ],
+            ["get", "diameter"],
             0
           ],
           "deciduous",
+          [
+            "match",
+            ["get", "genus"],
+            [
+              "Malus",
+              "Prunus",
+              "Magnolia",
+              "Koelreuteria"
+            ],
+            true,
+            false
+          ],
+          "flower-tree",
           ""
         ],
         "icon-allow-overlap": true,
-        "icon-size": [
-          "interpolate",
-          ["exponential", 1.33],
-          ["zoom"],
-          14,
-          0.05,
-          18,
-          [
-            "+",
+          "icon-size": [
+            "interpolate",
+            ["exponential", 1.33],
+            ["zoom"],
+            14,
+            0.05,
+            18,
             [
-              "*",
+              "+",
               [
-                "sqrt",
+                "*",
                 [
-                  "min",
-                  ["get", "diameter"],
-                  125
-                ]
+                  "sqrt",
+                  [
+                    "min",
+                    ["get", "diameter"],
+                    125
+                  ]
+                ],
+                0.08
               ],
-              0.08
-            ],
-            0.15
+              0.15
+            ]
           ]
-        ]
       },
       "source": "-umdmaps-campus-plant-inventory",
       "minzoom": 14
@@ -532,6 +542,31 @@ const MapLayers = {
             img: {
               src: "res/construction-orange.svg",
               width: 72
+            },
+            callbacks: {
+              "click": (e) => {
+                console.log(props)
+                var props = e.features[0].properties;
+                new mapboxgl.Popup()
+                  .setLngLat(e.lngLat)
+                  .setHTML(`
+                  <div style='line-height:0.8rem'><b>${props.PROJECT_NAME}</b><br></div>
+                  <b>Project Manager: ${props.PROJECT_MANAGER ?? "n/a"}</b><br>
+                  <hr>
+                  Construction Start: ${props.CONST_START}</b><br>
+                  Substantial Completion: ${props.SUBST_COMPLETION}</b><br>
+                  ${props.ACTIVE == undefined ? '': `Active: ${props.ACTIVE}<br>`}
+                  <div style='line-height:0.8rem'>Department: ${props.DEPTANDTYPE}</div>
+                  <br>
+                  <i>Updated ${new Date(props.last_edited_date).toDateString()} by ${props.last_edited_user}</i>`)
+                  .addTo(map);
+              },
+              'mouseenter': () => {
+                map.getCanvas().style.cursor = 'pointer';
+              },
+              'mouseleave': () => {
+                map.getCanvas().style.cursor = '';
+              }
             }
           },
           {
@@ -588,6 +623,12 @@ const MapLayers = {
                   <br>${props.cname2} ${props.cname1}
                   <br>Diameter: ${props.diameter}in`)
                   .addTo(map);
+              },
+              'mouseenter': () => {
+                map.getCanvas().style.cursor = 'pointer';
+              },
+              'mouseleave': () => {
+                map.getCanvas().style.cursor = '';
               }
             }
           },

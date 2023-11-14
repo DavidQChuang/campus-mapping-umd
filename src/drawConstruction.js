@@ -7,6 +7,8 @@ const Construction = {
     throw new Error("not implemented")
   },
   drawPolygon(nodes) {
+    if(nodes.length == 0) return;
+
     var coords = nodes.map(id => {
       var node = GeoData.nodes[id];
       GeoData.untraversableNodes.add(id);
@@ -54,7 +56,4 @@ map.on('load', async () => {
   GeoData.onload(() => {
     GeoData.addConstruction(constructionPolys);
   });
-
-  var umdConstruction = await fetchJson('https://maps.umd.edu/arcgis/rest/services/Layers/CampusReference/MapServer/4/query?where=1%3D1&outFields=*&f=geojson')
-  Layers.setOrAddLayer('-umdmaps-construction', umdConstruction);
 });
