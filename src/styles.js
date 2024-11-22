@@ -537,7 +537,7 @@ const MapLayers = {
           {
             name: "Current Major Construction (UMD)",
             id: "-umdmaps-construction",
-            src: "https://maps.umd.edu/arcgis/rest/services/Layers/CampusReference/MapServer/4/query?where=1%3D1&outFields=*&f=geojson",
+            src: "https://services9.arcgis.com/1rOwFRpAwrxe0rBl/arcgis/rest/services/Layers/CampusReference/MapServer/4/query?where=1%3D1&outFields=*&f=geojson",
             visible: true,
             img: {
               src: "res/construction-orange.svg",
@@ -597,7 +597,7 @@ const MapLayers = {
           {
             name: "Campus Plant Inventory (UMD)",
             id: "-umdmaps-campus-plant-inventory",
-            src: "https://maps.umd.edu/arcgis/rest/services/Layers/CampusPlantInventory/MapServer/0/query?where=1%3D1&outFields=genus,species,cname1,cname2,diameter&f=geojson",
+            src: "https://services9.arcgis.com/1rOwFRpAwrxe0rBl/arcgis/rest/services/Layers/CampusPlantInventory/MapServer/0/query?where=1%3D1&outFields=genus,species,cname1,cname2,diameter&f=geojson",
             visible: false,
             symbol: "nature",
             icon: { style: "background-color: #069800aa" },
@@ -635,7 +635,7 @@ const MapLayers = {
           {
             name: "Gardens (UMD)",
             id: "-umdmaps-gardens",
-            src: "https://maps.umd.edu/arcgis/rest/services/Layers/CampusGardens/MapServer/1/query?where=1%3D1&outFields=*&f=geojson",
+            src: "https://services9.arcgis.com/1rOwFRpAwrxe0rBl/arcgis/rest/services/Layers/CampusGardens/MapServer/1/query?where=1%3D1&outFields=*&f=geojson",
             visible: false,
             symbol: "local_florist",
             icon: { style: "background-color: #839800aa" }
